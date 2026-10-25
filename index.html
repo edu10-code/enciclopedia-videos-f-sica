@@ -791,19 +791,58 @@
             renderStudentVideosAndQuizzes(chapterMeta, chapterQuestionsData);
         }
 
+        // ---------- VIDEOS EN CLOUDINARY ----------
+        const CLOUDINARY_BASE = "https://res.cloudinary.com/yxkgsvkl/video/upload/";
+
+        // Convierte "Copia de 01-02 Suma de vectores (paralelogramo).mp4" en las URL posibles de Cloudinary
+        // (Cloudinary cambia los espacios por "_" y quita los paréntesis). Se prueba con y sin tildes.
+        function cloudinaryUrls(nombreArchivo) {
+            const limpio = nombreArchivo
+                .replace(/\.mp4$/i, '')
+                .replace(/[()]/g, '')
+                .trim()
+                .replace(/\s+/g, '_');
+            const sinTildes = limpio.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            return [limpio, sinTildes].map(n => CLOUDINARY_BASE + encodeURIComponent(n) + '.mp4');
+        }
+
+        function codigoVideo(texto) {
+            const m = (texto || '').match(/\d{2}-\d{2}/);
+            return m ? m[0] : '';
+        }
+
         function renderStudentVideosAndQuizzes(chapterMeta, chapterQuestionsData) {
             const container = document.getElementById('workspace-videos-container');
             container.innerHTML = '';
             activeQuestionsRendered = [];
 
-            const listaVideos = chapterQuestionsData.videos || [];
-            
+            // Lista completa de videos (videos.js) unida con sus preguntas (pregunta.js)
+            const preguntasLista = chapterQuestionsData.videos || [];
+            const catalogoVideos = (typeof videosPorCapitulo !== 'undefined' && videosPorCapitulo[classroomConfig.chapterId])
+                ? videosPorCapitulo[classroomConfig.chapterId] : [];
+
+            let listaVideos;
+            if (catalogoVideos.length > 0) {
+                listaVideos = catalogoVideos.map(v => {
+                    const nombre = v.archivo.replace(/\.mp4$/i, '');          // "Copia de 01-02 Suma de ..."
+                    const codigo = codigoVideo(nombre);
+                    const q = preguntasLista.find(p => codigoVideo(p.titulo) === codigo) || {};
+                    return {
+                        titulo: q.titulo || nombre.replace(/^Copia de /, ''),
+                        tema: q.tema || v.tema,
+                        objetivoVideo: q.objetivoVideo || v.objetivo,
+                        preguntas: q.preguntas || [],
+                        nombresArchivo: [nombre, q.titulo ? ('Copia de ' + q.titulo) : null]
+                    };
+                });
+            } else {
+                listaVideos = preguntasLista.map(q => ({ ...q, nombresArchivo: ['Copia de ' + q.titulo] }));
+            }
+
             if (listaVideos.length === 0) {
                 container.innerHTML = `<div class="video-card" style="text-align:center; color:var::text-muted);">No se encontraron videos disponibles para este capítulo.</div>`;
                 return;
             }
-
-            const folderName = chapterMeta.folder || `CAPITULO ${chapterMeta.id}`;
 
             listaVideos.forEach((videoItem, vIndex) => {
                 const preguntas = videoItem.preguntas || [];
@@ -846,13 +885,12 @@
                     `;
                 }
 
-                // Rutas inteligentes incorporando el prefijo "Copia de " exacto visto en tu carpeta
-                const videoTitle = videoItem.titulo; // Ej: "01-01 Unidades básicas"
-                const videoId = videoItem.id; // Ej: "01-01"
-
-                const pathConPrefijo = `${folderName}/Copia de ${videoTitle}.mp4`;
-                const pathDirecto = `${folderName}/${videoTitle}.mp4`;
-                const pathSoloId = `${folderName}/Copia de ${videoId}.mp4`;
+                // Enlaces de Cloudinary (el navegador prueba uno por uno hasta que alguno cargue)
+                const urls = [];
+                videoItem.nombresArchivo.filter(Boolean).forEach(n => {
+                    cloudinaryUrls(n).forEach(u => { if (!urls.includes(u)) urls.push(u); });
+                });
+                const sourcesHtml = urls.map(u => `<source src="${u}" type="video/mp4">`).join('\n                                ');
 
                 container.innerHTML += `
                     <div class="video-card">
@@ -861,9 +899,7 @@
                         
                         <div class="video-responsive">
                             <video controls preload="metadata">
-                                <source src="${pathConPrefijo}" type="video/mp4">
-                                <source src="${pathDirecto}" type="video/mp4">
-                                <source src="${pathSoloId}" type="video/mp4">
+                                ${sourcesHtml}
                                 Tu navegador no soporta la reproducción de este video.
                             </video>
                         </div>
