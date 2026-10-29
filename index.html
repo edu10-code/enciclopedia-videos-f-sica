@@ -176,7 +176,7 @@
         .form-card {
             background: var(--panel-bg); border: 1.5px solid var(--border-soft);
             border-radius: 16px; padding: 2.2rem; box-shadow: var(--shadow-md);
-            max-width: 800px; margin: 0 auto 2rem auto;
+            max-width: 850px; margin: 0 auto 2rem auto;
         }
 
         .form-card h3 {
@@ -190,9 +190,9 @@
 
         .form-field label { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--text-main); }
         .form-field label .req { color: var(--error); }
-        .form-field input, .form-field select {
+        .form-field input, .form-field select, .form-field textarea {
             padding: 0.8rem 0.95rem; border: 1.5px solid var(--border-strong);
-            border-radius: 8px; font-size: 0.95rem; background: #fff;
+            border-radius: 8px; font-size: 0.95rem; background: #fff; font-family: inherit;
         }
 
         .btn-action-student {
@@ -239,7 +239,7 @@
         .stat-card-body { font-size: 0.92rem; font-weight: 600; color: var(--text-main); }
 
         .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-        .dashboard-table-container { background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--border-soft); overflow-x: auto; }
+        .dashboard-table-container { background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--border-soft); overflow-x: auto; margin-bottom: 2rem; }
         
         table.dashboard-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
         table.dashboard-table th { background: linear-gradient(135deg, #1e3a8a, #1e40af); color: #ffffff; padding: 0.9rem 1rem; font-size: 0.8rem; text-transform: uppercase; }
@@ -258,17 +258,6 @@
         .metric-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
         .metric-value { font-size: 1.8rem; font-weight: 800; color: #059669; font-family: Georgia, serif; }
 
-        .rating-box-container {
-            background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px;
-            padding: 1.2rem; margin-top: 1rem; text-align: center; display: none;
-        }
-        .rating-stars {
-            display: flex; justify-content: center; gap: 5px; font-size: 1.6rem; cursor: pointer; margin: 0.5rem 0;
-            color: #cbd5e1; user-select: none;
-        }
-        .rating-stars span { transition: color 0.2s; position: relative; }
-        .rating-stars span.filled { color: #f59e0b; }
-
         .chapter-header-box {
             background: #ffffff; border-radius: 16px; padding: 1.6rem 2rem;
             border: 1.5px solid var(--border-soft); border-left: 6px solid #059669; margin-bottom: 1.5rem;
@@ -280,7 +269,6 @@
             box-shadow: var(--shadow-sm);
         }
         .chapter-header-content h3 { margin: 0 0 0.3rem 0; font-family: Georgia, serif; font-size: 1.5rem; color: var(--text-main); }
-        .chapter-header-sub { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; font-weight: 500; }
         
         .lab-info-card {
             background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px;
@@ -328,17 +316,38 @@
         .quiz-option-label:hover { background: #fef3c7; }
         .quiz-option-label input { margin-top: 3px; cursor: pointer; }
 
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center;
-            backdrop-filter: blur(3px);
+        /* Estilos de configuración de preguntas para el docente */
+        .teacher-config-video-card {
+            background: #f8fafc; border: 1.5px solid var(--border-strong); border-radius: 14px;
+            padding: 1.5rem; margin-bottom: 1.5rem;
         }
-        .modal-content {
-            background: #ffffff; border-radius: 16px; width: 90%; max-width: 650px;
-            max-height: 85vh; overflow-y: auto; padding: 2rem; box-shadow: var(--shadow-lg);
+        .teacher-suggested-q {
+            background: #ffffff; border: 1px solid var(--border-soft); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--panel-alt); padding-bottom: 0.8rem; margin-bottom: 1.2rem; }
-        .modal-close-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
+        .custom-q-builder {
+            background: #f0fdf4; border: 1px dashed #86efac; padding: 1rem; border-radius: 8px; margin-top: 1rem;
+        }
+
+        /* Sección de evaluación de página y comentarios */
+        .page-eval-card {
+            background: #ffffff; border: 2px solid #059669; border-radius: 16px; padding: 2rem; margin-top: 2rem; box-shadow: var(--shadow-md);
+        }
+        .comment-box-list {
+            background: #ffffff; border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;
+        }
+        .comment-item {
+            padding: 0.8rem 0; border-bottom: 1px solid var(--border-soft); font-size: 0.9rem;
+        }
+        .comment-item:last-child { border-bottom: none; }
+
+        /* Estilos de Impresión */
+        @media print {
+            header, .btn-secondary, .btn-action-teacher, .btn-action-student, .sidebar-metrics-card, #view-role-selection { display: none !important; }
+            body { background: #fff; color: #000; }
+            .container { max-width: 100% !important; margin: 0; padding: 0; }
+            .dashboard-table-container { border: none; box-shadow: none; }
+            table.dashboard-table th { background: #1e3a8a !important; color: #fff !important; -webkit-print-color-adjust: exact; }
+        }
     </style>
 
     <!-- LIBRERÍAS DE FIREBASE -->
@@ -364,7 +373,7 @@
 
     <div class="container">
 
-        <!-- PORTADA PRINCIPAL -->
+        <!-- 1. PORTADA PRINCIPAL -->
         <div id="view-role-selection" class="view active">
             <div class="role-selection-box">
                 <h3>Bienvenido a la Enciclopedia. Seleccione su rol:</h3>
@@ -401,11 +410,11 @@
             </div>
         </div>
 
-        <!-- REGISTRO DE CLASE (DOCENTE) -->
+        <!-- 2. REGISTRO DE CLASE (DOCENTE) -->
         <div id="view-teacher-register" class="view">
             <div class="form-card">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 1rem;">← Volver</button>
-                <h3>Registro de Clase</h3>
+                <h3>Registro de Clase y Selección de Capítulo</h3>
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Nombre del Docente <span class="req">*</span></label>
@@ -425,11 +434,21 @@
                         <div class="chapters-selection-list" id="chapters-cards-container"></div>
                     </div>
                 </div>
-                <button class="btn-action-teacher" onclick="createClass()">CREAR AULA VIRTUAL ➔</button>
+                <button class="btn-action-teacher" onclick="goToTeacherConfig()">CONTINUAR A CONFIGURACIÓN DE PREGUNTAS ➔</button>
             </div>
         </div>
 
-        <!-- PANEL DEL DOCENTE -->
+        <!-- 3. INTERFAZ DE CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
+        <div id="view-teacher-config" class="view">
+            <div class="form-card" style="max-width: 950px;">
+                <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 1rem;">← Cambiar Capítulo</button>
+                <div id="teacher-config-header-info"></div>
+                <div id="teacher-config-videos-container" style="margin-top: 1.5rem;"></div>
+                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">CREAR E INICIAR LA CLASE ➔</button>
+            </div>
+        </div>
+
+        <!-- 4. PANEL DEL DOCENTE Y ESTADÍSTICAS -->
         <div id="view-teacher-dashboard" class="view">
             <div class="alert-banner-docente" id="docente-info-banner"></div>
             
@@ -439,14 +458,26 @@
                     <div class="stat-card-body" id="stat-most-correct">Calculando datos...</div>
                 </div>
                 <div class="stat-card danger">
-                    <div class="stat-card-title">⚠️ Pregunta con mayor dificultad (menos acertada)</div>
+                    <div class="stat-card-title">⚠️ Pregunta con mayor dificultad</div>
                     <div class="stat-card-body" id="stat-least-correct">Calculando datos...</div>
                 </div>
             </div>
 
+            <!-- Resumen de Evaluaciones de la Página -->
+            <div class="teacher-stats-grid" style="margin-bottom: 1.5rem;">
+                <div class="stat-card" style="border-left-color: #f59e0b;">
+                    <div class="stat-card-title">📊 Evaluaciones de la Página (Promedios)</div>
+                    <div class="stat-card-body" id="stat-page-ratings">Calculando calificaciones...</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #059669;">
+                    <div class="stat-card-title">💬 Comentarios y Sugerencias de Alumnos</div>
+                    <div class="stat-card-body" id="stat-comments-count">0 comentarios registrados</div>
+                </div>
+            </div>
+
             <div class="dashboard-header">
-                <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif;">Panel del Docente - Registro y Calificación de Alumnos</h3>
-                <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir Reporte</button>
+                <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif;">Registro y Calificación de Alumnos</h3>
+                <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir Reporte / Guardar PDF</button>
             </div>
 
             <div class="dashboard-table-container">
@@ -459,17 +490,24 @@
                             <th>Grupo</th>
                             <th>Nota Final (0-20)</th>
                             <th>Aciertos / Errores</th>
-                            <th>Calificación Página</th>
-                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="students-table-body"></tbody>
                 </table>
             </div>
-            <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-top: 1.5rem;">Cerrar Sesión Docente</button>
+
+            <!-- Listado Completo de Comentarios -->
+            <div class="comment-box-list">
+                <h4 style="margin:0 0 1rem 0; color:var(--text-main); font-family:Georgia, serif;">Comentarios y Sugerencias Recibidas de los Alumnos</h4>
+                <div id="teacher-comments-container">
+                    <p style="color:var(--text-muted); font-size:0.9rem;">Aún no hay comentarios registrados.</p>
+                </div>
+            </div>
+
+            <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-top: 2rem;">Cerrar Sesión Docente</button>
         </div>
 
-        <!-- ACCESO DEL ESTUDIANTE -->
+        <!-- 5. ACCESO DEL ESTUDIANTE -->
         <div id="view-student-access" class="view">
             <div class="form-card">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 1rem;">← Volver</button>
@@ -482,8 +520,8 @@
                         <input type="text" id="s-name" placeholder="Quispe Mendoza, Carlos Alberto">
                     </div>
                     <div class="form-field">
-                        <label>Código de Matrícula (8 dígitos) <span class="req">*</span></label>
-                        <input type="text" id="s-code" maxlength="8" placeholder="20130026">
+                        <label>Código de Matrícula <span class="req">*</span></label>
+                        <input type="text" id="s-code" placeholder="20130026">
                     </div>
                     <div class="form-field">
                         <label>Grupo / Sección <span class="req">*</span></label>
@@ -508,7 +546,7 @@
             </div>
         </div>
 
-        <!-- ENTORNO DEL ESTUDIANTE -->
+        <!-- 6. ENTORNO DE TRABAJO DEL ESTUDIANTE -->
         <div id="view-student-workspace" class="view">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.5rem;">
                 <button class="btn-secondary" onclick="switchView('view-student-access')">← Salir de la Clase</button>
@@ -517,42 +555,74 @@
             
             <div class="workspace-layout">
                 <div>
-                    <!-- Banner superior del capítulo -->
                     <div id="workspace-chapter-banner"></div>
-                    <!-- Lista interactiva de videos y cuestionarios -->
                     <div id="workspace-videos-container"></div>
+
+                    <!-- Evaluación de la Página y Comentarios -->
+                    <div class="page-eval-card">
+                        <h3 style="margin-top:0; color:#065f46; font-family:Georgia, serif;">Evaluación de la Página Web</h3>
+                        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.2rem;">Por favor, califique los siguientes aspectos de 1 a 5 antes de enviar sus respuestas:</p>
+                        
+                        <div class="form-field" style="margin-bottom: 1rem;">
+                            <label>1. ¿Qué tan útil y clara fue la interfaz para su aprendizaje?</label>
+                            <select id="eval-q1">
+                                <option value="5">5 - Excelente / Muy útil</option>
+                                <option value="4">4 - Buena</option>
+                                <option value="3" selected>3 - Regular</option>
+                                <option value="2">2 - Poco útil</option>
+                                <option value="1">1 - Deficiente</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field" style="margin-bottom: 1rem;">
+                            <label>2. ¿Cómo califica la calidad y nitidez de los videos demostrativos?</label>
+                            <select id="eval-q2">
+                                <option value="5">5 - Excelente calidad</option>
+                                <option value="4">4 - Buena</option>
+                                <option value="3" selected>3 - Aceptable</option>
+                                <option value="2">2 - Baja calidad</option>
+                                <option value="1">1 - Mala</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field" style="margin-bottom: 1rem;">
+                            <label>3. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación?</label>
+                            <select id="eval-q3">
+                                <option value="5">5 - Muy didácticos</option>
+                                <option value="4">4 - Buenos</option>
+                                <option value="3" selected>3 - Regulares</option>
+                                <option value="2">2</option>
+                                <option value="1">1</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Comentarios y sugerencias para mejorar la página:</label>
+                            <textarea id="eval-comment" rows="3" placeholder="Escriba aquí sus sugerencias..."></textarea>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Barra lateral de evaluación y estrellas -->
                 <div class="sidebar-metrics-card">
                     <div class="metric-item">
-                        <span class="metric-label">Nota Individual Obtenida</span>
-                        <div class="metric-value" id="side-current-score">- / 20</div>
+                        <span class="metric-label">Estado de Evaluación</span>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-top: 5px;" id="sidebar-status-text">Pendiente de envío</div>
                     </div>
-                    <button class="btn-action-student" onclick="submitStudentQuiz()" style="margin-top:0.5rem; width:100%;">EVALUAR Y GUARDAR RESPUESTAS</button>
-                    
-                    <div id="rating-container" class="rating-box-container">
-                        <label style="font-size: 0.8rem; font-weight: 700; color: #065f46;">¿QUÉ TE PARECIÓ LA PÁGINA?</label>
-                        <div class="rating-stars" id="star-rating-stars" onclick="handleStarClick(event)" onmousemove="handleStarMove(event)" onmouseleave="resetStarHover()">
-                            <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span><span data-val="6">★</span>
-                        </div>
-                        <div id="rating-text-val" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 4px;">Sin calificar</div>
-                    </div>
+                    <button class="btn-action-student" onclick="submitStudentQuiz()" style="margin-top:0.5rem; width:100%;">EVALUAR Y VER RESULTADOS</button>
                 </div>
             </div>
         </div>
 
-    </div>
-
-    <!-- MODAL PARA VER DETALLE DE RESPUESTAS DEL ALUMNO (DOCENTE) -->
-    <div id="student-detail-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-student-title" style="margin:0; font-family:Georgia, serif; color:var(--text-main);">Detalle de Evaluación</h3>
-                <button class="modal-close-btn" onclick="closeStudentModal()">✕</button>
+        <!-- 7. INTERFAZ DE RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
+        <div id="view-student-feedback" class="view">
+            <div class="form-card" style="max-width: 900px;">
+                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 1rem;">← Salir al Inicio</button>
+                <div id="feedback-header-box" style="text-align: center; margin-bottom: 2rem; padding: 1.5rem; background: #f0fdf4; border-radius: 14px; border: 1.5px solid #86efac;"></div>
+                <div id="feedback-details-container"></div>
+                <button class="btn-action-student" onclick="switchView('view-role-selection')" style="margin-top: 2rem;">FINALIZAR Y SALIR</button>
             </div>
-            <div id="modal-student-body"></div>
         </div>
+
     </div>
 
     <!-- CARGA DE ARCHIVOS JS EXTERNOS EN LA MISMA CARPETA -->
@@ -560,15 +630,15 @@
     <script src="pregunta.js"></script>
 
     <script>
-        // Configuración de Firebase Realtime Database (proyecto nuevo: cuestionario-fisica)
+        // Configuración de Firebase Realtime Database
         const firebaseConfig = {
-            apiKey: "AIzaSyApqBY-578PAqvxUhgjq_Q5VXbvOAKb7Is",
-            authDomain: "cuestionario-fisica.firebaseapp.com",
-            databaseURL: "https://cuestionario-fisica-default-rtdb.firebaseio.com",
-            projectId: "cuestionario-fisica",
-            storageBucket: "cuestionario-fisica.firebasestorage.app",
-            messagingSenderId: "71766642331",
-            appId: "1:71766642331:web:6436ce94084449b840003e"
+            apiKey: "AIzaSyDGh2mQiNkVyv5E15v7LqK8bQ39c5mZ8v4",
+            authDomain: "enciclopediafisica-7793b.firebaseapp.com",
+            databaseURL: "https://enciclopediafisica-7793b-default-rtdb.firebaseio.com",
+            projectId: "enciclopediafisica-7793b",
+            storageBucket: "enciclopediafisica-7793b.appspot.com",
+            messagingSenderId: "658717387773",
+            appId: "1:658717387773:web:3f16395e3ac000c8e28794"
         };
 
         if (!firebase.apps.length) {
@@ -578,10 +648,10 @@
 
         let currentStudent = null;
         let classroomConfig = null;
-        let studentRatingScore = 0;
         let selectedChapterId = 1;
         let cachedStudentsData = {};
         let activeQuestionsRendered = [];
+        let teacherCustomQuestionsState = {}; // Almacena las preguntas configuradas por el docente
 
         window.onload = function() {
             renderChapterSelectionCards();
@@ -632,27 +702,135 @@
             renderChapterSelectionCards();
         }
 
-        function createClass() {
+        // Paso del Docente: Ir a la configuración de preguntas del capítulo seleccionado
+        function goToTeacherConfig() {
             const tTeacher = document.getElementById('t-teachername').value.trim();
             const tName = document.getElementById('t-classname').value.trim();
             const tPass = document.getElementById('t-pass').value.trim();
 
             if (!tTeacher || !tName || !tPass) {
-                alert("Por favor complete todos los campos obligatorios.");
+                alert("Por favor complete todos los campos obligatorios del docente y de la clase.");
                 return;
             }
 
-            const classData = {
-                teacher: tTeacher,
-                pass: tPass,
-                chapterId: selectedChapterId
+            classroomConfig = { teacher: tTeacher, name: tName, pass: tPass, chapterId: selectedChapterId };
+            
+            const catalog = (typeof capitulosCatalog !== 'undefined') ? capitulosCatalog : [];
+            const chapterMeta = catalog.find(c => c.id == selectedChapterId) || { title: 'Capítulo ' + selectedChapterId };
+            const banco = (typeof bancoPreguntas !== 'undefined') ? bancoPreguntas : {};
+            const chapterData = banco[selectedChapterId] || {};
+
+            document.getElementById('teacher-config-header-info').innerHTML = `
+                <h3 style="margin-top:0; font-family:Georgia, serif; color:var(--text-main);">${chapterMeta.title} - Configuración de Preguntas</h3>
+                <p style="font-size:0.9rem; color:var(--text-muted);">A continuación puede revisar las preguntas sugeridas de cada video o proponer hasta dos preguntas nuevas (con sus alternativas y respuesta correcta) para reemplazar o complementar el cuestionario.</p>
+            `;
+
+            const container = document.getElementById('teacher-config-videos-container');
+            container.innerHTML = '';
+            teacherCustomQuestionsState = {};
+
+            const listaVideos = chapterData.videos || [];
+            listaVideos.forEach((vItem, vIdx) => {
+                teacherCustomQuestionsState[vIdx] = [];
+                let suggestedHtml = '';
+                
+                if (vItem.preguntas && vItem.preguntas.length > 0) {
+                    vItem.preguntas.forEach((p, pIdx) => {
+                        suggestedHtml += `
+                            <div class="teacher-suggested-q">
+                                <strong>Pregunta sugerida ${pIdx + 1}:</strong> ${p.pregunta}<br>
+                                <span style="color:#059669; font-weight:600;">Respuesta Correcta:</span> ${p.opciones[p.correcta]}<br>
+                                <span style="color:var(--text-muted); font-size:0.82rem;">Explicación: ${p.explicacion || 'No especificada.'}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    suggestedHtml = `<p style="color:var(--text-muted); font-size:0.85rem;">No hay preguntas sugeridas registradas para este video.</p>`;
+                }
+
+                container.innerHTML += `
+                    <div class="teacher-config-video-card">
+                        <div style="font-weight:800; font-size:1.05rem; color:var(--text-main); margin-bottom:0.2rem;">${vItem.titulo}</div>
+                        <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Tema: ${vItem.tema}</div>
+                        
+                        <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--accent-teacher); margin-bottom:0.5rem;">Preguntas Base Sugeridas:</div>
+                        ${suggestedHtml}
+
+                        <div class="custom-q-builder">
+                            <div style="font-size:0.85rem; font-weight:800; color:#065f46; margin-bottom:0.5rem;">✏️ Propuesta de Pregunta Personalizada (Opcional - Reemplaza o añade)</div>
+                            <div class="form-field" style="margin-bottom:0.6rem;">
+                                <label style="font-size:0.75rem;">Enunciado de la Pregunta Nueva:</label>
+                                <input type="text" id="t_q_text_${vIdx}" placeholder="Ej: ¿Qué factor influye directamente en...">
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.6rem;">
+                                <input type="text" id="t_q_${vIdx}_opt0" placeholder="Alternativa A" style="font-size:0.85rem; padding:0.5rem;">
+                                <input type="text" id="t_q_${vIdx}_opt1" placeholder="Alternativa B" style="font-size:0.85rem; padding:0.5rem;">
+                                <input type="text" id="t_q_${vIdx}_opt2" placeholder="Alternativa C" style="font-size:0.85rem; padding:0.5rem;">
+                                <input type="text" id="t_q_${vIdx}_opt3" placeholder="Alternativa D" style="font-size:0.85rem; padding:0.5rem;">
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                                <div class="form-field">
+                                    <label style="font-size:0.75rem;">Índice de Respuesta Correcta (0 al 3):</label>
+                                    <select id="t_q_corr_${vIdx}" style="padding:0.5rem; font-size:0.85rem;">
+                                        <option value="0">Alternativa A</option>
+                                        <option value="1">Alternativa B</option>
+                                        <option value="2">Alternativa C</option>
+                                        <option value="3">Alternativa D</option>
+                                    </select>
+                                </div>
+                                <div class="form-field">
+                                    <label style="font-size:0.75rem;">Explicación breve:</label>
+                                    <input type="text" id="t_q_exp_${vIdx}" placeholder="Por qué es correcta..." style="font-size:0.85rem; padding:0.5rem;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            switchView('view-teacher-config');
+        }
+
+        // Guardar configuración del docente en Firebase e iniciar la clase
+        function saveTeacherConfiguration() {
+            const banco = (typeof bancoPreguntas !== 'undefined') ? bancoPreguntas : {};
+            const chapterData = JSON.parse(JSON.stringify(banco[classroomConfig.chapterId] || { videos: [] }));
+
+            // Recolectar preguntas personalizadas si el docente llenó campos
+            chapterData.videos.forEach((vItem, vIdx) => {
+                const qText = document.getElementById(`t_q_text_${vIdx}`).value.trim();
+                if (qText) {
+                    const opt0 = document.getElementById(`t_q_${vIdx}_opt0`).value.trim();
+                    const opt1 = document.getElementById(`t_q_${vIdx}_opt1`).value.trim();
+                    const opt2 = document.getElementById(`t_q_${vIdx}_opt2`).value.trim();
+                    const opt3 = document.getElementById(`t_q_${vIdx}_opt3`).value.trim();
+                    const corr = parseInt(document.getElementById(`t_q_corr_${vIdx}`).value);
+                    const exp = document.getElementById(`t_q_exp_${vIdx}`).value.trim();
+
+                    if (opt0 && opt1) {
+                        const customQ = {
+                            pregunta: qText,
+                            opciones: [opt0, opt1, opt2 || "N/A", opt3 || "N/A"].filter(Boolean),
+                            correcta: corr,
+                            explicacion: exp || "Pregunta propuesta por el docente de la clase."
+                        };
+                        // Reemplazamos la primera pregunta sugerida con la personalizada del docente
+                        vItem.preguntas[0] = customQ;
+                    }
+                }
+            });
+
+            const classPayload = {
+                teacher: classroomConfig.teacher,
+                pass: classroomConfig.pass,
+                chapterId: classroomConfig.chapterId,
+                customQuestions: chapterData.videos
             };
 
-            db.ref('classes/' + tName).set(classData).then(() => {
-                classroomConfig = { name: tName, ...classData };
+            db.ref('classes/' + classroomConfig.name).set(classPayload).then(() => {
                 initTeacherDashboard();
             }).catch(err => {
-                alert("Error al conectar con Firebase: " + err.message);
+                alert("Error al guardar en Firebase: " + err.message);
             });
         }
 
@@ -673,6 +851,7 @@
                 cachedStudentsData = data;
                 renderTeacherTable(data);
                 computeGlobalStats(data);
+                renderTeacherComments(data);
             });
         }
 
@@ -684,12 +863,11 @@
             list.sort((a, b) => (b.score || 0) - (a.score || 0));
 
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:2rem;">Aún no hay alumnos registrados en esta aula.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:2rem;">Aún no hay alumnos registrados en esta aula.</td></tr>`;
                 return;
             }
 
             list.forEach((st, idx) => {
-                const starRating = st.rating ? '★'.repeat(st.rating) + '☆'.repeat(6 - st.rating) + ` (${st.rating}/6)` : 'Sin calificar';
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>#${idx + 1}</strong></td>
@@ -698,8 +876,6 @@
                         <td>Grupo ${st.group}</td>
                         <td><strong>${st.score !== undefined ? st.score : '-'}/20</strong></td>
                         <td><span style="color:#059669; font-weight:700;">${st.correctCount || 0} Aciertos</span> / <span style="color:#ef4444; font-weight:700;">${st.incorrectCount || 0} Errores</span></td>
-                        <td><span style="color:#f59e0b; font-weight:600;">${starRating}</span></td>
-                        <td><button class="btn-secondary" onclick="openStudentModal('${st.key}')">Ver Detalle</button></td>
                     </tr>
                 `;
             });
@@ -707,7 +883,15 @@
 
         function computeGlobalStats(studentsObj) {
             const qStats = {};
+            let sumQ1 = 0, sumQ2 = 0, sumQ3 = 0, countEval = 0;
+
             Object.values(studentsObj).forEach(st => {
+                if (st.evalPage) {
+                    sumQ1 += parseInt(st.evalPage.q1 || 3);
+                    sumQ2 += parseInt(st.evalPage.q2 || 3);
+                    sumQ3 += parseInt(st.evalPage.q3 || 3);
+                    countEval++;
+                }
                 if (st.details && Array.isArray(st.details)) {
                     st.details.forEach((d, qIndex) => {
                         if (!qStats[qIndex]) qStats[qIndex] = { correct: 0, total: 0, text: d.questionText || `Pregunta ${qIndex + 1}` };
@@ -728,10 +912,43 @@
                 if (ratio < worstRatio) { worstRatio = ratio; worstQ = q; }
             });
 
-            document.getElementById('stat-most-correct').innerText = bestQ ? `${bestQ.text} (${Math.round(bestRatio * 100)}% de aciertos)` : 'Sin datos suficientes';
-            document.getElementById('stat-least-correct').innerText = worstQ ? `${worstQ.text} (${Math.round(worstRatio * 100)}% de aciertos)` : 'Sin datos suficientes';
+            document.getElementById('stat-most-correct').innerText = bestQ ? `${bestQ.text} (${Math.round(bestRatio * 100)}% aciertos)` : 'Sin datos';
+            document.getElementById('stat-least-correct').innerText = worstQ ? `${worstQ.text} (${Math.round(worstRatio * 100)}% aciertos)` : 'Sin datos';
+
+            if (countEval > 0) {
+                document.getElementById('stat-page-ratings').innerHTML = `
+                    Utilidad Interfaz: <strong>${(sumQ1/countEval).toFixed(1)}/5</strong><br>
+                    Calidad Videos: <strong>${(sumQ2/countEval).toFixed(1)}/5</strong><br>
+                    Cuestionarios: <strong>${(sumQ3/countEval).toFixed(1)}/5</strong> (${countEval} evaluaciones)
+                `;
+            } else {
+                document.getElementById('stat-page-ratings').innerText = 'Sin evaluaciones de página registradas.';
+            }
         }
 
+        function renderTeacherComments(studentsObj) {
+            const container = document.getElementById('teacher-comments-container');
+            container.innerHTML = '';
+            let count = 0;
+
+            Object.values(studentsObj).forEach(st => {
+                if (st.evalPage && st.evalPage.comment) {
+                    count++;
+                    container.innerHTML += `
+                        <div class="comment-item">
+                            <strong>${st.name} (Código: ${st.code}):</strong> "${st.evalPage.comment}"
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('stat-comments-count').innerText = `${count} comentarios registrados`;
+            if (count === 0) {
+                container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Aún no hay comentarios registrados.</p>`;
+            }
+        }
+
+        // Acceso del Estudiante
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -788,61 +1005,20 @@
                 </div>
             `;
 
-            renderStudentVideosAndQuizzes(chapterMeta, chapterQuestionsData);
+            renderStudentVideosAndQuizzes(chapterMeta, classroomConfig.customQuestions || chapterQuestionsData.videos || []);
         }
 
-        // ---------- VIDEOS EN CLOUDINARY ----------
-        const CLOUDINARY_BASE = "https://res.cloudinary.com/yxkgsvkl/video/upload/";
-
-        // Convierte "Copia de 01-02 Suma de vectores (paralelogramo).mp4" en las URL posibles de Cloudinary
-        // (Cloudinary cambia los espacios por "_" y quita los paréntesis). Se prueba con y sin tildes.
-        function cloudinaryUrls(nombreArchivo) {
-            const limpio = nombreArchivo
-                .replace(/\.mp4$/i, '')
-                .replace(/[()]/g, '')
-                .trim()
-                .replace(/\s+/g, '_');
-            const sinTildes = limpio.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-            return [limpio, sinTildes].map(n => CLOUDINARY_BASE + encodeURIComponent(n) + '.mp4');
-        }
-
-        function codigoVideo(texto) {
-            const m = (texto || '').match(/\d{2}-\d{2}/);
-            return m ? m[0] : '';
-        }
-
-        function renderStudentVideosAndQuizzes(chapterMeta, chapterQuestionsData) {
+        function renderStudentVideosAndQuizzes(chapterMeta, listaVideos) {
             const container = document.getElementById('workspace-videos-container');
             container.innerHTML = '';
             activeQuestionsRendered = [];
 
-            // Lista completa de videos (videos.js) unida con sus preguntas (pregunta.js)
-            const preguntasLista = chapterQuestionsData.videos || [];
-            const catalogoVideos = (typeof videosPorCapitulo !== 'undefined' && videosPorCapitulo[classroomConfig.chapterId])
-                ? videosPorCapitulo[classroomConfig.chapterId] : [];
-
-            let listaVideos;
-            if (catalogoVideos.length > 0) {
-                listaVideos = catalogoVideos.map(v => {
-                    const nombre = v.archivo.replace(/\.mp4$/i, '');          // "Copia de 01-02 Suma de ..."
-                    const codigo = codigoVideo(nombre);
-                    const q = preguntasLista.find(p => codigoVideo(p.titulo) === codigo) || {};
-                    return {
-                        titulo: q.titulo || nombre.replace(/^Copia de /, ''),
-                        tema: q.tema || v.tema,
-                        objetivoVideo: q.objetivoVideo || v.objetivo,
-                        preguntas: q.preguntas || [],
-                        nombresArchivo: [nombre, q.titulo ? ('Copia de ' + q.titulo) : null]
-                    };
-                });
-            } else {
-                listaVideos = preguntasLista.map(q => ({ ...q, nombresArchivo: ['Copia de ' + q.titulo] }));
-            }
-
             if (listaVideos.length === 0) {
-                container.innerHTML = `<div class="video-card" style="text-align:center; color:var::text-muted);">No se encontraron videos disponibles para este capítulo.</div>`;
+                container.innerHTML = `<div class="video-card" style="text-align:center; color:var(--text-muted);">No se encontraron videos disponibles para este capítulo.</div>`;
                 return;
             }
+
+            const folderName = chapterMeta.folder || `CAPITULO ${chapterMeta.id}`;
 
             listaVideos.forEach((videoItem, vIndex) => {
                 const preguntas = videoItem.preguntas || [];
@@ -856,7 +1032,8 @@
                             id: globalQId,
                             enunciado: p.pregunta,
                             respuestaCorrecta: p.correcta,
-                            opciones: p.opciones
+                            opciones: p.opciones,
+                            explicacion: p.explicacion
                         });
 
                         let optionsHtml = '';
@@ -879,18 +1056,19 @@
 
                     quizHtml = `
                         <div class="quiz-container-box">
-                            <div class="quiz-title">Cuestionario de Evaluación</div>
+                            <div class="quiz-title">Cuestionario de Evaluación (2 Preguntas)</div>
                             ${questionsList}
                         </div>
                     `;
                 }
 
-                // Enlaces de Cloudinary (el navegador prueba uno por uno hasta que alguno cargue)
-                const urls = [];
-                videoItem.nombresArchivo.filter(Boolean).forEach(n => {
-                    cloudinaryUrls(n).forEach(u => { if (!urls.includes(u)) urls.push(u); });
-                });
-                const sourcesHtml = urls.map(u => `<source src="${u}" type="video/mp4">`).join('\n                                ');
+                // Rutas inteligentes compatibles con tus archivos con prefijo "Copia de "
+                const videoTitle = videoItem.titulo;
+                const videoId = videoItem.id;
+
+                const pathConPrefijo = `${folderName}/Copia de ${videoTitle}.mp4`;
+                const pathDirecto = `${folderName}/${videoTitle}.mp4`;
+                const pathSoloId = `${folderName}/Copia de ${videoId}.mp4`;
 
                 container.innerHTML += `
                     <div class="video-card">
@@ -899,7 +1077,9 @@
                         
                         <div class="video-responsive">
                             <video controls preload="metadata">
-                                ${sourcesHtml}
+                                <source src="${pathConPrefijo}" type="video/mp4">
+                                <source src="${pathDirecto}" type="video/mp4">
+                                <source src="${pathSoloId}" type="video/mp4">
                                 Tu navegador no soporta la reproducción de este video.
                             </video>
                         </div>
@@ -914,73 +1094,41 @@
             });
         }
 
-        function handleStarClick(e) {
-            if (e.target.tagName === 'SPAN') {
-                studentRatingScore = parseInt(e.target.getAttribute('data-val'));
-                updateStarsDisplay(studentRatingScore);
-                document.getElementById('rating-text-val').innerText = `Calificación guardada: ${studentRatingScore}/6 estrellas`;
-            }
-        }
-
-        function handleStarMove(e) {
-            if (e.target.tagName === 'SPAN') {
-                const val = parseInt(e.target.getAttribute('data-val'));
-                updateStarsDisplay(val);
-            }
-        }
-
-        function resetStarHover() {
-            updateStarsDisplay(studentRatingScore);
-        }
-
-        function updateStarsDisplay(score) {
-            const spans = document.querySelectorAll('#star-rating-stars span');
-            spans.forEach(s => {
-                const v = parseInt(s.getAttribute('data-val'));
-                if (v <= score) {
-                    s.classList.add('filled');
-                } else {
-                    s.classList.remove('filled');
-                }
-            });
-        }
-
+        // Envío de Evaluación del Alumno y generación de Feedback
         function submitStudentQuiz() {
             let correctCount = 0;
             let incorrectCount = 0;
             let details = [];
 
-            if (activeQuestionsRendered.length === 0) {
-                correctCount = 5;
-                incorrectCount = 0;
-            } else {
-                activeQuestionsRendered.forEach(q => {
-                    const radios = document.getElementsByName(q.id);
-                    let selectedVal = -1;
-                    radios.forEach(r => {
-                        if (r.checked) selectedVal = parseInt(r.value);
-                    });
-
-                    const isCorrect = (selectedVal !== -1 && selectedVal === q.respuestaCorrecta);
-                    if (isCorrect) {
-                        correctCount++;
-                    } else {
-                        incorrectCount++;
-                    }
-
-                    details.push({
-                        questionText: q.enunciado,
-                        selectedOption: selectedVal,
-                        isCorrect: isCorrect
-                    });
+            activeQuestionsRendered.forEach(q => {
+                const radios = document.getElementsByName(q.id);
+                let selectedVal = -1;
+                radios.forEach(r => {
+                    if (r.checked) selectedVal = parseInt(r.value);
                 });
-            }
 
-            const totalQ = activeQuestionsRendered.length || 5;
+                const isCorrect = (selectedVal !== -1 && selectedVal === q.respuestaCorrecta);
+                if (isCorrect) correctCount++; else incorrectCount++;
+
+                details.push({
+                    questionText: q.enunciado,
+                    selectedOption: selectedVal,
+                    respuestaCorrectaIndex: q.respuestaCorrecta,
+                    opciones: q.opciones,
+                    isCorrect: isCorrect,
+                    explicacion: q.explicacion || "Respuesta correcta validada por el portal académico."
+                });
+            });
+
+            const totalQ = activeQuestionsRendered.length || 1;
             const finalScore = Math.round((correctCount / totalQ) * 20);
 
-            document.getElementById('side-current-score').innerText = `${finalScore} / 20`;
-            document.getElementById('rating-container').style.display = 'block';
+            const evalPage = {
+                q1: document.getElementById('eval-q1').value,
+                q2: document.getElementById('eval-q2').value,
+                q3: document.getElementById('eval-q3').value,
+                comment: document.getElementById('eval-comment').value.trim()
+            };
 
             const studentDataKey = currentStudent.code;
             db.ref('students/' + classroomConfig.name + '/' + studentDataKey).set({
@@ -990,49 +1138,46 @@
                 score: finalScore,
                 correctCount: correctCount,
                 incorrectCount: incorrectCount,
-                rating: studentRatingScore,
+                evalPage: evalPage,
                 details: details
             }).then(() => {
-                alert(`¡Evaluación enviada con éxito!\nNota obtenida: ${finalScore}/20\nAciertos: ${correctCount}\nErrores: ${incorrectCount}`);
+                renderStudentFeedback(finalScore, correctCount, incorrectCount, details);
             }).catch(err => {
-                alert("Ocurrió un error al guardar los datos: " + err.message);
+                alert("Error al guardar en Firebase: " + err.message);
             });
         }
 
-        function openStudentModal(studentKey) {
-            const st = cachedStudentsData[studentKey];
-            if (!st) return;
+        function renderStudentFeedback(score, correct, incorrect, details) {
+            const catalog = (typeof capitulosCatalog !== 'undefined') ? capitulosCatalog : [];
+            const chapterMeta = catalog.find(c => c.id == classroomConfig.chapterId) || { title: 'Capítulo ' + classroomConfig.chapterId };
 
-            document.getElementById('modal-student-title').innerText = `Detalle de Alumno: ${st.name}`;
-            const modalBody = document.getElementById('modal-student-body');
-            
-            let detailsHtml = '';
-            if (st.details && Array.isArray(st.details) && st.details.length > 0) {
-                st.details.forEach((d, idx) => {
-                    detailsHtml += `
-                        <div style="margin-bottom:0.8rem; padding:0.6rem; border-radius:8px; background:${d.isCorrect ? '#f0fdf4' : '#fef2f2'}; border:1px solid ${d.isCorrect ? '#86efac' : '#fca5a5'}; font-size:0.85rem;">
-                            <strong>Pregunta ${idx + 1}:</strong> ${d.questionText}<br>
-                            <strong>Resultado:</strong> <span style="color:${d.isCorrect ? '#059669' : '#ef4444'}; font-weight:700;">${d.isCorrect ? 'Correcta' : 'Incorrecta'}</span>
-                        </div>
-                    `;
-                });
-            } else {
-                detailsHtml = `<p style="color:var(--text-muted);">Sin detalles adicionales de respuestas.</p>`;
-            }
-
-            modalBody.innerHTML = `
-                <p><strong>Código:</strong> ${st.code} | <strong>Grupo:</strong> Grupo ${st.group}</p>
-                <p><strong>Nota Final:</strong> ${st.score !== undefined ? st.score : '-'}/20 (${st.correctCount || 0} aciertos, ${st.incorrectCount || 0} errores)</p>
-                <p><strong>Calificación de la Página:</strong> ${st.rating ? st.rating + '/6 estrellas' : 'Sin calificar'}</p>
-                <hr style="border:none; border-top:1px solid var(--border-soft); margin:1rem 0;">
-                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main);">Respuestas del Alumno:</h4>
-                ${detailsHtml}
+            document.getElementById('feedback-header-box').innerHTML = `
+                <h3 style="margin:0 0 0.5rem 0; font-family:Georgia, serif; color:#065f46;">Resultados y Retroalimentación</h3>
+                <div style="font-size:1.1rem; font-weight:700; color:var(--text-main);">${chapterMeta.title}</div>
+                <div style="font-size:2rem; font-weight:800; color:#059669; margin:0.5rem 0;">${score} / 20</div>
+                <div style="font-size:0.9rem; color:var(--text-muted);">Aciertos: <strong>${correct}</strong> | Errores: <strong>${incorrect}</strong></div>
             `;
-            document.getElementById('student-detail-modal').style.display = 'flex';
-        }
 
-        function closeStudentModal() {
-            document.getElementById('student-detail-modal').style.display = 'none';
+            const container = document.getElementById('feedback-details-container');
+            container.innerHTML = '';
+
+            details.forEach((d, idx) => {
+                const userChoiceText = (d.selectedOption !== -1) ? d.opciones[d.selectedOption] : "No respondida";
+                const correctChoiceText = d.opciones[d.respuestaCorrectaIndex];
+
+                container.innerHTML += `
+                    <div style="margin-bottom:1.2rem; padding:1.2rem; border-radius:12px; background:${d.isCorrect ? '#f0fdf4' : '#fef2f2'}; border:1px solid ${d.isCorrect ? '#86efac' : '#fca5a5'};">
+                        <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem;">Pregunta ${idx + 1}: ${d.questionText}</div>
+                        <div style="font-size:0.9rem; margin-bottom:0.3rem;">Su respuesta: <strong style="color:${d.isCorrect ? '#059669' : '#ef4444'};">${userChoiceText}</strong></div>
+                        <div style="font-size:0.9rem; margin-bottom:0.5rem;">Respuesta Correcta: <strong style="color:#059669;">${correctChoiceText}</strong></div>
+                        <div style="font-size:0.85rem; color:var(--text-muted); background:rgba(255,255,255,0.7); padding:0.6rem; border-radius:6px;">
+                            <strong>Explicación:</strong> ${d.explicacion}
+                        </div>
+                    </div>
+                `;
+            });
+
+            switchView('view-student-feedback');
         }
     </script>
 </body>
