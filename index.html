@@ -246,18 +246,6 @@
         table.dashboard-table td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border-soft); }
         table.dashboard-table tr:hover { background: var(--panel-alt); }
 
-        .workspace-layout { display: grid; grid-template-columns: 1fr 310px; gap: 1.5rem; align-items: start; }
-        @media (max-width: 900px) { .workspace-layout { grid-template-columns: 1fr; } }
-
-        .sidebar-metrics-card {
-            background: var(--panel-bg); border: 2px solid #059669;
-            border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow-md); position: sticky; top: 1.5rem;
-        }
-
-        .metric-item { margin-bottom: 1.2rem; border-bottom: 1px solid var(--border-soft); padding-bottom: 0.8rem; }
-        .metric-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-        .metric-value { font-size: 1.8rem; font-weight: 800; color: #059669; font-family: Georgia, serif; }
-
         .chapter-header-box {
             background: #ffffff; border-radius: 16px; padding: 1.6rem 2rem;
             border: 1.5px solid var(--border-soft); border-left: 6px solid #059669; margin-bottom: 1.5rem;
@@ -268,7 +256,6 @@
             display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;
             box-shadow: var(--shadow-sm);
         }
-        .chapter-header-content h3 { margin: 0 0 0.3rem 0; font-family: Georgia, serif; font-size: 1.5rem; color: var(--text-main); }
         
         .lab-info-card {
             background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px;
@@ -316,7 +303,6 @@
         .quiz-option-label:hover { background: #fef3c7; }
         .quiz-option-label input { margin-top: 3px; cursor: pointer; }
 
-        /* Estilos de configuración de preguntas para el docente */
         .teacher-config-video-card {
             background: #f8fafc; border: 1.5px solid var(--border-strong); border-radius: 14px;
             padding: 1.5rem; margin-bottom: 1.5rem;
@@ -328,10 +314,6 @@
             background: #f0fdf4; border: 1px dashed #86efac; padding: 1rem; border-radius: 8px; margin-top: 1rem;
         }
 
-        /* Sección de evaluación de página y comentarios */
-        .page-eval-card {
-            background: #ffffff; border: 2px solid #059669; border-radius: 16px; padding: 2rem; margin-top: 2rem; box-shadow: var(--shadow-md);
-        }
         .comment-box-list {
             background: #ffffff; border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;
         }
@@ -340,9 +322,8 @@
         }
         .comment-item:last-child { border-bottom: none; }
 
-        /* Estilos de Impresión */
         @media print {
-            header, .btn-secondary, .btn-action-teacher, .btn-action-student, .sidebar-metrics-card, #view-role-selection { display: none !important; }
+            header, .btn-secondary, .btn-action-teacher, .btn-action-student, #view-role-selection { display: none !important; }
             body { background: #fff; color: #000; }
             .container { max-width: 100% !important; margin: 0; padding: 0; }
             .dashboard-table-container { border: none; box-shadow: none; }
@@ -438,7 +419,7 @@
             </div>
         </div>
 
-        <!-- 3. INTERFAZ DE CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
+        <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
         <div id="view-teacher-config" class="view">
             <div class="form-card" style="max-width: 950px;">
                 <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 1rem;">← Cambiar Capítulo</button>
@@ -463,7 +444,6 @@
                 </div>
             </div>
 
-            <!-- Resumen de Evaluaciones de la Página -->
             <div class="teacher-stats-grid" style="margin-bottom: 1.5rem;">
                 <div class="stat-card" style="border-left-color: #f59e0b;">
                     <div class="stat-card-title">📊 Evaluaciones de la Página (Promedios)</div>
@@ -496,7 +476,6 @@
                 </table>
             </div>
 
-            <!-- Listado Completo de Comentarios -->
             <div class="comment-box-list">
                 <h4 style="margin:0 0 1rem 0; color:var(--text-main); font-family:Georgia, serif;">Comentarios y Sugerencias Recibidas de los Alumnos</h4>
                 <div id="teacher-comments-container">
@@ -546,74 +525,71 @@
             </div>
         </div>
 
-        <!-- 6. ENTORNO DE TRABAJO DEL ESTUDIANTE -->
+        <!-- 6. ENTORNO DE TRABAJO DEL ESTUDIANTE (VIDEOS Y PREGUNTAS) -->
         <div id="view-student-workspace" class="view">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.5rem;">
                 <button class="btn-secondary" onclick="switchView('view-student-access')">← Salir de la Clase</button>
                 <div id="student-session-info" style="font-weight:700; color:#059669;"></div>
             </div>
             
-            <div class="workspace-layout">
-                <div>
-                    <div id="workspace-chapter-banner"></div>
-                    <div id="workspace-videos-container"></div>
+            <div id="workspace-chapter-banner"></div>
+            <div id="workspace-videos-container"></div>
 
-                    <!-- Evaluación de la Página y Comentarios -->
-                    <div class="page-eval-card">
-                        <h3 style="margin-top:0; color:#065f46; font-family:Georgia, serif;">Evaluación de la Página Web</h3>
-                        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.2rem;">Por favor, califique los siguientes aspectos de 1 a 5 antes de enviar sus respuestas:</p>
-                        
-                        <div class="form-field" style="margin-bottom: 1rem;">
-                            <label>1. ¿Qué tan útil y clara fue la interfaz para su aprendizaje?</label>
-                            <select id="eval-q1">
-                                <option value="5">5 - Excelente / Muy útil</option>
-                                <option value="4">4 - Buena</option>
-                                <option value="3" selected>3 - Regular</option>
-                                <option value="2">2 - Poco útil</option>
-                                <option value="1">1 - Deficiente</option>
-                            </select>
-                        </div>
-
-                        <div class="form-field" style="margin-bottom: 1rem;">
-                            <label>2. ¿Cómo califica la calidad y nitidez de los videos demostrativos?</label>
-                            <select id="eval-q2">
-                                <option value="5">5 - Excelente calidad</option>
-                                <option value="4">4 - Buena</option>
-                                <option value="3" selected>3 - Aceptable</option>
-                                <option value="2">2 - Baja calidad</option>
-                                <option value="1">1 - Mala</option>
-                            </select>
-                        </div>
-
-                        <div class="form-field" style="margin-bottom: 1rem;">
-                            <label>3. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación?</label>
-                            <select id="eval-q3">
-                                <option value="5">5 - Muy didácticos</option>
-                                <option value="4">4 - Buenos</option>
-                                <option value="3" selected>3 - Regulares</option>
-                                <option value="2">2</option>
-                                <option value="1">1</option>
-                            </select>
-                        </div>
-
-                        <div class="form-field">
-                            <label>Comentarios y sugerencias para mejorar la página:</label>
-                            <textarea id="eval-comment" rows="3" placeholder="Escriba aquí sus sugerencias..."></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sidebar-metrics-card">
-                    <div class="metric-item">
-                        <span class="metric-label">Estado de Evaluación</span>
-                        <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-top: 5px;" id="sidebar-status-text">Pendiente de envío</div>
-                    </div>
-                    <button class="btn-action-student" onclick="submitStudentQuiz()" style="margin-top:0.5rem; width:100%;">EVALUAR Y VER RESULTADOS</button>
-                </div>
+            <div style="text-align: center; margin: 2rem 0;">
+                <button class="btn-action-student" onclick="proceedToPageEvaluation()" style="max-width: 400px; font-size: 1.05rem;">EVALUAR (IR A CALIFICACIÓN DE LA PÁGINA) ➔</button>
             </div>
         </div>
 
-        <!-- 7. INTERFAZ DE RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
+        <!-- 7. INTERFAZ APARTE: EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
+        <div id="view-page-evaluation" class="view">
+            <div class="form-card" style="max-width: 750px;">
+                <button class="btn-secondary" onclick="switchView('view-student-workspace')" style="margin-bottom: 1rem;">← Volver al Cuestionario</button>
+                <h3 style="color: #065f46; font-family: Georgia, serif;">Evaluación Obligatoria de la Página Web</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Para poder visualizar su nota final, aciertos, errores y explicaciones detalladas, es requisito obligatorio calificar la plataforma y dejar su comentario.</p>
+                
+                <div class="form-field" style="margin-bottom: 1.2rem;">
+                    <label>1. ¿Qué tan útil y clara fue la interfaz para su aprendizaje? <span class="req">*</span></label>
+                    <select id="eval-q1">
+                        <option value="5">5 - Excelente / Muy útil</option>
+                        <option value="4">4 - Buena</option>
+                        <option value="3" selected>3 - Regular</option>
+                        <option value="2">2 - Poco útil</option>
+                        <option value="1">1 - Deficiente</option>
+                    </select>
+                </div>
+
+                <div class="form-field" style="margin-bottom: 1.2rem;">
+                    <label>2. ¿Cómo califica la calidad y nitidez de los videos demostrativos? <span class="req">*</span></label>
+                    <select id="eval-q2">
+                        <option value="5">5 - Excelente calidad</option>
+                        <option value="4">4 - Buena</option>
+                        <option value="3" selected>3 - Aceptable</option>
+                        <option value="2">2 - Baja calidad</option>
+                        <option value="1">1 - Mala</option>
+                    </select>
+                </div>
+
+                <div class="form-field" style="margin-bottom: 1.2rem;">
+                    <label>3. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación? <span class="req">*</span></label>
+                    <select id="eval-q3">
+                        <option value="5">5 - Muy didácticos</option>
+                        <option value="4">4 - Buenos</option>
+                        <option value="3" selected>3 - Regulares</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+
+                <div class="form-field" style="margin-bottom: 1.5rem;">
+                    <label>Comentarios y sugerencias para mejorar la página: <span class="req">*</span></label>
+                    <textarea id="eval-comment" rows="4" placeholder="Escriba aquí sus sugerencias u opiniones detalladas..."></textarea>
+                </div>
+
+                <button class="btn-action-student" onclick="submitEvaluationAndGetResults()">ENVIAR EVALUACIÓN Y VER MI NOTA Y RESPUESTAS ➔</button>
+            </div>
+        </div>
+
+        <!-- 8. INTERFAZ DE RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
         <div id="view-student-feedback" class="view">
             <div class="form-card" style="max-width: 900px;">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 1rem;">← Salir al Inicio</button>
@@ -651,7 +627,7 @@
         let selectedChapterId = 1;
         let cachedStudentsData = {};
         let activeQuestionsRendered = [];
-        let teacherCustomQuestionsState = {}; // Almacena las preguntas configuradas por el docente
+        let temporaryStudentScoreData = null; // Almacena temporalmente los resultados antes de evaluar la página
 
         window.onload = function() {
             renderChapterSelectionCards();
@@ -702,7 +678,6 @@
             renderChapterSelectionCards();
         }
 
-        // Paso del Docente: Ir a la configuración de preguntas del capítulo seleccionado
         function goToTeacherConfig() {
             const tTeacher = document.getElementById('t-teachername').value.trim();
             const tName = document.getElementById('t-classname').value.trim();
@@ -722,18 +697,15 @@
 
             document.getElementById('teacher-config-header-info').innerHTML = `
                 <h3 style="margin-top:0; font-family:Georgia, serif; color:var(--text-main);">${chapterMeta.title} - Configuración de Preguntas</h3>
-                <p style="font-size:0.9rem; color:var(--text-muted);">A continuación puede revisar las preguntas sugeridas de cada video o proponer hasta dos preguntas nuevas (con sus alternativas y respuesta correcta) para reemplazar o complementar el cuestionario.</p>
+                <p style="font-size:0.9rem; color:var(--text-muted);">A continuación puede revisar las preguntas sugeridas de cada video o proponer hasta dos preguntas nuevas para reemplazar o complementar el cuestionario.</p>
             `;
 
             const container = document.getElementById('teacher-config-videos-container');
             container.innerHTML = '';
-            teacherCustomQuestionsState = {};
 
             const listaVideos = chapterData.videos || [];
             listaVideos.forEach((vItem, vIdx) => {
-                teacherCustomQuestionsState[vIdx] = [];
                 let suggestedHtml = '';
-                
                 if (vItem.preguntas && vItem.preguntas.length > 0) {
                     vItem.preguntas.forEach((p, pIdx) => {
                         suggestedHtml += `
@@ -757,7 +729,7 @@
                         ${suggestedHtml}
 
                         <div class="custom-q-builder">
-                            <div style="font-size:0.85rem; font-weight:800; color:#065f46; margin-bottom:0.5rem;">✏️ Propuesta de Pregunta Personalizada (Opcional - Reemplaza o añade)</div>
+                            <div style="font-size:0.85rem; font-weight:800; color:#065f46; margin-bottom:0.5rem;">✏️ Propuesta de Pregunta Personalizada (Opcional)</div>
                             <div class="form-field" style="margin-bottom:0.6rem;">
                                 <label style="font-size:0.75rem;">Enunciado de la Pregunta Nueva:</label>
                                 <input type="text" id="t_q_text_${vIdx}" placeholder="Ej: ¿Qué factor influye directamente en...">
@@ -791,12 +763,10 @@
             switchView('view-teacher-config');
         }
 
-        // Guardar configuración del docente en Firebase e iniciar la clase
         function saveTeacherConfiguration() {
             const banco = (typeof bancoPreguntas !== 'undefined') ? bancoPreguntas : {};
             const chapterData = JSON.parse(JSON.stringify(banco[classroomConfig.chapterId] || { videos: [] }));
 
-            // Recolectar preguntas personalizadas si el docente llenó campos
             chapterData.videos.forEach((vItem, vIdx) => {
                 const qText = document.getElementById(`t_q_text_${vIdx}`).value.trim();
                 if (qText) {
@@ -814,7 +784,6 @@
                             correcta: corr,
                             explicacion: exp || "Pregunta propuesta por el docente de la clase."
                         };
-                        // Reemplazamos la primera pregunta sugerida con la personalizada del docente
                         vItem.preguntas[0] = customQ;
                     }
                 }
@@ -1062,7 +1031,6 @@
                     `;
                 }
 
-                // Rutas inteligentes compatibles con tus archivos con prefijo "Copia de "
                 const videoTitle = videoItem.titulo;
                 const videoId = videoItem.id;
 
@@ -1094,8 +1062,8 @@
             });
         }
 
-        // Envío de Evaluación del Alumno y generación de Feedback
-        function submitStudentQuiz() {
+        // Paso 1 del Alumno: Al hacer clic en Evaluar, procesamos respuestas y lo mandamos a la interfaz aparte de calificación de página
+        function proceedToPageEvaluation() {
             let correctCount = 0;
             let incorrectCount = 0;
             let details = [];
@@ -1123,25 +1091,47 @@
             const totalQ = activeQuestionsRendered.length || 1;
             const finalScore = Math.round((correctCount / totalQ) * 20);
 
+            // Almacenamos temporalmente los datos del cuestionario del alumno
+            temporaryStudentScoreData = {
+                score: finalScore,
+                correctCount,
+                incorrectCount,
+                details
+            };
+
+            // Abrimos la interfaz aparte de evaluación de la página
+            switchView('view-page-evaluation');
+        }
+
+        // Paso 2 del Alumno: Validación del comentario y envío definitivo a Firebase y despliegue del Feedback
+        function submitEvaluationAndGetResults() {
+            const commentVal = document.getElementById('eval-comment').value.trim();
+            if (!commentVal) {
+                alert("Por favor, es requisito obligatorio escribir un comentario o sugerencia para mejorar la página antes de continuar.");
+                return;
+            }
+
             const evalPage = {
                 q1: document.getElementById('eval-q1').value,
                 q2: document.getElementById('eval-q2').value,
                 q3: document.getElementById('eval-q3').value,
-                comment: document.getElementById('eval-comment').value.trim()
+                comment: commentVal
             };
 
             const studentDataKey = currentStudent.code;
-            db.ref('students/' + classroomConfig.name + '/' + studentDataKey).set({
+            const payload = {
                 name: currentStudent.name,
                 code: currentStudent.code,
                 group: currentStudent.group,
-                score: finalScore,
-                correctCount: correctCount,
-                incorrectCount: incorrectCount,
+                score: temporaryStudentScoreData.score,
+                correctCount: temporaryStudentScoreData.correctCount,
+                incorrectCount: temporaryStudentScoreData.incorrectCount,
                 evalPage: evalPage,
-                details: details
-            }).then(() => {
-                renderStudentFeedback(finalScore, correctCount, incorrectCount, details);
+                details: temporaryStudentScoreData.details
+            };
+
+            db.ref('students/' + classroomConfig.name + '/' + studentDataKey).set(payload).then(() => {
+                renderStudentFeedback(payload.score, payload.correctCount, payload.incorrectCount, payload.details);
             }).catch(err => {
                 alert("Error al guardar en Firebase: " + err.message);
             });
