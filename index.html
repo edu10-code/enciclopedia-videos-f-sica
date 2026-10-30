@@ -169,7 +169,7 @@
 
         .chapter-icon-badge {
             width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; color: #ffffff; flex-shrink: 0; box-shadow: var(--shadow-sm); font-size: 1.4rem; background: var(--accent-teacher);
+            justify-content: center; color: #ffffff; flex-shrink: 0; box-shadow: var(--shadow-sm); font-size: 1.2rem; background: var(--accent-teacher);
         }
 
         .chapter-card-info { flex: 1; }
@@ -695,19 +695,6 @@
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
 
-        // Catálogo corregido con los nombres oficiales de los 9 capítulos de Física Experimental
-        const fallbackCapitulosCatalog = [
-            { id: 1, title: "Capítulo 1: Unidades y vectores", introLab: "Introducción al uso de unidades del SI y cálculo vectorial.", objGeneral: "Comprender el manejo de magnitudes y vectores.", color: "#059669", icon: "01" },
-            { id: 2, title: "Capítulo 2: Cinemática lineal", introLab: "Estudio del movimiento rectilíneo en rieles de aire.", objGeneral: "Analizar velocidad y aceleración en una dimensión.", color: "#1e3a8a", icon: "02" },
-            { id: 3, title: "Capítulo 3: Dinámica lineal", introLab: "Análisis de fuerzas y leyes fundamentales del movimiento.", objGeneral: "Validar experimentalmente la relación de fuerzas.", color: "#b45309", icon: "03" },
-            { id: 4, title: "Capítulo 4: Movimiento en un plano", introLab: "Estudio de trayectorias bidimensionales y componentes.", objGeneral: "Analizar el movimiento parabólico y superposición.", color: "#7c3aed", icon: "04" },
-            { id: 5, title: "Capítulo 5: Inercia", introLab: "Demostración de la tendencia de los cuerpos a mantener su estado.", objGeneral: "Comprobar el principio de inercia en sistemas.", color: "#0284c7", icon: "05" },
-            { id: 6, title: "Capítulo 6: Acción y reacción", introLab: "Estudio de las fuerzas mutuas entre deslizadores.", objGeneral: "Comprobar la tercera ley de Newton en colisiones.", color: "#4f46e5", icon: "06" },
-            { id: 7, title: "Capítulo 7: Fricción", introLab: "Medición de fuerzas de fricción estática y cinética.", objGeneral: "Determinar coeficientes de fricción en superficies.", color: "#db2777", icon: "07" },
-            { id: 8, title: "Capítulo 8: Trabajo, energía y potencia", introLab: "Conservación de la energía mecánica en sistemas físicos.", objGeneral: "Evaluar transformaciones energéticas experimentales.", color: "#ca8a04", icon: "08" },
-            { id: 9, title: "Capítulo 9: Centro de masa", introLab: "Determinación del punto de equilibrio y centro de gravedad.", objGeneral: "Analizar la distribución de masa en cuerpos.", color: "#0d9488", icon: "09" }
-        ];
-
         window.onload = function() {
             renderChapterSelectionCards();
             listenToFirebaseRealtimeData();
@@ -719,23 +706,52 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Extracción dinámica del catálogo leyendo DIRECTAMENTE de pregunta.js o videos.js sin inventar datos
         function getCatalog() {
+            let catalog = [];
+
             if (typeof capitulosCatalog !== 'undefined' && Array.isArray(capitulosCatalog) && capitulosCatalog.length > 0) {
                 return capitulosCatalog;
             }
-            return fallbackCapitulosCatalog;
+
+            if (typeof bancoPreguntas !== 'undefined') {
+                for (let key in bancoPreguntas) {
+                    const capObj = bancoPreguntas[key];
+                    if (capObj) {
+                        const numId = parseInt(key) || capObj.capitulo || 1;
+                        catalog.push({
+                            id: numId,
+                            title: capObj.titulo || `Capítulo ${numId}`,
+                            introLab: capObj.introduccion || capObj.tema || "Análisis experimental del fenómeno.",
+                            objGeneral: capObj.objetivoGeneral || capObj.objetivo || "Validación de leyes físicas en laboratorio.",
+                            color: capObj.color || "#1e3a8a",
+                            icon: numId < 10 ? `0${numId}` : `${numId}`
+                        });
+                    }
+                }
+            }
+
+            catalog.sort((a, b) => a.id - b.id);
+            return catalog;
         }
 
+        // Función para obtener los datos de los videos según la estructura oficial declarada en sus archivos
         function getVideosForChapter(chapterId) {
             if (typeof videosPorCapitulo !== 'undefined' && videosPorCapitulo[chapterId]) {
                 return videosPorCapitulo[chapterId];
             }
-            if (typeof bancoPreguntas !== 'undefined' && bancoPreguntas[chapterId] && bancoPreguntas[chapterId].videos) {
-                return bancoPreguntas[chapterId].videos.map(v => ({
+
+            let bank = null;
+            if (typeof bancoPreguntas !== 'undefined') {
+                bank = bancoPreguntas[chapterId] || bancoPreguntas[String(chapterId)] || bancoPreguntas[Number(chapterId)];
+            }
+
+            if (bank && bank.videos && Array.isArray(bank.videos)) {
+                return bank.videos.map(v => ({
                     id: v.id,
                     archivo: `${v.id}.mp4`,
-                    tema: v.titulo || v.tema,
-                    objetivo: v.objetivoVideo || "Demostración experimental"
+                    tema: v.titulo || v.tema || "Demostración experimental",
+                    objetivo: v.objetivoVideo || v.objetivo || "Análisis de magnitudes e interacciones."
                 }));
             }
             return [];
@@ -745,6 +761,10 @@
             const container = document.getElementById('chapters-cards-container');
             if(!container) return;
             const catalog = getCatalog();
+
+            if (catalog.length > 0 && !catalog.some(c => c.id === selectedChapterId)) {
+                selectedChapterId = catalog[0].id;
+            }
 
             container.innerHTML = catalog.map(ch => `
                 <div class="chapter-select-card ${ch.id === selectedChapterId ? 'selected' : ''}" onclick="selectChapter(${ch.id})">
@@ -826,33 +846,6 @@
 
             if (preguntasList.length === 0 && bank && bank.preguntas && bank.preguntas[videoIdx]) {
                 preguntasList = [...bank.preguntas[videoIdx]];
-            }
-
-            if (preguntasList.length === 0) {
-                preguntasList = [
-                    {
-                        pregunta: `¿Cuál es el principio físico fundamental analizado en el video "${videoObj ? videoObj.tema : 'Demostración'}"?`,
-                        opciones: [
-                            `Comprobación experimental del objetivo: ${videoObj ? videoObj.objetivo : 'Análisis físico'}`,
-                            "La disipación instantánea de la energía mecánica por fricción del aire.",
-                            "La variación aleatoria del marco de referencia inercial del laboratorio.",
-                            "La alteración de las constantes universales del Sistema Internacional."
-                        ],
-                        correcta: 0,
-                        explicacion: "El experimento valida directamente los fundamentos teóricos del capítulo correspondiente."
-                    },
-                    {
-                        pregunta: "¿Qué indica la teoría física respecto a la relación de variables en este fenómeno?",
-                        opciones: [
-                            "Existe una proporcionalidad directa o ley física predecible entre las magnitudes evaluadas.",
-                            "Las magnitudes varían de forma caótica sin seguir ningún modelo matemático.",
-                            "El error experimental anula por completo la validez de la medición.",
-                            "La gravedad local deja de actuar durante la ejecución del procedimiento."
-                        ],
-                        correcta: 0,
-                        explicacion: "Las leyes físicas demuestran relaciones analíticas estables en condiciones controladas de laboratorio."
-                    }
-                ];
             }
 
             let storeForChapter = customQuestionsStore[chapterId] || customQuestionsStore[String(chapterId)] || customQuestionsStore[Number(chapterId)];
