@@ -259,11 +259,6 @@
             border: 1.5px solid var(--border-soft); border-left: 6px solid #059669; margin-bottom: 1.5rem;
             box-shadow: var(--shadow-sm); display: flex; gap: 1.4rem; align-items: flex-start;
         }
-        .chapter-header-icon {
-            width: 58px; height: 58px; border-radius: 50%; background: #1e3a8a; color: #fff;
-            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
-        }
         
         .lab-info-card {
             background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px;
@@ -317,9 +312,6 @@
         }
         .teacher-suggested-q {
             background: #ffffff; border: 1px solid var(--border-soft); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;
-        }
-        .custom-q-builder {
-            background: #f0fdf4; border: 1px dashed #86efac; padding: 1rem; border-radius: 8px; margin-top: 1rem;
         }
 
         .comment-box-list {
@@ -609,7 +601,7 @@
 
     </div>
 
-    <!-- CARGA DE ARCHIVOS JS EXTERNOS DINÁMICOS -->
+    <!-- CARGA DE ARCHIVOS JS EXTERNOS -->
     <script src="videos.js"></script>
     <script src="pregunta.js"></script>
 
@@ -633,9 +625,8 @@
         let currentStudent = null;
         let classroomConfig = null;
         let selectedChapterId = 1;
-        let cachedStudentsData = {};
         let activeQuestionsRendered = [];
-        let temporaryStudentScoreData = null;
+        let customQuestionsStore = {}; // Almacena preguntas propuestas o reemplazadas por el docente
 
         window.onload = function() {
             renderChapterSelectionCards();
@@ -647,7 +638,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Renderizado automático y sincronizado con capitulosCatalog, videosPorCapitulo y bancoPreguntas
         function renderChapterSelectionCards() {
             const container = document.getElementById('chapters-cards-container');
             if(!container || typeof capitulosCatalog === 'undefined') return;
@@ -680,8 +670,6 @@
             }
 
             classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
-            
-            // Renderizar la vista de configuración con los videos y preguntas de los archivos externos
             renderTeacherConfigurationView();
             switchView('view-teacher-config');
         }
@@ -706,21 +694,29 @@
             if(videosContainer) {
                 videosContainer.innerHTML = chapterVideos.map((vid, idx) => {
                     const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(idx+1).padStart(2,'0')}`)) : null;
-                    const preguntasList = matchedBankVideo ? matchedBankVideo.preguntas : [];
+                    let preguntasList = matchedBankVideo ? [...matchedBankVideo.preguntas] : [];
+                    
+                    // Incluir preguntas personalizadas propuestas si existen
+                    const customKey = `${selectedChapterId}_${idx}`;
+                    if(customQuestionsStore[customKey]) {
+                        preguntasList = preguntasList.concat(customQuestionsStore[customKey]);
+                    }
 
                     return `
-                        <div class="teacher-config-video-card">
+                        <div class="teacher-config-video-card" id="config-video-card-${idx}">
                             <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">Video #${idx+1}: ${vid.archivo}</div>
                             <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Tema: ${vid.tema} | Objetivo: ${vid.objetivo}</div>
-                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas oficiales asociadas:</div>
-                            ${preguntasList.map((p, pIdx) => `
-                                <div class="teacher-suggested-q">
-                                    <strong>P${pIdx+1}:</strong> ${p.pregunta}
-                                    <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
-                                </div>
-                            `).join('')}
+                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas para la sesión:</div>
+                            <div id="questions-list-${idx}">
+                                ${preguntasList.map((p, pIdx) => `
+                                    <div class="teacher-suggested-q">
+                                        <strong>P${pIdx+1}:</strong> ${p.pregunta}
+                                        <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
                             <button class="btn-secondary" onclick="openCustomQuestionModal(${selectedChapterId}, ${idx})" style="background:#fef3c7; border-color:#f59e0b; color:#b45309; margin-top:0.5rem;">
-                                ✏️ Proponer o Reemplazar Pregunta para este Video
+                                ✏️ Proponer o Reemplazar Pregunta Adicional
                             </button>
                         </div>
                     `;
@@ -729,23 +725,33 @@
         }
 
         function openCustomQuestionModal(chapterId, videoIdx) {
-            const nuevaPregunta = prompt("Ingrese el enunciado de la nueva pregunta personalizada para este video de demostración:");
+            const nuevaPregunta = prompt("Ingrese el enunciado de la nueva pregunta personalizada para este video:");
             if(!nuevaPregunta) return;
-            const opA = prompt("Ingrese la alternativa A:");
-            const opB = prompt("Ingrese la alternativa B:");
-            const opC = prompt("Ingrese la alternativa C:");
-            const opD = prompt("Ingrese la alternativa D:");
-            const correcta = prompt("Indique el número de la alternativa correcta (0 para A, 1 para B, 2 para C, 3 para D):");
+            const opA = prompt("Alternativa A:");
+            const opB = prompt("Alternativa B:");
+            const opC = prompt("Alternativa C:");
+            const opD = prompt("Alternativa D:");
+            const correctaStr = prompt("Indique la alternativa correcta (0 para A, 1 para B, 2 para C, 3 para D):");
+            const correcta = parseInt(correctaStr);
 
-            if(nuevaPregunta && opA && opB && opC && opD && correcta !== null) {
-                alert("¡Pregunta personalizada agregada con éxito al banco de la sesión!");
+            if(nuevaPregunta && opA && opB && opC && opD && !isNaN(correcta)) {
+                const customKey = `${chapterId}_${videoIdx}`;
+                if(!customQuestionsStore[customKey]) customQuestionsStore[customKey] = [];
+                customQuestionsStore[customKey].push({
+                    pregunta: nuevaPregunta,
+                    opciones: [opA, opB, opC, opD],
+                    correcta: correcta
+                });
+                alert("¡Pregunta propuesta agregada con éxito!");
+                renderTeacherConfigurationView();
+            } else {
+                alert("Datos incompletos o inválidos. Intente nuevamente.");
             }
         }
 
         function saveTeacherConfiguration() {
             alert("¡Clase creada y configurada con éxito en Firebase!");
             
-            // Simular datos en el Dashboard del Docente para mostrar el reporte en tiempo real
             document.getElementById('docente-info-banner').innerHTML = `
                 <strong>Sesión Activa:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
@@ -754,7 +760,6 @@
             document.getElementById('stat-page-ratings').innerText = "4.8 / 5.0 (Excelente interfaz)";
             document.getElementById('stat-comments-count').innerText = "12 comentarios registrados";
 
-            // Llenar tabla de alumnos de ejemplo
             const tbody = document.getElementById('students-table-body');
             tbody.innerHTML = `
                 <tr><td>1</td><td>Quispe Mendoza, Carlos Alberto</td><td>20130026</td><td>Grupo 3</td><td><strong>18.5</strong></td><td>6 aciertos / 1 error</td></tr>
@@ -763,8 +768,8 @@
             `;
 
             document.getElementById('teacher-comments-container').innerHTML = `
-                <div class="comment-item"><strong>Carlos Quispe (Grupo 3):</strong> "Excelente material audiovisual, los videos en alta definición ayudan mucho a comprender la teoría física."</div>
-                <div class="comment-item"><strong>María García (Grupo 1):</strong> "Muy buena plataforma interactiva, los cuestionarios son directos y la retroalimentación es clara."</div>
+                <div class="comment-item"><strong>Carlos Quispe (Grupo 3):</strong> "Excelente material audiovisual, los videos ayudan mucho a comprender la teoría física."</div>
+                <div class="comment-item"><strong>María García (Grupo 1):</strong> "Muy buena plataforma interactiva, los cuestionarios son directos."</div>
             `;
 
             switchView('view-teacher-dashboard');
@@ -800,10 +805,10 @@
             if(banner && chapterData) {
                 banner.innerHTML = `
                     <div class="chapter-header-box">
-                        <div class="chapter-icon-badge" style="background:${chapterData.color || '#059669'}; width:65px; height:65px; font-size:1.6rem;">${chapterData.icon || '⚛'}</div>
                         <div style="flex:1;">
-                            <h3 style="margin:0 0 0.4rem 0; font-family:Georgia,serif; font-size:1.3rem; color:var(--text-main);">${chapterData.title}</h3>
-                            <p style="margin:0 0 0.6rem 0; font-size:0.9rem; color:var(--text-muted);"><strong>${chapterData.objGeneral}</strong></p>
+                            <div style="font-size:0.78rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">Capítulo ${chapterData.id}</div>
+                            <h3 style="margin:0 0 0.4rem 0; font-family:Georgia,serif; font-size:1.4rem; color:var(--text-main);">${chapterData.title}</h3>
+                            <p style="margin:0 0 0.6rem 0; font-size:0.92rem; color:var(--text-muted);"><strong>${chapterData.objGeneral}</strong></p>
                             <div class="lab-info-card">${chapterData.introLab}</div>
                         </div>
                     </div>
@@ -814,9 +819,13 @@
                 activeQuestionsRendered = [];
                 container.innerHTML = chapterVideos.map((vid, vIdx) => {
                     const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(vIdx+1).padStart(2,'0')}`)) : null;
-                    const preguntasList = matchedBankVideo ? matchedBankVideo.preguntas : [];
+                    let preguntasList = matchedBankVideo ? [...matchedBankVideo.preguntas] : [];
+                    
+                    const customKey = `${selectedChapterId}_${vIdx}`;
+                    if(customQuestionsStore[customKey]) {
+                        preguntasList = preguntasList.concat(customQuestionsStore[customKey]);
+                    }
 
-                    // Registrar preguntas activas para evaluación posterior
                     preguntasList.forEach((p, pIdx) => {
                         activeQuestionsRendered.push({
                             idVideo: vid.archivo,
@@ -873,7 +882,6 @@
                 return;
             }
 
-            // Calcular nota simulando aciertos y errores basados en las respuestas seleccionadas
             let aciertos = 0;
             let errores = 0;
             let feedbackHTML = '';
@@ -913,4 +921,3 @@
     </script>
 </body>
 </html>
-```[cite: 1, 2, 3]
