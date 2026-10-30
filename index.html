@@ -699,62 +699,82 @@
             switchView('view-teacher-config');
         }
 
-        // Renderizado mejorado de la vista de configuración docente con formulario embebido por video
+        // Función robusta para obtener las preguntas desde bancoPreguntas.js o videosPorCapitulo
+        function getPreguntasForVideo(chapterId, videoIdx, videoObj) {
+            let preguntasList = [];
+            
+            // 1. Intentar buscar en bancoPreguntas.js
+            if(typeof bancoPreguntas !== 'undefined' && bancoPreguntas[chapterId]) {
+                const chBank = bancoPreguntas[chapterId];
+                if(chBank.videos && Array.isArray(chBank.videos)) {
+                    // Buscar por coincidencia exacta o por índice (videoIdx)
+                    if(chBank.videos[videoIdx] && chBank.videos[videoIdx].preguntas) {
+                        preguntasList = [...chBank.videos[videoIdx].preguntas];
+                    } else if(videoObj && videoObj.id) {
+                        const matched = chBank.videos.find(v => v.id === videoObj.id || v.id.endsWith(`-${String(videoIdx+1).padStart(2,'0')}`));
+                        if(matched && matched.preguntas) {
+                            preguntasList = [...matched.preguntas];
+                        }
+                    }
+                }
+            }
+
+            // Aplicar modificaciones personalizadas del docente (proponer o reemplazar)
+            if(customQuestionsStore[chapterId] && customQuestionsStore[chapterId][videoIdx]) {
+                const mod = customQuestionsStore[chapterId][videoIdx];
+                if(mod.reemplazos) {
+                    for(let targetIdx in mod.reemplazos) {
+                        if(preguntasList[targetIdx]) {
+                            preguntasList[targetIdx] = mod.reemplazos[targetIdx];
+                        }
+                    }
+                }
+                if(mod.adicionales) {
+                    preguntasList = preguntasList.concat(mod.adicionales);
+                }
+            }
+
+            return preguntasList;
+        }
+
+        // Renderizado de la vista de configuración docente sincronizada con bancoPreguntas
         function renderTeacherConfigurationView() {
             const headerInfo = document.getElementById('teacher-config-header-info');
             const videosContainer = document.getElementById('teacher-config-videos-container');
             
             const chapterData = typeof capitulosCatalog !== 'undefined' ? capitulosCatalog.find(c => c.id === selectedChapterId) : null;
             const chapterVideos = typeof videosPorCapitulo !== 'undefined' ? videosPorCapitulo[selectedChapterId] : [];
-            const chapterBank = typeof bancoPreguntas !== 'undefined' ? bancoPreguntas[selectedChapterId] : null;
 
             if(headerInfo && chapterData) {
                 headerInfo.innerHTML = `
                     <div style="background: #f8fafc; border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1.2rem; border-radius: 10px; margin-bottom: 1.5rem;">
-                        <h4 style="margin:0 0 0.5rem 0; color:var(--text-main); font-family:Georgia, serif;">Configurando: ${chapterData.title}[cite: 6]</h4>
-                        <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${chapterData.introLab}[cite: 6]</p>
+                        <h4 style="margin:0 0 0.5rem 0; color:var(--text-main); font-family:Georgia, serif;">Configurando: ${chapterData.title}</h4>
+                        <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${chapterData.introLab}</p>
                     </div>
                 `;
             }
 
             if(videosContainer) {
                 videosContainer.innerHTML = chapterVideos.map((vid, idx) => {
-                    const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(idx+1).padStart(2,'0')}`)) : null;
-                    
-                    let preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? [...matchedBankVideo.preguntas] : [];
-                    
-                    if(customQuestionsStore[selectedChapterId] && customQuestionsStore[selectedChapterId][idx]) {
-                        const mod = customQuestionsStore[selectedChapterId][idx];
-                        if(mod.reemplazos) {
-                            for(let targetIdx in mod.reemplazos) {
-                                if(preguntasList[targetIdx]) {
-                                    preguntasList[targetIdx] = mod.reemplazos[targetIdx];
-                                }
-                            }
-                        }
-                        if(mod.adicionales) {
-                            preguntasList = preguntasList.concat(mod.adicionales);
-                        }
-                    }
-
-                    const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}[cite: 6]`;
+                    const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
+                    const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}`;
 
                     return `
                         <div class="teacher-config-video-card" id="config-card-${idx}">
-                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${cleanVideoTitle}[cite: 6]</div>
-                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo original: ${vid.archivo} | Objetivo: ${vid.objetivo}[cite: 6]</div>
-                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas para la sesión:[cite: 6]</div>
+                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${cleanVideoTitle}</div>
+                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo original: ${vid.archivo} | Objetivo: ${vid.objetivo}</div>
+                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas para la sesión (${preguntasList.length}):</div>
                             
                             <div id="q-list-container-${idx}">
-                                ${preguntasList.map((p, pIdx) => `
+                                ${preguntasList.length > 0 ? preguntasList.map((p, pIdx) => `
                                     <div class="teacher-suggested-q">
                                         <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
                                         <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
                                     </div>
-                                `).join('')}
+                                `).join('') : '<p style="color:var(--text-muted); font-size:0.85rem;">No hay preguntas registradas para este video aún.</p>'}
                             </div>
 
-                            <!-- Formulario embebido directamente en la interfaz del video para proponer o reemplazar -->
+                            <!-- Formulario embebido para proponer o reemplazar -->
                             <div style="background:#ffffff; border:1px solid var(--border-soft); border-radius:10px; padding:1.2rem; margin-top:1rem;">
                                 <div style="font-weight:700; font-size:0.85rem; text-transform:uppercase; color:#b45309; margin-bottom:0.8rem;">✏️ Proponer o Reemplazar Pregunta en este Video</div>
                                 
@@ -911,31 +931,18 @@
             const viewerContainer = document.getElementById('teacher-viewer-content-container');
             const chapterData = typeof capitulosCatalog !== 'undefined' ? capitulosCatalog.find(c => c.id === selectedChapterId) : null;
             const chapterVideos = typeof videosPorCapitulo !== 'undefined' ? videosPorCapitulo[selectedChapterId] : [];
-            const chapterBank = typeof bancoPreguntas !== 'undefined' ? bancoPreguntas[selectedChapterId] : null;
 
             if(!viewerContainer) return;
 
             viewerContainer.innerHTML = chapterVideos.map((vid, idx) => {
-                const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(idx+1).padStart(2,'0')}`)) : null;
-                let preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? [...matchedBankVideo.preguntas] : [];
-                
-                if(customQuestionsStore[selectedChapterId] && customQuestionsStore[selectedChapterId][idx]) {
-                    const mod = customQuestionsStore[selectedChapterId][idx];
-                    if(mod.reemplazos) {
-                        for(let targetIdx in mod.reemplazos) {
-                            if(preguntasList[targetIdx]) preguntasList[targetIdx] = mod.reemplazos[targetIdx];
-                        }
-                    }
-                    if(mod.adicionales) preguntasList = preguntasList.concat(mod.adicionales);
-                }
-
+                const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
                 const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}`;
 
                 return `
                     <div class="teacher-config-video-card" style="margin-bottom:1.5rem;">
                         <div style="font-weight:800; color:var(--accent-teacher); font-size:1.05rem; margin-bottom:0.3rem;">${cleanVideoTitle}</div>
                         <div style="font-size:0.86rem; color:var(--text-muted); margin-bottom:1rem;">Objetivo: ${vid.objetivo}</div>
-                        ${preguntasList.map((p, pIdx) => `
+                        ${preguntasList.length > 0 ? preguntasList.map((p, pIdx) => `
                             <div class="teacher-suggested-q">
                                 <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
                                 <ul style="margin: 0.5rem 0 0 1rem; padding:0; font-size:0.86rem; list-style-type:none;">
@@ -946,7 +953,7 @@
                                     `).join('')}
                                 </ul>
                             </div>
-                        `).join('')}
+                        `).join('') : '<p style="color:var(--text-muted);">No hay preguntas asignadas.</p>'}
                     </div>
                 `;
             }).join('');
@@ -969,7 +976,7 @@
 
             currentStudent = { name, code, group, classname };
 
-            // Consultar en Firebase el capítulo creado por el docente (por ejemplo, capítulo 5 o 8)
+            // Consultar en Firebase el capítulo creado por el docente (por ejemplo, capítulo 5, 6 u 8)
             db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const classData = snapshot.val();
                 if(classData && classData.capituloId) {
@@ -992,7 +999,6 @@
 
             const chapterData = typeof capitulosCatalog !== 'undefined' ? capitulosCatalog.find(c => c.id === selectedChapterId) : null;
             const chapterVideos = typeof videosPorCapitulo !== 'undefined' ? videosPorCapitulo[selectedChapterId] : [];
-            const chapterBank = typeof bancoPreguntas !== 'undefined' ? bancoPreguntas[selectedChapterId] : null;
 
             if(banner && chapterData) {
                 banner.innerHTML = `
@@ -1010,18 +1016,7 @@
             if(container) {
                 activeQuestionsRendered = [];
                 container.innerHTML = chapterVideos.map((vid, vIdx) => {
-                    const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(vIdx+1).padStart(2,'0')}`)) : null;
-                    let preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? [...matchedBankVideo.preguntas] : [];
-                    
-                    if(customQuestionsStore[selectedChapterId] && customQuestionsStore[selectedChapterId][vIdx]) {
-                        const mod = customQuestionsStore[selectedChapterId][vIdx];
-                        if(mod.reemplazos) {
-                            for(let targetIdx in mod.reemplazos) {
-                                if(preguntasList[targetIdx]) preguntasList[targetIdx] = mod.reemplazos[targetIdx];
-                            }
-                        }
-                        if(mod.adicionales) preguntasList = preguntasList.concat(mod.adicionales);
-                    }
+                    const preguntasList = getPreguntasForVideo(selectedChapterId, vIdx, vid);
 
                     preguntasList.forEach((p, pIdx) => {
                         activeQuestionsRendered.push({
@@ -1053,7 +1048,7 @@
 
                             <div class="quiz-container-box">
                                 <div class="quiz-title">📝 Cuestionario de Evaluación del Video</div>
-                                ${preguntasList.map((q, qIdx) => `
+                                ${preguntasList.length > 0 ? preguntasList.map((q, qIdx) => `
                                     <div class="quiz-question-item">
                                         <div class="quiz-question-title">Pregunta ${qIdx+1}: ${q.pregunta}</div>
                                         ${q.opciones.map((opt, oIdx) => `
@@ -1063,7 +1058,7 @@
                                             </label>
                                         `).join('')}
                                     </div>
-                                `).join('')}
+                                `).join('') : '<p style="color:var(--text-muted); font-size:0.9rem;">No hay preguntas configuradas para este video.</p>'}
                             </div>
                         </div>
                     `;
