@@ -2,63 +2,63 @@
 const capitulosCatalog = [
     { 
         id: 1, 
-        title: "Capítulo 1: Vectores y Unidades", 
+        title: "Capítulo 1: Unidades y vectores", 
         introLab: "Introducción al Laboratorio: Análisis de magnitudes físicas, sistemas de unidades fundamentales y operaciones con vectores.",
         objGeneral: "Objetivo General: Comprender el marco analítico y geométrico de los vectores aplicados a la física experimental.",
         color: "#1e3a8a", icon: "∰", folder: "CAPITULO 1" 
     },
     { 
         id: 2, 
-        title: "Capítulo 2: Cinemática Unidimensional", 
+        title: "Capítulo 2: Cinemática lineal", 
         introLab: "Introducción al Laboratorio: Estudio experimental del movimiento rectilíneo, velocidad instantánea y aceleración constante.",
         objGeneral: "Objetivo General: Analizar las leyes cinemáticas mediante la recolección de datos de tiempo y posición.",
         color: "#5b21b6", icon: "📈", folder: "CAPITULO 2" 
     },
     { 
         id: 3, 
-        title: "Capítulo 3: Dinámica y Leyes de Newton", 
+        title: "Capítulo 3: Dinámica lineal", 
         introLab: "Introducción al Laboratorio: Verificación experimental de la relación entre fuerza, masa y aceleración.",
         objGeneral: "Objetivo General: Comprobar las leyes del movimiento de Newton utilizando sistemas dinámicos controlados.",
         color: "#047857", icon: "⚪", folder: "CAPITULO 3" 
     },
     { 
         id: 4, 
-        title: "Capítulo 4: Movimiento en Dos Dimensiones", 
+        title: "Capítulo 4: Movimiento en un plano", 
         introLab: "Introducción al Laboratorio: Análisis del movimiento de proyectiles y composición de velocidades perpendiculares.",
         objGeneral: "Objetivo General: Determinar la independencia de los movimientos ortogonales en un plano bidimensional.",
         color: "#d97706", icon: "📐", folder: "CAPITULO 4" 
     },
     { 
         id: 5, 
-        title: "Capítulo 5: Inercia y Marcos de Referencia", 
+        title: "Capítulo 5: Inercia", 
         introLab: "Introducción al Laboratorio: Observación de los efectos inerciales y el comportamiento de cuerpos en aceleración.",
         objGeneral: "Objetivo General: Estudiar la tendencia de los cuerpos a mantener su estado de reposo o movimiento uniforme.",
         color: "#be123c", icon: "⚛", folder: "CAPITULO 5" 
     },
     { 
         id: 6, 
-        title: "Capítulo 6: Conservación del Momento Lineal", 
+        title: "Capítulo 6: Acción y reacción", 
         introLab: "Introducción al Laboratorio: Estudio de colisiones y la tercera ley de Newton en rieles de aire.",
         objGeneral: "Objetivo General: Demostrar la conservación del momento lineal en sistemas cerrados durante choques elásticos e inelásticos.",
         color: "#1d4ed8", icon: "⇄", folder: "CAPITULO 6" 
     },
     { 
         id: 7, 
-        title: "Capítulo 7: Fricción y Rozamiento", 
+        title: "Capítulo 7: Fricción", 
         introLab: "Introducción al Laboratorio: Medición de las fuerzas de fricción estática y cinética sobre diferentes superficies.",
         objGeneral: "Objetivo General: Analizar los coeficientes de rozamiento y su dependencia con las condiciones de contacto.",
         color: "#15803d", icon: "📦", folder: "CAPITULO 7" 
     },
     { 
         id: 8, 
-        title: "Capítulo 8: Trabajo y Conservación de la Energía", 
+        title: "Capítulo 8: Trabajo, energía y potencia", 
         introLab: "Introducción al Laboratorio: Transformaciones energéticas entre energía cinética y potencial en sistemas mecánicos.",
         objGeneral: "Objetivo General: Comprobar el principio de conservación de la energía mecánica total en ausencia de fuerzas disipativas.",
         color: "#1e40af", icon: "⚡", folder: "CAPITULO 8" 
     },
     { 
         id: 9, 
-        title: "Capítulo 9: Centro de Masa y Equilibrio", 
+        title: "Capítulo 9: Centro de masa", 
         introLab: "Introducción al Laboratorio: Determinación experimental del centro de gravedad y condiciones de equilibrio estático.",
         objGeneral: "Objetivo General: Analizar la estabilidad de objetos regulares e irregulares mediante la ubicación de su centro de masa.",
         color: "#6b21a8", icon: "⚛", folder: "CAPITULO 9" 
