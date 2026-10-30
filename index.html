@@ -419,70 +419,13 @@
             </div>
         </div>
 
-        <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
+        <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) CON FORMULARIO INTEGRADO EN CADA VIDEO -->
         <div id="view-teacher-config" class="view">
             <div class="form-card" style="max-width: 950px;">
                 <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 1rem;">← Cambiar Capítulo</button>
                 <div id="teacher-config-header-info"></div>
                 <div id="teacher-config-videos-container" style="margin-top: 1.5rem;"></div>
                 <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">CREAR E INICIAR LA CLASE ➔</button>
-            </div>
-        </div>
-
-        <!-- MODAL / VISTA INTERNA: PROPONER O REEMPLAZAR PREGUNTA -->
-        <div id="view-teacher-question-editor" class="view">
-            <div class="form-card" style="max-width: 800px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-config')" style="margin-bottom: 1rem;">← Volver a Configuración</button>
-                <h3 id="editor-modal-title">Proponer o Reemplazar Pregunta</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Seleccione si desea agregar una pregunta adicional o reemplazar una de las preguntas establecidas en el banco oficial (`pregunta.js`).</p>
-                
-                <div class="form-grid">
-                    <div class="form-field full">
-                        <label>Acción a Realizar <span class="req">*</span></label>
-                        <select id="edit-action-type" onchange="toggleTargetQuestionSelector()">
-                            <option value="proponer">Proponer nueva pregunta adicional</option>
-                            <option value="reemplazar">Reemplazar una pregunta existente</option>
-                        </select>
-                    </div>
-
-                    <div class="form-field full" id="target-question-container" style="display: none;">
-                        <label>Seleccione la pregunta a reemplazar <span class="req">*</span></label>
-                        <select id="edit-target-index"></select>
-                    </div>
-
-                    <div class="form-field full">
-                        <label>Enunciado de la Pregunta <span class="req">*</span></label>
-                        <textarea id="edit-q-text" rows="3" placeholder="Escriba aquí el enunciado claro de la pregunta..."></textarea>
-                    </div>
-
-                    <div class="form-field">
-                        <label>Alternativa A <span class="req">*</span></label>
-                        <input type="text" id="edit-opt-0" placeholder="Opción A">
-                    </div>
-                    <div class="form-field">
-                        <label>Alternativa B <span class="req">*</span></label>
-                        <input type="text" id="edit-opt-1" placeholder="Opción B">
-                    </div>
-                    <div class="form-field">
-                        <label>Alternativa C <span class="req">*</span></label>
-                        <input type="text" id="edit-opt-2" placeholder="Opción C">
-                    </div>
-                    <div class="form-field">
-                        <label>Alternativa D <span class="req">*</span></label>
-                        <input type="text" id="edit-opt-3" placeholder="Opción D">
-                    </div>
-
-                    <div class="form-field full">
-                        <label>Alternativa Correcta <span class="req">*</span></label>
-                        <select id="edit-correct-idx">
-                            <option value="0">Opción A</option>
-                            <option value="1">Opción B</option>
-                            <option value="2">Opción C</option>
-                            <option value="3">Opción D</option>
-                        </select>
-                    </div>
-                </div>
-                <button class="btn-action-teacher" onclick="saveCustomOrReplacementQuestion()">GUARDAR CAMBIOS EN LA PREGUNTA ➔</button>
             </div>
         </div>
 
@@ -701,7 +644,6 @@
         let activeQuestionsRendered = [];
         
         let customQuestionsStore = {};
-        let activeEditingContext = { chapterId: 1, videoIdx: 0 };
 
         window.onload = function() {
             renderChapterSelectionCards();
@@ -747,7 +689,7 @@
 
             classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
             
-            // Guardar la configuración del capítulo activo en Firebase para sincronización en tiempo real
+            // Guardar el capítulo seleccionado en Firebase para que el alumno cargue exactamente este capítulo
             db.ref('clase_activa/' + classname).set({
                 docente: name,
                 capituloId: selectedChapterId
@@ -757,6 +699,7 @@
             switchView('view-teacher-config');
         }
 
+        // Renderizado mejorado de la vista de configuración docente con formulario embebido por video
         function renderTeacherConfigurationView() {
             const headerInfo = document.getElementById('teacher-config-header-info');
             const videosContainer = document.getElementById('teacher-config-videos-container');
@@ -768,8 +711,8 @@
             if(headerInfo && chapterData) {
                 headerInfo.innerHTML = `
                     <div style="background: #f8fafc; border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1.2rem; border-radius: 10px; margin-bottom: 1.5rem;">
-                        <h4 style="margin:0 0 0.5rem 0; color:var(--text-main); font-family:Georgia, serif;">Configurando: ${chapterData.title}</h4>
-                        <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${chapterData.introLab}</p>
+                        <h4 style="margin:0 0 0.5rem 0; color:var(--text-main); font-family:Georgia, serif;">Configurando: ${chapterData.title}[cite: 6]</h4>
+                        <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${chapterData.introLab}[cite: 6]</p>
                     </div>
                 `;
             }
@@ -794,72 +737,91 @@
                         }
                     }
 
-                    const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}`;
+                    const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}[cite: 6]`;
 
                     return `
-                        <div class="teacher-config-video-card">
-                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${cleanVideoTitle}</div>
-                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo Cloudinary: ${vid.archivo} | Objetivo: ${vid.objetivo}</div>
-                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas para la sesión:</div>
-                            ${preguntasList.map((p, pIdx) => `
-                                <div class="teacher-suggested-q">
-                                    <strong>P${pIdx+1}:</strong> ${p.pregunta}
-                                    <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
+                        <div class="teacher-config-video-card" id="config-card-${idx}">
+                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${cleanVideoTitle}[cite: 6]</div>
+                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo original: ${vid.archivo} | Objetivo: ${vid.objetivo}[cite: 6]</div>
+                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas para la sesión:[cite: 6]</div>
+                            
+                            <div id="q-list-container-${idx}">
+                                ${preguntasList.map((p, pIdx) => `
+                                    <div class="teacher-suggested-q">
+                                        <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
+                                        <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <!-- Formulario embebido directamente en la interfaz del video para proponer o reemplazar -->
+                            <div style="background:#ffffff; border:1px solid var(--border-soft); border-radius:10px; padding:1.2rem; margin-top:1rem;">
+                                <div style="font-weight:700; font-size:0.85rem; text-transform:uppercase; color:#b45309; margin-bottom:0.8rem;">✏️ Proponer o Reemplazar Pregunta en este Video</div>
+                                
+                                <div class="form-grid" style="margin-top:0;">
+                                    <div class="form-field">
+                                        <label>Acción</label>
+                                        <select id="action-type-${idx}" onchange="toggleInlineReplaceSelector(${idx})">
+                                            <option value="proponer">Agregar Pregunta (Proponer)</option>
+                                            <option value="reemplazar">Reemplazar Pregunta Existente</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field" id="replace-select-wrapper-${idx}" style="display:none;">
+                                        <label>Elegir cuál reemplazar</label>
+                                        <select id="replace-target-${idx}">
+                                            ${preguntasList.map((p, pIdx) => `<option value="${pIdx}">Pregunta ${pIdx+1}: ${p.pregunta.substring(0,35)}...</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="form-field full">
+                                        <label>Enunciado de la Pregunta</label>
+                                        <textarea id="inline-q-text-${idx}" rows="2" placeholder="Escriba el enunciado de la pregunta..."></textarea>
+                                    </div>
+                                    <div class="form-field"><label>Alternativa A</label><input type="text" id="inline-opt-${idx}-0" placeholder="Opción A"></div>
+                                    <div class="form-field"><label>Alternativa B</label><input type="text" id="inline-opt-${idx}-1" placeholder="Opción B"></div>
+                                    <div class="form-field"><label>Alternativa C</label><input type="text" id="inline-opt-${idx}-2" placeholder="Opción C"></div>
+                                    <div class="form-field"><label>Alternativa D</label><input type="text" id="inline-opt-${idx}-3" placeholder="Opción D"></div>
+                                    <div class="form-field full">
+                                        <label>Respuesta Correcta</label>
+                                        <select id="inline-correct-${idx}">
+                                            <option value="0">Opción A</option>
+                                            <option value="1">Opción B</option>
+                                            <option value="2">Opción C</option>
+                                            <option value="3">Opción D</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            `).join('')}
-                            <button class="btn-secondary" onclick="openQuestionEditorModal(${selectedChapterId}, ${idx})" style="background:#fef3c7; border-color:#f59e0b; color:#b45309; margin-top:0.5rem;">
-                                ✏️ Proponer o Reemplazar Pregunta
-                            </button>
+                                <button class="btn-secondary" onclick="submitInlineQuestion(${selectedChapterId}, ${idx})" style="background:#fef3c7; border-color:#f59e0b; color:#b45309; margin-top:1rem; width:100%; justify-content:center;">
+                                    ➕ Guardar y Aplicar en este Video
+                                </button>
+                            </div>
                         </div>
                     `;
                 }).join('');
             }
         }
 
-        function openQuestionEditorModal(chapterId, videoIdx) {
-            activeEditingContext = { chapterId, videoIdx };
-            
-            const chapterBank = typeof bancoPreguntas !== 'undefined' ? bancoPreguntas[chapterId] : null;
-            const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(videoIdx+1).padStart(2,'0')}`)) : null;
-            const preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? matchedBankVideo.preguntas : [];
-
-            const targetSelect = document.getElementById('edit-target-index');
-            targetSelect.innerHTML = preguntasList.map((p, i) => `<option value="${i}">Pregunta ${i+1}: ${p.pregunta.substring(0, 60)}...</option>`).join('');
-
-            document.getElementById('edit-q-text').value = '';
-            document.getElementById('edit-opt-0').value = '';
-            document.getElementById('edit-opt-1').value = '';
-            document.getElementById('edit-opt-2').value = '';
-            document.getElementById('edit-opt-3').value = '';
-            document.getElementById('edit-action-type').value = 'proponer';
-            toggleTargetQuestionSelector();
-
-            switchView('view-teacher-question-editor');
+        function toggleInlineReplaceSelector(idx) {
+            const action = document.getElementById(`action-type-${idx}`).value;
+            const wrapper = document.getElementById(`replace-select-wrapper-${idx}`);
+            wrapper.style.display = (action === 'reemplazar') ? 'block' : 'none';
         }
 
-        function toggleTargetQuestionSelector() {
-            const action = document.getElementById('edit-action-type').value;
-            const container = document.getElementById('target-question-container');
-            container.style.display = (action === 'reemplazar') ? 'block' : 'none';
-        }
-
-        function saveCustomOrReplacementQuestion() {
-            const action = document.getElementById('edit-action-type').value;
-            const qText = document.getElementById('edit-q-text').value.trim();
+        function submitInlineQuestion(chapterId, videoIdx) {
+            const action = document.getElementById(`action-type-${videoIdx}`).value;
+            const qText = document.getElementById(`inline-q-text-${videoIdx}`).value.trim();
             const opts = [
-                document.getElementById('edit-opt-0').value.trim(),
-                document.getElementById('edit-opt-1').value.trim(),
-                document.getElementById('edit-opt-2').value.trim(),
-                document.getElementById('edit-opt-3').value.trim()
+                document.getElementById(`inline-opt-${videoIdx}-0`).value.trim(),
+                document.getElementById(`inline-opt-${videoIdx}-1`).value.trim(),
+                document.getElementById(`inline-opt-${videoIdx}-2`).value.trim(),
+                document.getElementById(`inline-opt-${videoIdx}-3`).value.trim()
             ];
-            const correcta = parseInt(document.getElementById('edit-correct-idx').value);
+            const correcta = parseInt(document.getElementById(`inline-correct-${videoIdx}`).value);
 
             if(!qText || opts.some(o => !o)) {
                 alert("Por favor, complete el enunciado de la pregunta y todas las alternativas.");
                 return;
             }
 
-            const { chapterId, videoIdx } = activeEditingContext;
             if(!customQuestionsStore[chapterId]) customQuestionsStore[chapterId] = {};
             if(!customQuestionsStore[chapterId][videoIdx]) customQuestionsStore[chapterId][videoIdx] = { adicionales: [], reemplazos: {} };
 
@@ -867,15 +829,14 @@
 
             if(action === 'proponer') {
                 customQuestionsStore[chapterId][videoIdx].adicionales.push(newQObj);
-                alert("¡Pregunta adicional propuesta con éxito!");
+                alert("¡Pregunta adicional agregada con éxito al video!");
             } else {
-                const targetIdx = parseInt(document.getElementById('edit-target-index').value);
+                const targetIdx = parseInt(document.getElementById(`replace-target-${videoIdx}`).value);
                 customQuestionsStore[chapterId][videoIdx].reemplazos[targetIdx] = newQObj;
-                alert("¡Pregunta reemplazada con éxito en el banco oficial!");
+                alert("¡Pregunta reemplazada con éxito en el video!");
             }
 
             renderTeacherConfigurationView();
-            switchView('view-teacher-config');
         }
 
         function saveTeacherConfiguration() {
@@ -993,6 +954,7 @@
             switchView('view-teacher-questions-viewer');
         }
 
+        // Acceso del estudiante con direccionamiento automático y exacto al capítulo configurado por el profesor en Firebase
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -1007,7 +969,7 @@
 
             currentStudent = { name, code, group, classname };
 
-            // Consultar en Firebase el capítulo configurado para esta clase específica (ej. Capítulo 8)
+            // Consultar en Firebase el capítulo creado por el docente (por ejemplo, capítulo 5 o 8)
             db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const classData = snapshot.val();
                 if(classData && classData.capituloId) {
@@ -1018,7 +980,6 @@
                 renderStudentWorkspace();
                 switchView('view-student-workspace');
             }, (error) => {
-                // Fallback por si la red falla, mantiene el capítulo actual
                 document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
                 renderStudentWorkspace();
                 switchView('view-student-workspace');
