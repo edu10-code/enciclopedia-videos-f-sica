@@ -296,15 +296,60 @@
             margin-bottom: 1.5rem; font-size: 0.92rem;
         }
         .quiz-question-title {
-            font-weight: 700; color: var(--text-main); margin-bottom: 0.6rem; line-height: 1.45;
+            font-weight: 700; color: var(--text-main); margin-bottom: 0.8rem; line-height: 1.45;
         }
-        .quiz-option-label {
-            display: flex; align-items: flex-start; gap: 0.6rem; margin-bottom: 0.5rem;
-            font-size: 0.9rem; color: var(--text-main); cursor: pointer; padding: 0.4rem 0.6rem;
-            border-radius: 6px; transition: background 0.15s;
+        
+        /* ESTILO NUEVO: Alternativas limpias tipo botón con letras A, B, C, D (Sin círculos redundantes) */
+        .quiz-options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
         }
-        .quiz-option-label:hover { background: #fef3c7; }
-        .quiz-option-label input { margin-top: 3px; cursor: pointer; }
+        .quiz-option-btn {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            background: #ffffff;
+            border: 1.5px solid var(--border-soft);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .quiz-option-btn:hover {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+        .quiz-option-btn.selected {
+            border-color: #059669;
+            background: #f0fdf4;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+            font-weight: 600;
+        }
+        .option-letter-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            font-weight: 700;
+            border-radius: 6px;
+            flex-shrink: 0;
+            border: 1px solid var(--border-strong);
+            font-size: 0.85rem;
+        }
+        .quiz-option-btn.selected .option-letter-badge {
+            background: #059669;
+            color: #ffffff;
+            border-color: #059669;
+        }
 
         .teacher-config-video-card {
             background: #f8fafc; border: 1.5px solid var(--border-strong); border-radius: 14px;
@@ -400,14 +445,17 @@
                     <div class="form-field full">
                         <label>Nombre del Docente <span class="req">*</span></label>
                         <input type="text" id="t-teachername" placeholder="Ej: Dr. Juan Pérez">
+                        <small style="color:var(--text-muted); font-size:0.78rem;">Debe ingresar nombre y apellido (Ej: Dr. Juan Pérez).</small>
                     </div>
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
                         <input type="text" id="t-classname" placeholder="Ej: Newton">
+                        <small style="color:var(--text-muted); font-size:0.78rem;">Ej: Newton (sin espacios ni símbolos raros).</small>
                     </div>
                     <div class="form-field">
                         <label>Contraseña de la Clase <span class="req">*</span></label>
-                        <input type="password" id="t-pass" placeholder="Contraseña">
+                        <input type="password" id="t-pass" placeholder="6 dígitos" maxlength="6">
+                        <small style="color:var(--text-muted); font-size:0.78rem;">Exactamente 6 dígitos numéricos (Ej: 123456).</small>
                     </div>
                     
                     <div class="form-field full">
@@ -512,11 +560,13 @@
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Apellidos y Nombres <span class="req">*</span></label>
-                        <input type="text" id="s-name" placeholder="Quispe Mendoza, Carlos Alberto">
+                        <input type="text" id="s-name" placeholder="Ej: Quispe Mendoza, Carlos Alberto">
+                        <small style="color:var(--text-muted); font-size:0.78rem;">Mínimo un apellido y un nombre (Ej: Quispe Mendoza, Carlos Alberto).</small>
                     </div>
                     <div class="form-field">
                         <label>Código de Matrícula <span class="req">*</span></label>
-                        <input type="text" id="s-code" placeholder="20130026">
+                        <input type="text" id="s-code" placeholder="Ej: 20130026" maxlength="8">
+                        <small style="color:var(--text-muted); font-size:0.78rem;">Exactamente 8 dígitos numéricos.</small>
                     </div>
                     <div class="form-field">
                         <label>Grupo / Sección <span class="req">*</span></label>
@@ -531,10 +581,12 @@
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
                         <input type="text" id="s-classname" placeholder="Ej: Newton">
+                        <small style="color:var(--text-muted); font-size:0.78rem;">Debe coincidir exactamente con el de la clase.</small>
                     </div>
                     <div class="form-field">
                         <label>Contraseña <span class="req">*</span></label>
-                        <input type="password" id="s-pass" placeholder="Contraseña">
+                        <input type="password" id="s-pass" placeholder="6 dígitos" maxlength="6">
+                        <small style="color:var(--text-muted); font-size:0.78rem;">Exactamente 6 dígitos numéricos.</small>
                     </div>
                 </div>
                 <button class="btn-action-student" onclick="studentEnter()">INGRESAR A LA CLASE ➔</button>
@@ -706,6 +758,7 @@
             renderChapterSelectionCards();
         }
 
+        // VALIDACIÓN ESTRICTA REGISTRO DOCENTE
         function goToTeacherConfig() {
             const name = document.getElementById('t-teachername').value.trim();
             const classname = document.getElementById('t-classname').value.trim();
@@ -713,6 +766,24 @@
 
             if(!name || !classname || !pass) {
                 alert("Por favor, complete todos los campos obligatorios del registro.");
+                return;
+            }
+
+            // Validar mínimo nombre y apellido
+            if(name.split(/\s+/).length < 2) {
+                alert("El nombre del docente debe incluir al menos un nombre y un apellido (Ej: Dr. Juan Pérez).");
+                return;
+            }
+
+            // Validar contraseña de exactamente 6 dígitos
+            if(!/^\d{6}$/.test(pass)) {
+                alert("La contraseña de la clase debe tener exactamente 6 dígitos numéricos.");
+                return;
+            }
+
+            // Validar nombre de clase formato correcto (letras/números sin espacios excesivos)
+            if(!/^[a-zA-Z0-9_-]{3,20}$/.test(classname)) {
+                alert("El nombre de la clase debe ser adecuado y sin espacios (Ej: Newton).");
                 return;
             }
 
@@ -728,7 +799,6 @@
             switchView('view-teacher-config');
         }
 
-        // Función robusta normalizando claves de capítulo para extraer preguntas y reemplazos del profesor
         function getPreguntasForVideo(chapterId, videoIdx, videoObj) {
             let preguntasList = [];
             
@@ -784,7 +854,6 @@
                 ];
             }
 
-            // Aplicación robusta de los reemplazos y adiciones configurados por el docente (buscando por string o number)
             let storeForChapter = customQuestionsStore[chapterId] || customQuestionsStore[String(chapterId)] || customQuestionsStore[Number(chapterId)];
             if (storeForChapter && storeForChapter[videoIdx]) {
                 const mod = storeForChapter[videoIdx];
@@ -922,7 +991,6 @@
                 alert("¡Pregunta reemplazada con éxito!");
             }
 
-            // Sincronizar inmediatamente con Firebase
             if(classroomConfig && classroomConfig.classname) {
                 db.ref('clase_activa/' + classroomConfig.classname).update({
                     customQuestions: customQuestionsStore
@@ -1041,7 +1109,7 @@
             switchView('view-teacher-questions-viewer');
         }
 
-        // Acceso del estudiante con escucha en tiempo real de Firebase para sincronizar preguntas modificadas al instante
+        // VALIDACIÓN ESTRICTA ACCESO ESTUDIANTE
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -1054,9 +1122,26 @@
                 return;
             }
 
+            // Validar mínimo nombre y apellido
+            if(name.split(/\s+/).length < 2) {
+                alert("Debe ingresar obligatoriamente un nombre y un apellido (Ej: Quispe Mendoza, Carlos Alberto).");
+                return;
+            }
+
+            // Validar código exactamente de 8 dígitos numéricos
+            if(!/^\d{8}$/.test(code)) {
+                alert("El código de matrícula debe tener exactamente 8 dígitos numéricos (Ej: 20130026).");
+                return;
+            }
+
+            // Validar contraseña de exactamente 6 dígitos
+            if(!/^\d{6}$/.test(pass)) {
+                alert("La contraseña debe tener exactamente 6 dígitos numéricos.");
+                return;
+            }
+
             currentStudent = { name, code, group, classname };
 
-            // Usamos .on para escuchar cambios en tiempo real si el docente edita preguntas mientras el alumno está conectado
             db.ref('clase_activa/' + classname).on('value', (snapshot) => {
                 const classData = snapshot.val();
                 if(classData) {
@@ -1141,12 +1226,17 @@
                                 ${preguntasList.map((q, qIdx) => `
                                     <div class="quiz-question-item">
                                         <div class="quiz-question-title">Pregunta ${qIdx+1}: ${q.pregunta}</div>
-                                        ${q.opciones.map((opt, oIdx) => `
-                                            <label class="quiz-option-label">
-                                                <input type="radio" name="q_${vIdx}_${qIdx}" value="${oIdx}">
-                                                <span>${String.fromCharCode(65 + oIdx)}. ${opt}</span>
-                                            </label>
-                                        `).join('')}
+                                        <div class="quiz-options-grid" id="q_group_${vIdx}_${qIdx}">
+                                            ${q.opciones.map((opt, oIdx) => {
+                                                const letter = String.fromCharCode(65 + oIdx);
+                                                return `
+                                                    <button type="button" class="quiz-option-btn" onclick="selectQuizOption(${vIdx}, ${qIdx}, ${oIdx})">
+                                                        <span class="option-letter-badge">${letter}</span>
+                                                        <span>${opt}</span>
+                                                    </button>
+                                                `;
+                                            }).join('')}
+                                        </div>
                                     </div>
                                 `).join('')}
                             </div>
@@ -1154,6 +1244,22 @@
                     `;
                 }).join('');
             }
+        }
+
+        // Función interactiva para seleccionar alternativas haciendo clic directamente en las letras A, B, C, D
+        function selectQuizOption(vIdx, qIdx, oIdx) {
+            const container = document.getElementById(`q_group_${vIdx}_${qIdx}`);
+            const buttons = container.querySelectorAll('.quiz-option-btn');
+            
+            buttons.forEach((btn, idx) => {
+                if(idx === oIdx) {
+                    btn.classList.add('selected');
+                    btn.setAttribute('data-selected', 'true');
+                } else {
+                    btn.classList.remove('selected');
+                    btn.removeAttribute('data-selected');
+                }
+            });
         }
 
         function proceedToPageEvaluation() {
@@ -1169,18 +1275,25 @@
 
             let aciertos = 0;
             let errores = 0;
-            
-            // Agrupamos el feedback por video con numeración local (1, 2, 3...) por cada video
             let videosMap = {};
+
             activeQuestionsRendered.forEach((item) => {
                 if(!videosMap[item.videoTitle]) {
                     videosMap[item.videoTitle] = [];
                 }
 
-                const selectedOption = document.querySelector(`input[name="q_${item.videoIndex}_${item.localPreguntaIndex}"]:checked`);
-                const matchChoice = selectedOption ? parseInt(selectedOption.value) : -1;
-                const isCorrect = matchChoice === item.correcta;
+                // Recogemos la alternativa seleccionada desde el botón con data-selected
+                const container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
+                let matchChoice = -1;
+                if(container) {
+                    const selectedBtn = container.querySelector('.quiz-option-btn[data-selected="true"]');
+                    if(selectedBtn) {
+                        const buttonsArray = Array.from(container.querySelectorAll('.quiz-option-btn'));
+                        matchChoice = buttonsArray.indexOf(selectedBtn);
+                    }
+                }
 
+                const isCorrect = matchChoice === item.correcta;
                 if(isCorrect) aciertos++; else errores++;
 
                 videosMap[item.videoTitle].push({
