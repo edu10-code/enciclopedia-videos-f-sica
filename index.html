@@ -700,8 +700,6 @@
         let selectedChapterId = 1;
         let activeQuestionsRendered = [];
         
-        // Estructura de modificaciones de preguntas realizadas por el docente (proponer/reemplazar)
-        // Formato: customQuestionsStore[chapterId][videoIndex] = { preguntas: [...], reemplazos: { targetIdx: newObj } }
         let customQuestionsStore = {};
         let activeEditingContext = { chapterId: 1, videoIdx: 0 };
 
@@ -748,6 +746,13 @@
             }
 
             classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
+            
+            // Guardar la configuración del capítulo activo en Firebase para sincronización en tiempo real
+            db.ref('clase_activa/' + classname).set({
+                docente: name,
+                capituloId: selectedChapterId
+            });
+
             renderTeacherConfigurationView();
             switchView('view-teacher-config');
         }
@@ -773,7 +778,6 @@
                 videosContainer.innerHTML = chapterVideos.map((vid, idx) => {
                     const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(idx+1).padStart(2,'0')}`)) : null;
                     
-                    // Obtener lista base de preguntas y aplicar modificaciones del profesor
                     let preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? [...matchedBankVideo.preguntas] : [];
                     
                     if(customQuestionsStore[selectedChapterId] && customQuestionsStore[selectedChapterId][idx]) {
@@ -790,13 +794,12 @@
                         }
                     }
 
-                    // Limpiar nombre del video para que solo muestre "video uno [Tema]", tal como se solicitó
                     const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}`;
 
                     return `
                         <div class="teacher-config-video-card">
                             <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${cleanVideoTitle}</div>
-                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo original: ${vid.archivo} | Objetivo: ${vid.objetivo}</div>
+                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo Cloudinary: ${vid.archivo} | Objetivo: ${vid.objetivo}</div>
                             <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas para la sesión:</div>
                             ${preguntasList.map((p, pIdx) => `
                                 <div class="teacher-suggested-q">
@@ -816,7 +819,6 @@
         function openQuestionEditorModal(chapterId, videoIdx) {
             activeEditingContext = { chapterId, videoIdx };
             
-            // Cargar selector de preguntas existentes para la opción de reemplazar
             const chapterBank = typeof bancoPreguntas !== 'undefined' ? bancoPreguntas[chapterId] : null;
             const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(videoIdx+1).padStart(2,'0')}`)) : null;
             const preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? matchedBankVideo.preguntas : [];
@@ -890,7 +892,6 @@
             switchView('view-teacher-dashboard');
         }
 
-        // Conexión real con Firebase en tiempo real para obtener alumnos reales sin inventar nombres ni códigos
         function listenToFirebaseRealtimeData() {
             const studentsRef = db.ref('alumnos_clase');
             studentsRef.on('value', (snapshot) => {
@@ -919,8 +920,6 @@
                     `;
                 }
                 tbody.innerHTML = rowsHTML;
-            }, (error) => {
-                console.error("Error al leer Firebase:", error);
             });
 
             const commentsRef = db.ref('comentarios_pagina');
@@ -947,7 +946,6 @@
             });
         }
 
-        // Función para ver las preguntas desde el panel del docente sin perder datos ni salir de la vista principal
         function openTeacherQuestionsViewer() {
             const viewerContainer = document.getElementById('teacher-viewer-content-container');
             const chapterData = typeof capitulosCatalog !== 'undefined' ? capitulosCatalog.find(c => c.id === selectedChapterId) : null;
@@ -1008,10 +1006,23 @@
             }
 
             currentStudent = { name, code, group, classname };
-            document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
-            
-            renderStudentWorkspace();
-            switchView('view-student-workspace');
+
+            // Consultar en Firebase el capítulo configurado para esta clase específica (ej. Capítulo 8)
+            db.ref('clase_activa/' + classname).once('value', (snapshot) => {
+                const classData = snapshot.val();
+                if(classData && classData.capituloId) {
+                    selectedChapterId = parseInt(classData.capituloId);
+                }
+
+                document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
+                renderStudentWorkspace();
+                switchView('view-student-workspace');
+            }, (error) => {
+                // Fallback por si la red falla, mantiene el capítulo actual
+                document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
+                renderStudentWorkspace();
+                switchView('view-student-workspace');
+            });
         }
 
         function renderStudentWorkspace() {
@@ -1060,8 +1071,8 @@
                         });
                     });
 
-                    // Título limpio para el alumno: "Video 1: [Tema]"
                     const cleanVideoTitle = `Video ${vIdx + 1}: ${vid.tema}`;
+                    const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + vid.archivo;
 
                     return `
                         <div class="video-card">
@@ -1070,7 +1081,7 @@
                             
                             <div class="video-responsive">
                                 <video controls preload="metadata">
-                                    <source src="videos/${vid.archivo}" type="video/mp4">
+                                    <source src="${videoCloudinaryUrl}" type="video/mp4">
                                     Su navegador no soporta la reproducción de video HTML5.
                                 </video>
                             </div>
@@ -1133,7 +1144,6 @@
             const totalPreguntas = activeQuestionsRendered.length || 1;
             const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
 
-            // Guardar resultados reales en Firebase en tiempo real para que el panel del docente los lea sin inventar datos
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
                 db.ref('alumnos_clase/' + studentKey).set({
