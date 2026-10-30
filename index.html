@@ -728,7 +728,7 @@
             switchView('view-teacher-config');
         }
 
-        // Función robusta que extrae y aplica los cambios (reemplazos o adiciones) del profesor
+        // Función robusta normalizando claves de capítulo para extraer preguntas y reemplazos del profesor
         function getPreguntasForVideo(chapterId, videoIdx, videoObj) {
             let preguntasList = [];
             
@@ -784,13 +784,14 @@
                 ];
             }
 
-            // Aplicación directa de los reemplazos y adiciones del profesor (customQuestionsStore)
-            if (customQuestionsStore[chapterId] && customQuestionsStore[chapterId][videoIdx]) {
-                const mod = customQuestionsStore[chapterId][videoIdx];
+            // Aplicación robusta de los reemplazos y adiciones configurados por el docente (buscando por string o number)
+            let storeForChapter = customQuestionsStore[chapterId] || customQuestionsStore[String(chapterId)] || customQuestionsStore[Number(chapterId)];
+            if (storeForChapter && storeForChapter[videoIdx]) {
+                const mod = storeForChapter[videoIdx];
                 if (mod.reemplazos) {
                     for (let targetIdx in mod.reemplazos) {
                         let tIdx = parseInt(targetIdx);
-                        if (preguntasList[tIdx]) {
+                        if (mod.reemplazos[targetIdx]) {
                             preguntasList[tIdx] = mod.reemplazos[targetIdx];
                         }
                     }
@@ -921,7 +922,7 @@
                 alert("¡Pregunta reemplazada con éxito!");
             }
 
-            // Sincronizar inmediatamente con Firebase si la clase ya está activa
+            // Sincronizar inmediatamente con Firebase
             if(classroomConfig && classroomConfig.classname) {
                 db.ref('clase_activa/' + classroomConfig.classname).update({
                     customQuestions: customQuestionsStore
@@ -1040,7 +1041,7 @@
             switchView('view-teacher-questions-viewer');
         }
 
-        // Acceso del estudiante con carga simultánea de las preguntas personalizadas del docente desde Firebase
+        // Acceso del estudiante con escucha en tiempo real de Firebase para sincronizar preguntas modificadas al instante
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -1055,7 +1056,8 @@
 
             currentStudent = { name, code, group, classname };
 
-            db.ref('clase_activa/' + classname).once('value', (snapshot) => {
+            // Usamos .on para escuchar cambios en tiempo real si el docente edita preguntas mientras el alumno está conectado
+            db.ref('clase_activa/' + classname).on('value', (snapshot) => {
                 const classData = snapshot.val();
                 if(classData) {
                     if(classData.capituloId) {
@@ -1068,7 +1070,9 @@
 
                 document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
                 renderStudentWorkspace();
-                switchView('view-student-workspace');
+                if(document.getElementById('view-student-access').classList.contains('active')) {
+                    switchView('view-student-workspace');
+                }
             }, (error) => {
                 document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
                 renderStudentWorkspace();
@@ -1101,18 +1105,19 @@
                 activeQuestionsRendered = [];
                 container.innerHTML = chapterVideos.map((vid, vIdx) => {
                     const preguntasList = getPreguntasForVideo(selectedChapterId, vIdx, vid);
+                    const cleanVideoTitle = `Video ${vIdx + 1}: ${vid.tema || vid.titulo || 'Demostración experimental'}`;
 
                     preguntasList.forEach((p, pIdx) => {
                         activeQuestionsRendered.push({
-                            idVideo: vid.archivo || `vid-${vIdx}`,
-                            preguntaIndex: pIdx,
+                            videoIndex: vIdx,
+                            videoTitle: cleanVideoTitle,
+                            localPreguntaIndex: pIdx,
                             correcta: p.correcta,
                             enunciado: p.pregunta,
                             explicacion: p.explicacion || "Respuesta basada en principios físicos experimentales."
                         });
                     });
 
-                    const cleanVideoTitle = `Video ${vIdx + 1}: ${vid.tema || vid.titulo || 'Demostración experimental'}`;
                     const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + (vid.archivo || `${vid.id}.mp4`);
 
                     return `
@@ -1164,47 +1169,45 @@
 
             let aciertos = 0;
             let errores = 0;
-            let feedbackHTML = '';
-
-            activeQuestionsRendered.forEach((item, idx) => {
-                let matchChoice = -1;
-                let currentRadioGroupIndex = 0;
-                let foundInput = false;
-                
-                for(let v = 0; v < 10; v++) {
-                    for(let q = 0; q < 10; q++) {
-                        const sel = document.querySelector(`input[name="q_${v}_${q}"]:checked`);
-                        if(sel) {
-                            if(currentRadioGroupIndex === idx) {
-                                matchChoice = parseInt(sel.value);
-                                foundInput = true;
-                                break;
-                            }
-                            currentRadioGroupIndex++;
-                        } else {
-                            const groupExists = document.querySelectorAll(`input[name="q_${v}_${q}"]`);
-                            if(groupExists.length > 0) {
-                                if(currentRadioGroupIndex === idx) {
-                                    foundInput = true;
-                                }
-                                currentRadioGroupIndex++;
-                            }
-                        }
-                    }
-                    if(foundInput) break;
+            
+            // Agrupamos el feedback por video con numeración local (1, 2, 3...) por cada video
+            let videosMap = {};
+            activeQuestionsRendered.forEach((item) => {
+                if(!videosMap[item.videoTitle]) {
+                    videosMap[item.videoTitle] = [];
                 }
 
+                const selectedOption = document.querySelector(`input[name="q_${item.videoIndex}_${item.localPreguntaIndex}"]:checked`);
+                const matchChoice = selectedOption ? parseInt(selectedOption.value) : -1;
                 const isCorrect = matchChoice === item.correcta;
+
                 if(isCorrect) aciertos++; else errores++;
 
-                feedbackHTML += `
-                    <div style="background:#ffffff; border:1px solid var(--border-soft); border-left:4px solid ${isCorrect ? '#059669' : '#ef4444'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem;">
-                        <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem;">Pregunta ${idx+1}: ${item.enunciado}</div>
-                        <div style="font-size:0.88rem; margin-bottom:0.4rem;">Estado: <strong>${isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
-                        <div style="font-size:0.85rem; color:var(--text-muted);">Explicación didáctica: ${item.explicacion}</div>
-                    </div>
-                `;
+                videosMap[item.videoTitle].push({
+                    localNum: item.localPreguntaIndex + 1,
+                    enunciado: item.enunciado,
+                    isCorrect: isCorrect,
+                    explicacion: item.explicacion
+                });
             });
+
+            let feedbackHTML = '';
+            for(let vTitle in videosMap) {
+                feedbackHTML += `
+                    <div style="background:#f8fafc; border:1.5px solid var(--border-soft); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem;">
+                        <h4 style="margin:0 0 1rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1.1rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.5rem;">${vTitle}</h4>
+                `;
+                videosMap[vTitle].forEach(q => {
+                    feedbackHTML += `
+                        <div style="background:#ffffff; border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? '#059669' : '#ef4444'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem;">
+                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
+                            <div style="font-size:0.88rem; margin-bottom:0.4rem;">Estado: <strong>${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
+                            <div style="font-size:0.85rem; color:var(--text-muted);">Explicación didáctica: ${q.explicacion}</div>
+                        </div>
+                    `;
+                });
+                feedbackHTML += `</div>`;
+            }
 
             const totalPreguntas = activeQuestionsRendered.length || 1;
             const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
@@ -1234,7 +1237,7 @@
             `;
 
             document.getElementById('feedback-details-container').innerHTML = `
-                <h4 style="margin:0 0 1rem 0; font-family:Georgia,serif; color:var(--text-main);">Retroalimentación y Explicaciones Detalladas:</h4>
+                <h4 style="margin:0 0 1rem 0; font-family:Georgia,serif; color:var(--text-main);">Retroalimentación y Explicaciones Detalladas por Video:</h4>
                 ${feedbackHTML}
             `;
 
