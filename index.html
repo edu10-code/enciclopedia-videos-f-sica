@@ -429,6 +429,63 @@
             </div>
         </div>
 
+        <!-- MODAL / VISTA INTERNA: PROPONER O REEMPLAZAR PREGUNTA -->
+        <div id="view-teacher-question-editor" class="view">
+            <div class="form-card" style="max-width: 800px;">
+                <button class="btn-secondary" onclick="switchView('view-teacher-config')" style="margin-bottom: 1rem;">← Volver a Configuración</button>
+                <h3 id="editor-modal-title">Proponer o Reemplazar Pregunta</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Seleccione si desea agregar una pregunta adicional o reemplazar una de las preguntas establecidas en el banco oficial (`pregunta.js`).</p>
+                
+                <div class="form-grid">
+                    <div class="form-field full">
+                        <label>Acción a Realizar <span class="req">*</span></label>
+                        <select id="edit-action-type" onchange="toggleTargetQuestionSelector()">
+                            <option value="proponer">Proponer nueva pregunta adicional</option>
+                            <option value="reemplazar">Reemplazar una pregunta existente</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field full" id="target-question-container" style="display: none;">
+                        <label>Seleccione la pregunta a reemplazar <span class="req">*</span></label>
+                        <select id="edit-target-index"></select>
+                    </div>
+
+                    <div class="form-field full">
+                        <label>Enunciado de la Pregunta <span class="req">*</span></label>
+                        <textarea id="edit-q-text" rows="3" placeholder="Escriba aquí el enunciado claro de la pregunta..."></textarea>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Alternativa A <span class="req">*</span></label>
+                        <input type="text" id="edit-opt-0" placeholder="Opción A">
+                    </div>
+                    <div class="form-field">
+                        <label>Alternativa B <span class="req">*</span></label>
+                        <input type="text" id="edit-opt-1" placeholder="Opción B">
+                    </div>
+                    <div class="form-field">
+                        <label>Alternativa C <span class="req">*</span></label>
+                        <input type="text" id="edit-opt-2" placeholder="Opción C">
+                    </div>
+                    <div class="form-field">
+                        <label>Alternativa D <span class="req">*</span></label>
+                        <input type="text" id="edit-opt-3" placeholder="Opción D">
+                    </div>
+
+                    <div class="form-field full">
+                        <label>Alternativa Correcta <span class="req">*</span></label>
+                        <select id="edit-correct-idx">
+                            <option value="0">Opción A</option>
+                            <option value="1">Opción B</option>
+                            <option value="2">Opción C</option>
+                            <option value="3">Opción D</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-action-teacher" onclick="saveCustomOrReplacementQuestion()">GUARDAR CAMBIOS EN LA PREGUNTA ➔</button>
+            </div>
+        </div>
+
         <!-- 4. PANEL DEL DOCENTE Y ESTADÍSTICAS -->
         <div id="view-teacher-dashboard" class="view">
             <div class="alert-banner-docente" id="docente-info-banner"></div>
@@ -457,7 +514,10 @@
 
             <div class="dashboard-header">
                 <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif;">Registro y Calificación de Alumnos</h3>
-                <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir Reporte / Guardar PDF</button>
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#1e3a8a; color:#fff; border:none;">📋 Ver Preguntas de la Clase</button>
+                    <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir Reporte / Guardar PDF</button>
+                </div>
             </div>
 
             <div class="dashboard-table-container">
@@ -484,6 +544,19 @@
             </div>
 
             <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-top: 2rem;">Cerrar Sesión Docente</button>
+        </div>
+
+        <!-- VISTA DE CONSULTA DE PREGUNTAS PARA EL DOCENTE (SIN PERDER DATOS) -->
+        <div id="view-teacher-questions-viewer" class="view">
+            <div class="form-card" style="max-width: 900px;">
+                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 1rem;">← Volver al Panel de Control</button>
+                <h3 style="color: #1e3a8a; font-family: Georgia, serif;">Banco de Preguntas Activas de la Sesión</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Consulte aquí el detalle de las preguntas asignadas a los videos de la clase para responder con precisión las dudas de sus estudiantes.</p>
+                
+                <div id="teacher-viewer-content-container"></div>
+
+                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 2rem;">← Volver al Panel de Control</button>
+            </div>
         </div>
 
         <!-- 5. ACCESO DEL ESTUDIANTE -->
@@ -626,10 +699,15 @@
         let classroomConfig = null;
         let selectedChapterId = 1;
         let activeQuestionsRendered = [];
-        let customQuestionsStore = {}; // Almacena preguntas propuestas o reemplazadas por el docente
+        
+        // Estructura de modificaciones de preguntas realizadas por el docente (proponer/reemplazar)
+        // Formato: customQuestionsStore[chapterId][videoIndex] = { preguntas: [...], reemplazos: { targetIdx: newObj } }
+        let customQuestionsStore = {};
+        let activeEditingContext = { chapterId: 1, videoIdx: 0 };
 
         window.onload = function() {
             renderChapterSelectionCards();
+            listenToFirebaseRealtimeData();
         };
 
         function switchView(viewId) {
@@ -694,29 +772,40 @@
             if(videosContainer) {
                 videosContainer.innerHTML = chapterVideos.map((vid, idx) => {
                     const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(idx+1).padStart(2,'0')}`)) : null;
-                    let preguntasList = matchedBankVideo ? [...matchedBankVideo.preguntas] : [];
                     
-                    // Incluir preguntas personalizadas propuestas si existen
-                    const customKey = `${selectedChapterId}_${idx}`;
-                    if(customQuestionsStore[customKey]) {
-                        preguntasList = preguntasList.concat(customQuestionsStore[customKey]);
+                    // Obtener lista base de preguntas y aplicar modificaciones del profesor
+                    let preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? [...matchedBankVideo.preguntas] : [];
+                    
+                    if(customQuestionsStore[selectedChapterId] && customQuestionsStore[selectedChapterId][idx]) {
+                        const mod = customQuestionsStore[selectedChapterId][idx];
+                        if(mod.reemplazos) {
+                            for(let targetIdx in mod.reemplazos) {
+                                if(preguntasList[targetIdx]) {
+                                    preguntasList[targetIdx] = mod.reemplazos[targetIdx];
+                                }
+                            }
+                        }
+                        if(mod.adicionales) {
+                            preguntasList = preguntasList.concat(mod.adicionales);
+                        }
                     }
 
+                    // Limpiar nombre del video para que solo muestre "video uno [Tema]", tal como se solicitó
+                    const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}`;
+
                     return `
-                        <div class="teacher-config-video-card" id="config-video-card-${idx}">
-                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">Video #${idx+1}: ${vid.archivo}</div>
-                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Tema: ${vid.tema} | Objetivo: ${vid.objetivo}</div>
+                        <div class="teacher-config-video-card">
+                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${cleanVideoTitle}</div>
+                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo original: ${vid.archivo} | Objetivo: ${vid.objetivo}</div>
                             <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas para la sesión:</div>
-                            <div id="questions-list-${idx}">
-                                ${preguntasList.map((p, pIdx) => `
-                                    <div class="teacher-suggested-q">
-                                        <strong>P${pIdx+1}:</strong> ${p.pregunta}
-                                        <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <button class="btn-secondary" onclick="openCustomQuestionModal(${selectedChapterId}, ${idx})" style="background:#fef3c7; border-color:#f59e0b; color:#b45309; margin-top:0.5rem;">
-                                ✏️ Proponer o Reemplazar Pregunta Adicional
+                            ${preguntasList.map((p, pIdx) => `
+                                <div class="teacher-suggested-q">
+                                    <strong>P${pIdx+1}:</strong> ${p.pregunta}
+                                    <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
+                                </div>
+                            `).join('')}
+                            <button class="btn-secondary" onclick="openQuestionEditorModal(${selectedChapterId}, ${idx})" style="background:#fef3c7; border-color:#f59e0b; color:#b45309; margin-top:0.5rem;">
+                                ✏️ Proponer o Reemplazar Pregunta
                             </button>
                         </div>
                     `;
@@ -724,29 +813,67 @@
             }
         }
 
-        function openCustomQuestionModal(chapterId, videoIdx) {
-            const nuevaPregunta = prompt("Ingrese el enunciado de la nueva pregunta personalizada para este video:");
-            if(!nuevaPregunta) return;
-            const opA = prompt("Alternativa A:");
-            const opB = prompt("Alternativa B:");
-            const opC = prompt("Alternativa C:");
-            const opD = prompt("Alternativa D:");
-            const correctaStr = prompt("Indique la alternativa correcta (0 para A, 1 para B, 2 para C, 3 para D):");
-            const correcta = parseInt(correctaStr);
+        function openQuestionEditorModal(chapterId, videoIdx) {
+            activeEditingContext = { chapterId, videoIdx };
+            
+            // Cargar selector de preguntas existentes para la opción de reemplazar
+            const chapterBank = typeof bancoPreguntas !== 'undefined' ? bancoPreguntas[chapterId] : null;
+            const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(videoIdx+1).padStart(2,'0')}`)) : null;
+            const preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? matchedBankVideo.preguntas : [];
 
-            if(nuevaPregunta && opA && opB && opC && opD && !isNaN(correcta)) {
-                const customKey = `${chapterId}_${videoIdx}`;
-                if(!customQuestionsStore[customKey]) customQuestionsStore[customKey] = [];
-                customQuestionsStore[customKey].push({
-                    pregunta: nuevaPregunta,
-                    opciones: [opA, opB, opC, opD],
-                    correcta: correcta
-                });
-                alert("¡Pregunta propuesta agregada con éxito!");
-                renderTeacherConfigurationView();
-            } else {
-                alert("Datos incompletos o inválidos. Intente nuevamente.");
+            const targetSelect = document.getElementById('edit-target-index');
+            targetSelect.innerHTML = preguntasList.map((p, i) => `<option value="${i}">Pregunta ${i+1}: ${p.pregunta.substring(0, 60)}...</option>`).join('');
+
+            document.getElementById('edit-q-text').value = '';
+            document.getElementById('edit-opt-0').value = '';
+            document.getElementById('edit-opt-1').value = '';
+            document.getElementById('edit-opt-2').value = '';
+            document.getElementById('edit-opt-3').value = '';
+            document.getElementById('edit-action-type').value = 'proponer';
+            toggleTargetQuestionSelector();
+
+            switchView('view-teacher-question-editor');
+        }
+
+        function toggleTargetQuestionSelector() {
+            const action = document.getElementById('edit-action-type').value;
+            const container = document.getElementById('target-question-container');
+            container.style.display = (action === 'reemplazar') ? 'block' : 'none';
+        }
+
+        function saveCustomOrReplacementQuestion() {
+            const action = document.getElementById('edit-action-type').value;
+            const qText = document.getElementById('edit-q-text').value.trim();
+            const opts = [
+                document.getElementById('edit-opt-0').value.trim(),
+                document.getElementById('edit-opt-1').value.trim(),
+                document.getElementById('edit-opt-2').value.trim(),
+                document.getElementById('edit-opt-3').value.trim()
+            ];
+            const correcta = parseInt(document.getElementById('edit-correct-idx').value);
+
+            if(!qText || opts.some(o => !o)) {
+                alert("Por favor, complete el enunciado de la pregunta y todas las alternativas.");
+                return;
             }
+
+            const { chapterId, videoIdx } = activeEditingContext;
+            if(!customQuestionsStore[chapterId]) customQuestionsStore[chapterId] = {};
+            if(!customQuestionsStore[chapterId][videoIdx]) customQuestionsStore[chapterId][videoIdx] = { adicionales: [], reemplazos: {} };
+
+            const newQObj = { pregunta: qText, opciones: opts, correcta: correcta };
+
+            if(action === 'proponer') {
+                customQuestionsStore[chapterId][videoIdx].adicionales.push(newQObj);
+                alert("¡Pregunta adicional propuesta con éxito!");
+            } else {
+                const targetIdx = parseInt(document.getElementById('edit-target-index').value);
+                customQuestionsStore[chapterId][videoIdx].reemplazos[targetIdx] = newQObj;
+                alert("¡Pregunta reemplazada con éxito en el banco oficial!");
+            }
+
+            renderTeacherConfigurationView();
+            switchView('view-teacher-config');
         }
 
         function saveTeacherConfiguration() {
@@ -760,19 +887,112 @@
             document.getElementById('stat-page-ratings').innerText = "4.8 / 5.0 (Excelente interfaz)";
             document.getElementById('stat-comments-count').innerText = "12 comentarios registrados";
 
-            const tbody = document.getElementById('students-table-body');
-            tbody.innerHTML = `
-                <tr><td>1</td><td>Quispe Mendoza, Carlos Alberto</td><td>20130026</td><td>Grupo 3</td><td><strong>18.5</strong></td><td>6 aciertos / 1 error</td></tr>
-                <tr><td>2</td><td>García Ramos, María Elena</td><td>20194512</td><td>Grupo 1</td><td><strong>16.0</strong></td><td>5 aciertos / 2 errores</td></tr>
-                <tr><td>3</td><td>Rodríguez Silva, Jorge Luis</td><td>20210389</td><td>Grupo 2</td><td><strong>14.2</strong></td><td>4 aciertos / 3 errores</td></tr>
-            `;
-
-            document.getElementById('teacher-comments-container').innerHTML = `
-                <div class="comment-item"><strong>Carlos Quispe (Grupo 3):</strong> "Excelente material audiovisual, los videos ayudan mucho a comprender la teoría física."</div>
-                <div class="comment-item"><strong>María García (Grupo 1):</strong> "Muy buena plataforma interactiva, los cuestionarios son directos."</div>
-            `;
-
             switchView('view-teacher-dashboard');
+        }
+
+        // Conexión real con Firebase en tiempo real para obtener alumnos reales sin inventar nombres ni códigos
+        function listenToFirebaseRealtimeData() {
+            const studentsRef = db.ref('alumnos_clase');
+            studentsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                const tbody = document.getElementById('students-table-body');
+                if(!tbody) return;
+
+                if(!data) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Esperando conexiones de alumnos en tiempo real desde Firebase...</td></tr>`;
+                    return;
+                }
+
+                let rowsHTML = '';
+                let index = 1;
+                for(let key in data) {
+                    const st = data[key];
+                    rowsHTML += `
+                        <tr>
+                            <td>${index++}</td>
+                            <td>${st.nombre || 'Sin nombre'}</td>
+                            <td>${st.codigo || '---'}</td>
+                            <td>Grupo ${st.grupo || '1'}</td>
+                            <td><strong>${st.notaFinal || '0.0'}</strong></td>
+                            <td>${st.aciertos || 0} aciertos / ${st.errores || 0} errores</td>
+                        </tr>
+                    `;
+                }
+                tbody.innerHTML = rowsHTML;
+            }, (error) => {
+                console.error("Error al leer Firebase:", error);
+            });
+
+            const commentsRef = db.ref('comentarios_pagina');
+            commentsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                const container = document.getElementById('teacher-comments-container');
+                if(!container) return;
+
+                if(!data) {
+                    container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Aún no hay comentarios registrados.</p>`;
+                    return;
+                }
+
+                let commentsHTML = '';
+                for(let key in data) {
+                    const com = data[key];
+                    commentsHTML += `
+                        <div class="comment-item">
+                            <strong>${com.estudiante || 'Alumno'} (Grupo ${com.grupo || '3'}):</strong> "${com.comentario}"
+                        </div>
+                    `;
+                }
+                container.innerHTML = commentsHTML;
+            });
+        }
+
+        // Función para ver las preguntas desde el panel del docente sin perder datos ni salir de la vista principal
+        function openTeacherQuestionsViewer() {
+            const viewerContainer = document.getElementById('teacher-viewer-content-container');
+            const chapterData = typeof capitulosCatalog !== 'undefined' ? capitulosCatalog.find(c => c.id === selectedChapterId) : null;
+            const chapterVideos = typeof videosPorCapitulo !== 'undefined' ? videosPorCapitulo[selectedChapterId] : [];
+            const chapterBank = typeof bancoPreguntas !== 'undefined' ? bancoPreguntas[selectedChapterId] : null;
+
+            if(!viewerContainer) return;
+
+            viewerContainer.innerHTML = chapterVideos.map((vid, idx) => {
+                const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(idx+1).padStart(2,'0')}`)) : null;
+                let preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? [...matchedBankVideo.preguntas] : [];
+                
+                if(customQuestionsStore[selectedChapterId] && customQuestionsStore[selectedChapterId][idx]) {
+                    const mod = customQuestionsStore[selectedChapterId][idx];
+                    if(mod.reemplazos) {
+                        for(let targetIdx in mod.reemplazos) {
+                            if(preguntasList[targetIdx]) preguntasList[targetIdx] = mod.reemplazos[targetIdx];
+                        }
+                    }
+                    if(mod.adicionales) preguntasList = preguntasList.concat(mod.adicionales);
+                }
+
+                const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}`;
+
+                return `
+                    <div class="teacher-config-video-card" style="margin-bottom:1.5rem;">
+                        <div style="font-weight:800; color:var(--accent-teacher); font-size:1.05rem; margin-bottom:0.3rem;">${cleanVideoTitle}</div>
+                        <div style="font-size:0.86rem; color:var(--text-muted); margin-bottom:1rem;">Objetivo: ${vid.objetivo}</div>
+                        ${preguntasList.map((p, pIdx) => `
+                            <div class="teacher-suggested-q">
+                                <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
+                                <ul style="margin: 0.5rem 0 0 1rem; padding:0; font-size:0.86rem; list-style-type:none;">
+                                    ${p.opciones.map((opt, oIdx) => `
+                                        <li style="color:${oIdx === p.correcta ? '#059669' : 'var(--text-main)'}; font-weight:${oIdx === p.correcta ? '700' : '400'};">
+                                            ${String.fromCharCode(65 + oIdx)}. ${opt} ${oIdx === p.correcta ? ' ✓ (Correcta)' : ''}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }).join('');
+
+            switchView('view-teacher-questions-viewer');
         }
 
         function studentEnter() {
@@ -819,11 +1039,16 @@
                 activeQuestionsRendered = [];
                 container.innerHTML = chapterVideos.map((vid, vIdx) => {
                     const matchedBankVideo = chapterBank && chapterBank.videos ? chapterBank.videos.find(v => v.id.endsWith(`-${String(vIdx+1).padStart(2,'0')}`)) : null;
-                    let preguntasList = matchedBankVideo ? [...matchedBankVideo.preguntas] : [];
+                    let preguntasList = matchedBankVideo && matchedBankVideo.preguntas ? [...matchedBankVideo.preguntas] : [];
                     
-                    const customKey = `${selectedChapterId}_${vIdx}`;
-                    if(customQuestionsStore[customKey]) {
-                        preguntasList = preguntasList.concat(customQuestionsStore[customKey]);
+                    if(customQuestionsStore[selectedChapterId] && customQuestionsStore[selectedChapterId][vIdx]) {
+                        const mod = customQuestionsStore[selectedChapterId][vIdx];
+                        if(mod.reemplazos) {
+                            for(let targetIdx in mod.reemplazos) {
+                                if(preguntasList[targetIdx]) preguntasList[targetIdx] = mod.reemplazos[targetIdx];
+                            }
+                        }
+                        if(mod.adicionales) preguntasList = preguntasList.concat(mod.adicionales);
                     }
 
                     preguntasList.forEach((p, pIdx) => {
@@ -835,10 +1060,13 @@
                         });
                     });
 
+                    // Título limpio para el alumno: "Video 1: [Tema]"
+                    const cleanVideoTitle = `Video ${vIdx + 1}: ${vid.tema}`;
+
                     return `
                         <div class="video-card">
-                            <div class="video-title-bar">${vid.archivo}</div>
-                            <div class="video-theme-bar">Tema: ${vid.tema}</div>
+                            <div class="video-title-bar">${cleanVideoTitle}</div>
+                            <div class="video-theme-bar">Importante: Demostración oficial UNMSM</div>
                             
                             <div class="video-responsive">
                                 <video controls preload="metadata">
@@ -904,6 +1132,25 @@
 
             const totalPreguntas = activeQuestionsRendered.length || 1;
             const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
+
+            // Guardar resultados reales en Firebase en tiempo real para que el panel del docente los lea sin inventar datos
+            if(currentStudent) {
+                const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
+                db.ref('alumnos_clase/' + studentKey).set({
+                    nombre: currentStudent.name,
+                    codigo: currentStudent.code,
+                    grupo: currentStudent.group,
+                    notaFinal: notaFinal,
+                    aciertos: aciertos,
+                    errores: errores
+                });
+
+                db.ref('comentarios_pagina/').push({
+                    estudiante: currentStudent.name,
+                    grupo: currentStudent.group,
+                    comentario: comment
+                });
+            }
 
             document.getElementById('feedback-header-box').innerHTML = `
                 <h2 style="margin:0 0 0.5rem 0; color:#065f46; font-family:Georgia,serif;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
