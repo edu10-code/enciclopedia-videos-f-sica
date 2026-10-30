@@ -644,7 +644,6 @@
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
 
-        // Respaldo de seguridad integrado por si videos.js no define capitulosCatalog o videosPorCapitulo
         const fallbackCapitulosCatalog = [
             { id: 1, title: "Capítulo 1: Unidades e Incertidumbres", introLab: "Introducción a unidades del SI y mediciones.", objGeneral: "Comprender el SI y propagación de errores.", color: "#059669", icon: "01" },
             { id: 2, title: "Capítulo 2: Cinemática en una Dimensión", introLab: "Estudio de MRU y MRUV en rieles de aire.", objGeneral: "Analizar la cinemática mediante sensores.", color: "#1e3a8a", icon: "02" },
@@ -674,7 +673,6 @@
             if (typeof videosPorCapitulo !== 'undefined' && videosPorCapitulo[chapterId]) {
                 return videosPorCapitulo[chapterId];
             }
-            // Fallback de videos extraídos del banco de preguntas o estándar
             if (typeof bancoPreguntas !== 'undefined' && bancoPreguntas[chapterId] && bancoPreguntas[chapterId].videos) {
                 return bancoPreguntas[chapterId].videos.map(v => ({
                     id: v.id,
@@ -722,18 +720,18 @@
             
             db.ref('clase_activa/' + classname).set({
                 docente: name,
-                capituloId: selectedChapterId
+                capituloId: selectedChapterId,
+                customQuestions: customQuestionsStore || {}
             });
 
             renderTeacherConfigurationView();
             switchView('view-teacher-config');
         }
 
-        // Función ULTRA ROBUSTA para extraer preguntas de bancoPreguntas
+        // Función robusta que extrae y aplica los cambios (reemplazos o adiciones) del profesor
         function getPreguntasForVideo(chapterId, videoIdx, videoObj) {
             let preguntasList = [];
             
-            // Buscar banco de preguntas normalizando claves (string o número)
             let bank = null;
             if (typeof bancoPreguntas !== 'undefined') {
                 bank = bancoPreguntas[chapterId] || bancoPreguntas[String(chapterId)] || bancoPreguntas[Number(chapterId)];
@@ -755,12 +753,10 @@
                 }
             }
 
-            // Si por alguna razón bancoPreguntas no tiene el video, buscamos directamente en el objeto de preguntas del capítulo
             if (preguntasList.length === 0 && bank && bank.preguntas && bank.preguntas[videoIdx]) {
                 preguntasList = [...bank.preguntas[videoIdx]];
             }
 
-            // Respaldo infalible para que nunca se quede sin preguntas
             if (preguntasList.length === 0) {
                 preguntasList = [
                     {
@@ -788,17 +784,18 @@
                 ];
             }
 
-            // Inyección de preguntas personalizadas del docente
-            if(customQuestionsStore[chapterId] && customQuestionsStore[chapterId][videoIdx]) {
+            // Aplicación directa de los reemplazos y adiciones del profesor (customQuestionsStore)
+            if (customQuestionsStore[chapterId] && customQuestionsStore[chapterId][videoIdx]) {
                 const mod = customQuestionsStore[chapterId][videoIdx];
-                if(mod.reemplazos) {
-                    for(let targetIdx in mod.reemplazos) {
-                        if(preguntasList[targetIdx]) {
-                            preguntasList[targetIdx] = mod.reemplazos[targetIdx];
+                if (mod.reemplazos) {
+                    for (let targetIdx in mod.reemplazos) {
+                        let tIdx = parseInt(targetIdx);
+                        if (preguntasList[tIdx]) {
+                            preguntasList[tIdx] = mod.reemplazos[targetIdx];
                         }
                     }
                 }
-                if(mod.adicionales) {
+                if (mod.adicionales && Array.isArray(mod.adicionales)) {
                     preguntasList = preguntasList.concat(mod.adicionales);
                 }
             }
@@ -913,7 +910,7 @@
             if(!customQuestionsStore[chapterId]) customQuestionsStore[chapterId] = {};
             if(!customQuestionsStore[chapterId][videoIdx]) customQuestionsStore[chapterId][videoIdx] = { adicionales: [], reemplazos: {} };
 
-            const newQObj = { pregunta: qText, opciones: opts, correcta: correcta, explicacion: "Pregunta configurada por el docente." };
+            const newQObj = { pregunta: qText, opciones: opts, correcta: correcta, explicacion: "Pregunta sugerida y personalizada por el docente." };
 
             if(action === 'proponer') {
                 customQuestionsStore[chapterId][videoIdx].adicionales.push(newQObj);
@@ -924,10 +921,25 @@
                 alert("¡Pregunta reemplazada con éxito!");
             }
 
+            // Sincronizar inmediatamente con Firebase si la clase ya está activa
+            if(classroomConfig && classroomConfig.classname) {
+                db.ref('clase_activa/' + classroomConfig.classname).update({
+                    customQuestions: customQuestionsStore
+                });
+            }
+
             renderTeacherConfigurationView();
         }
 
         function saveTeacherConfiguration() {
+            if(classroomConfig && classroomConfig.classname) {
+                db.ref('clase_activa/' + classroomConfig.classname).set({
+                    docente: classroomConfig.teacher,
+                    capituloId: selectedChapterId,
+                    customQuestions: customQuestionsStore
+                });
+            }
+
             alert("¡Clase creada y configurada con éxito en Firebase!");
             
             document.getElementById('docente-info-banner').innerHTML = `
@@ -997,7 +1009,6 @@
 
         function openTeacherQuestionsViewer() {
             const viewerContainer = document.getElementById('teacher-viewer-content-container');
-            const catalog = getCatalog();
             const chapterVideos = getVideosForChapter(selectedChapterId);
 
             if(!viewerContainer) return;
@@ -1029,6 +1040,7 @@
             switchView('view-teacher-questions-viewer');
         }
 
+        // Acceso del estudiante con carga simultánea de las preguntas personalizadas del docente desde Firebase
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -1045,8 +1057,13 @@
 
             db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const classData = snapshot.val();
-                if(classData && classData.capituloId) {
-                    selectedChapterId = parseInt(classData.capituloId);
+                if(classData) {
+                    if(classData.capituloId) {
+                        selectedChapterId = parseInt(classData.capituloId);
+                    }
+                    if(classData.customQuestions) {
+                        customQuestionsStore = classData.customQuestions;
+                    }
                 }
 
                 document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
@@ -1150,24 +1167,14 @@
             let feedbackHTML = '';
 
             activeQuestionsRendered.forEach((item, idx) => {
-                const qNum = idx; 
-                // Buscamos dinámicamente el input seleccionado evaluando los índices de video y pregunta
-                let selectedOption = null;
-                // Intentamos rastrear mediante querySelectorAll
-                const radios = document.querySelectorAll(`input[type="radio"]`);
-                // Como las preguntas están mapeadas secuencialmente en activeQuestionsRendered:
-                let currentRadioGroupIndex = 0;
-                
-                // Recorremos los videos y preguntas para encontrar el input seleccionado del índice idx
                 let matchChoice = -1;
+                let currentRadioGroupIndex = 0;
                 let foundInput = false;
                 
-                // Forma directa buscando por el nombre compuesto q_{v}_{q}
                 for(let v = 0; v < 10; v++) {
                     for(let q = 0; q < 10; q++) {
                         const sel = document.querySelector(`input[name="q_${v}_${q}"]:checked`);
                         if(sel) {
-                            // Verificamos si corresponde al índice global actual
                             if(currentRadioGroupIndex === idx) {
                                 matchChoice = parseInt(sel.value);
                                 foundInput = true;
@@ -1175,7 +1182,6 @@
                             }
                             currentRadioGroupIndex++;
                         } else {
-                            // Contamos los grupos existentes aunque no estén marcados
                             const groupExists = document.querySelectorAll(`input[name="q_${v}_${q}"]`);
                             if(groupExists.length > 0) {
                                 if(currentRadioGroupIndex === idx) {
