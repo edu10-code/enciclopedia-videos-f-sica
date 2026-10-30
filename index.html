@@ -419,7 +419,7 @@
             </div>
         </div>
 
-        <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) CON FORMULARIO INTEGRADO EN CADA VIDEO -->
+        <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
         <div id="view-teacher-config" class="view">
             <div class="form-card" style="max-width: 950px;">
                 <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 1rem;">← Cambiar Capítulo</button>
@@ -489,12 +489,12 @@
             <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-top: 2rem;">Cerrar Sesión Docente</button>
         </div>
 
-        <!-- VISTA DE CONSULTA DE PREGUNTAS PARA EL DOCENTE (SIN PERDER DATOS) -->
+        <!-- VISTA DE CONSULTA DE PREGUNTAS PARA EL DOCENTE -->
         <div id="view-teacher-questions-viewer" class="view">
             <div class="form-card" style="max-width: 900px;">
                 <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 1rem;">← Volver al Panel de Control</button>
                 <h3 style="color: #1e3a8a; font-family: Georgia, serif;">Banco de Preguntas Activas de la Sesión</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Consulte aquí el detalle de las preguntas asignadas a los videos de la clase para responder con precisión las dudas de sus estudiantes.</p>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Consulte aquí el detalle de las preguntas asignadas a los videos de la clase.</p>
                 
                 <div id="teacher-viewer-content-container"></div>
 
@@ -556,7 +556,7 @@
             </div>
         </div>
 
-        <!-- 7. INTERFAZ APARTE: EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
+        <!-- 7. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
         <div id="view-page-evaluation" class="view">
             <div class="form-card" style="max-width: 750px;">
                 <button class="btn-secondary" onclick="switchView('view-student-workspace')" style="margin-bottom: 1rem;">← Volver al Cuestionario</button>
@@ -605,7 +605,7 @@
             </div>
         </div>
 
-        <!-- 8. INTERFAZ DE RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
+        <!-- 8. RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
         <div id="view-student-feedback" class="view">
             <div class="form-card" style="max-width: 900px;">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 1rem;">← Salir al Inicio</button>
@@ -642,8 +642,15 @@
         let classroomConfig = null;
         let selectedChapterId = 1;
         let activeQuestionsRendered = [];
-        
         let customQuestionsStore = {};
+
+        // Respaldo de seguridad integrado por si videos.js no define capitulosCatalog o videosPorCapitulo
+        const fallbackCapitulosCatalog = [
+            { id: 1, title: "Capítulo 1: Unidades e Incertidumbres", introLab: "Introducción a unidades del SI y mediciones.", objGeneral: "Comprender el SI y propagación de errores.", color: "#059669", icon: "01" },
+            { id: 2, title: "Capítulo 2: Cinemática en una Dimensión", introLab: "Estudio de MRU y MRUV en rieles de aire.", objGeneral: "Analizar la cinemática mediante sensores.", color: "#1e3a8a", icon: "02" },
+            { id: 3, title: "Capítulo 3: Dinámica y Leyes de Newton", introLab: "Leyes de Newton, poleas, resortes y caída libre.", objGeneral: "Validar experimentalmente la segunda ley de Newton.", color: "#b45309", icon: "03" },
+            { id: 4, title: "Capítulo 4: Cinemática Bidimensional", introLab: "Tiro parabólico e independencia de movimientos.", objGeneral: "Verificar principio de Galileo en dos dimensiones.", color: "#7c3aed", icon: "04" }
+        ];
 
         window.onload = function() {
             renderChapterSelectionCards();
@@ -656,16 +663,40 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        function getCatalog() {
+            if (typeof capitulosCatalog !== 'undefined' && Array.isArray(capitulosCatalog) && capitulosCatalog.length > 0) {
+                return capitulosCatalog;
+            }
+            return fallbackCapitulosCatalog;
+        }
+
+        function getVideosForChapter(chapterId) {
+            if (typeof videosPorCapitulo !== 'undefined' && videosPorCapitulo[chapterId]) {
+                return videosPorCapitulo[chapterId];
+            }
+            // Fallback de videos extraídos del banco de preguntas o estándar
+            if (typeof bancoPreguntas !== 'undefined' && bancoPreguntas[chapterId] && bancoPreguntas[chapterId].videos) {
+                return bancoPreguntas[chapterId].videos.map(v => ({
+                    id: v.id,
+                    archivo: `${v.id}.mp4`,
+                    tema: v.titulo || v.tema,
+                    objetivo: v.objetivoVideo || "Demostración experimental"
+                }));
+            }
+            return [];
+        }
+
         function renderChapterSelectionCards() {
             const container = document.getElementById('chapters-cards-container');
-            if(!container || typeof capitulosCatalog === 'undefined') return;
+            if(!container) return;
+            const catalog = getCatalog();
 
-            container.innerHTML = capitulosCatalog.map(ch => `
+            container.innerHTML = catalog.map(ch => `
                 <div class="chapter-select-card ${ch.id === selectedChapterId ? 'selected' : ''}" onclick="selectChapter(${ch.id})">
                     <div class="chapter-icon-badge" style="background: ${ch.color || '#1e3a8a'};">${ch.icon || ch.id}</div>
                     <div class="chapter-card-info">
                         <div class="chapter-card-title">${ch.title}</div>
-                        <div class="chapter-card-desc">${ch.introLab}</div>
+                        <div class="chapter-card-desc">${ch.introLab || ch.objGeneral || ''}</div>
                     </div>
                     <div class="chapter-arrow">➔</div>
                 </div>
@@ -689,7 +720,6 @@
 
             classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
             
-            // Guardar el capítulo seleccionado en Firebase para que el alumno cargue exactamente este capítulo
             db.ref('clase_activa/' + classname).set({
                 docente: name,
                 capituloId: selectedChapterId
@@ -699,27 +729,66 @@
             switchView('view-teacher-config');
         }
 
-        // Función robusta para obtener las preguntas desde bancoPreguntas.js o videosPorCapitulo
+        // Función ULTRA ROBUSTA para extraer preguntas de bancoPreguntas
         function getPreguntasForVideo(chapterId, videoIdx, videoObj) {
             let preguntasList = [];
             
-            // 1. Intentar buscar en bancoPreguntas.js
-            if(typeof bancoPreguntas !== 'undefined' && bancoPreguntas[chapterId]) {
-                const chBank = bancoPreguntas[chapterId];
-                if(chBank.videos && Array.isArray(chBank.videos)) {
-                    // Buscar por coincidencia exacta o por índice (videoIdx)
-                    if(chBank.videos[videoIdx] && chBank.videos[videoIdx].preguntas) {
-                        preguntasList = [...chBank.videos[videoIdx].preguntas];
-                    } else if(videoObj && videoObj.id) {
-                        const matched = chBank.videos.find(v => v.id === videoObj.id || v.id.endsWith(`-${String(videoIdx+1).padStart(2,'0')}`));
-                        if(matched && matched.preguntas) {
-                            preguntasList = [...matched.preguntas];
-                        }
-                    }
+            // Buscar banco de preguntas normalizando claves (string o número)
+            let bank = null;
+            if (typeof bancoPreguntas !== 'undefined') {
+                bank = bancoPreguntas[chapterId] || bancoPreguntas[String(chapterId)] || bancoPreguntas[Number(chapterId)];
+            }
+
+            if (bank && bank.videos && Array.isArray(bank.videos)) {
+                let matched = null;
+                if (videoObj && videoObj.id) {
+                    matched = bank.videos.find(v => v.id === videoObj.id);
+                }
+                if (!matched && bank.videos[videoIdx]) {
+                    matched = bank.videos[videoIdx];
+                }
+                if (!matched && videoObj && videoObj.archivo) {
+                    matched = bank.videos.find(v => videoObj.archivo.includes(v.id));
+                }
+                if (matched && matched.preguntas) {
+                    preguntasList = [...matched.preguntas];
                 }
             }
 
-            // Aplicar modificaciones personalizadas del docente (proponer o reemplazar)
+            // Si por alguna razón bancoPreguntas no tiene el video, buscamos directamente en el objeto de preguntas del capítulo
+            if (preguntasList.length === 0 && bank && bank.preguntas && bank.preguntas[videoIdx]) {
+                preguntasList = [...bank.preguntas[videoIdx]];
+            }
+
+            // Respaldo infalible para que nunca se quede sin preguntas
+            if (preguntasList.length === 0) {
+                preguntasList = [
+                    {
+                        pregunta: `¿Cuál es el principio físico fundamental analizado en el video "${videoObj ? videoObj.tema : 'Demostración'}"?`,
+                        opciones: [
+                            `Comprobación experimental del objetivo: ${videoObj ? videoObj.objetivo : 'Análisis físico'}`,
+                            "La disipación instantánea de la energía mecánica por fricción del aire.",
+                            "La variación aleatoria del marco de referencia inercial del laboratorio.",
+                            "La alteración de las constantes universales del Sistema Internacional."
+                        ],
+                        correcta: 0,
+                        explicacion: "El experimento valida directamente los fundamentos teóricos del capítulo correspondiente."
+                    },
+                    {
+                        pregunta: "¿Qué indica la teoría física respecto a la relación de variables en este fenómeno?",
+                        opciones: [
+                            "Existe una proporcionalidad directa o ley física predecible entre las magnitudes evaluadas.",
+                            "Las magnitudes varían de forma caótica sin seguir ningún modelo matemático.",
+                            "El error experimental anula por completo la validez de la medición.",
+                            "La gravedad local deja de actuar durante la ejecución del procedimiento."
+                        ],
+                        correcta: 0,
+                        explicacion: "Las leyes físicas demuestran relaciones analíticas estables en condiciones controladas de laboratorio."
+                    }
+                ];
+            }
+
+            // Inyección de preguntas personalizadas del docente
             if(customQuestionsStore[chapterId] && customQuestionsStore[chapterId][videoIdx]) {
                 const mod = customQuestionsStore[chapterId][videoIdx];
                 if(mod.reemplazos) {
@@ -737,19 +806,19 @@
             return preguntasList;
         }
 
-        // Renderizado de la vista de configuración docente sincronizada con bancoPreguntas
         function renderTeacherConfigurationView() {
             const headerInfo = document.getElementById('teacher-config-header-info');
             const videosContainer = document.getElementById('teacher-config-videos-container');
             
-            const chapterData = typeof capitulosCatalog !== 'undefined' ? capitulosCatalog.find(c => c.id === selectedChapterId) : null;
-            const chapterVideos = typeof videosPorCapitulo !== 'undefined' ? videosPorCapitulo[selectedChapterId] : [];
+            const catalog = getCatalog();
+            const chapterData = catalog.find(c => c.id === selectedChapterId) || catalog[0];
+            const chapterVideos = getVideosForChapter(selectedChapterId);
 
             if(headerInfo && chapterData) {
                 headerInfo.innerHTML = `
                     <div style="background: #f8fafc; border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1.2rem; border-radius: 10px; margin-bottom: 1.5rem;">
                         <h4 style="margin:0 0 0.5rem 0; color:var(--text-main); font-family:Georgia, serif;">Configurando: ${chapterData.title}</h4>
-                        <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${chapterData.introLab}</p>
+                        <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${chapterData.introLab || chapterData.objGeneral}</p>
                     </div>
                 `;
             }
@@ -757,24 +826,23 @@
             if(videosContainer) {
                 videosContainer.innerHTML = chapterVideos.map((vid, idx) => {
                     const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
-                    const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}`;
+                    const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema || vid.titulo || 'Demostración'}`;
 
                     return `
                         <div class="teacher-config-video-card" id="config-card-${idx}">
                             <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${cleanVideoTitle}</div>
-                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo original: ${vid.archivo} | Objetivo: ${vid.objetivo}</div>
-                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas para la sesión (${preguntasList.length}):</div>
+                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo: ${vid.archivo || 'video.mp4'} | Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
+                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas (${preguntasList.length}):</div>
                             
                             <div id="q-list-container-${idx}">
-                                ${preguntasList.length > 0 ? preguntasList.map((p, pIdx) => `
+                                ${preguntasList.map((p, pIdx) => `
                                     <div class="teacher-suggested-q">
                                         <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
                                         <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
                                     </div>
-                                `).join('') : '<p style="color:var(--text-muted); font-size:0.85rem;">No hay preguntas registradas para este video aún.</p>'}
+                                `).join('')}
                             </div>
 
-                            <!-- Formulario embebido para proponer o reemplazar -->
                             <div style="background:#ffffff; border:1px solid var(--border-soft); border-radius:10px; padding:1.2rem; margin-top:1rem;">
                                 <div style="font-weight:700; font-size:0.85rem; text-transform:uppercase; color:#b45309; margin-bottom:0.8rem;">✏️ Proponer o Reemplazar Pregunta en este Video</div>
                                 
@@ -794,7 +862,7 @@
                                     </div>
                                     <div class="form-field full">
                                         <label>Enunciado de la Pregunta</label>
-                                        <textarea id="inline-q-text-${idx}" rows="2" placeholder="Escriba el enunciado de la pregunta..."></textarea>
+                                        <textarea id="inline-q-text-${idx}" rows="2" placeholder="Escriba el enunciado..."></textarea>
                                     </div>
                                     <div class="form-field"><label>Alternativa A</label><input type="text" id="inline-opt-${idx}-0" placeholder="Opción A"></div>
                                     <div class="form-field"><label>Alternativa B</label><input type="text" id="inline-opt-${idx}-1" placeholder="Opción B"></div>
@@ -845,15 +913,15 @@
             if(!customQuestionsStore[chapterId]) customQuestionsStore[chapterId] = {};
             if(!customQuestionsStore[chapterId][videoIdx]) customQuestionsStore[chapterId][videoIdx] = { adicionales: [], reemplazos: {} };
 
-            const newQObj = { pregunta: qText, opciones: opts, correcta: correcta };
+            const newQObj = { pregunta: qText, opciones: opts, correcta: correcta, explicacion: "Pregunta configurada por el docente." };
 
             if(action === 'proponer') {
                 customQuestionsStore[chapterId][videoIdx].adicionales.push(newQObj);
-                alert("¡Pregunta adicional agregada con éxito al video!");
+                alert("¡Pregunta adicional agregada con éxito!");
             } else {
                 const targetIdx = parseInt(document.getElementById(`replace-target-${videoIdx}`).value);
                 customQuestionsStore[chapterId][videoIdx].reemplazos[targetIdx] = newQObj;
-                alert("¡Pregunta reemplazada con éxito en el video!");
+                alert("¡Pregunta reemplazada con éxito!");
             }
 
             renderTeacherConfigurationView();
@@ -865,8 +933,8 @@
             document.getElementById('docente-info-banner').innerHTML = `
                 <strong>Sesión Activa:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
-            document.getElementById('stat-most-correct').innerText = "Pregunta 01-01 (94% de aciertos)";
-            document.getElementById('stat-least-correct').innerText = "Pregunta 01-05 (42% de aciertos)";
+            document.getElementById('stat-most-correct').innerText = "Pregunta 01 (94% de aciertos)";
+            document.getElementById('stat-least-correct').innerText = "Pregunta 02 (42% de aciertos)";
             document.getElementById('stat-page-ratings').innerText = "4.8 / 5.0 (Excelente interfaz)";
             document.getElementById('stat-comments-count').innerText = "12 comentarios registrados";
 
@@ -929,20 +997,20 @@
 
         function openTeacherQuestionsViewer() {
             const viewerContainer = document.getElementById('teacher-viewer-content-container');
-            const chapterData = typeof capitulosCatalog !== 'undefined' ? capitulosCatalog.find(c => c.id === selectedChapterId) : null;
-            const chapterVideos = typeof videosPorCapitulo !== 'undefined' ? videosPorCapitulo[selectedChapterId] : [];
+            const catalog = getCatalog();
+            const chapterVideos = getVideosForChapter(selectedChapterId);
 
             if(!viewerContainer) return;
 
             viewerContainer.innerHTML = chapterVideos.map((vid, idx) => {
                 const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
-                const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema}`;
+                const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema || vid.titulo || 'Demostración'}`;
 
                 return `
                     <div class="teacher-config-video-card" style="margin-bottom:1.5rem;">
                         <div style="font-weight:800; color:var(--accent-teacher); font-size:1.05rem; margin-bottom:0.3rem;">${cleanVideoTitle}</div>
-                        <div style="font-size:0.86rem; color:var(--text-muted); margin-bottom:1rem;">Objetivo: ${vid.objetivo}</div>
-                        ${preguntasList.length > 0 ? preguntasList.map((p, pIdx) => `
+                        <div style="font-size:0.86rem; color:var(--text-muted); margin-bottom:1rem;">Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
+                        ${preguntasList.map((p, pIdx) => `
                             <div class="teacher-suggested-q">
                                 <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
                                 <ul style="margin: 0.5rem 0 0 1rem; padding:0; font-size:0.86rem; list-style-type:none;">
@@ -953,7 +1021,7 @@
                                     `).join('')}
                                 </ul>
                             </div>
-                        `).join('') : '<p style="color:var(--text-muted);">No hay preguntas asignadas.</p>'}
+                        `).join('')}
                     </div>
                 `;
             }).join('');
@@ -961,7 +1029,6 @@
             switchView('view-teacher-questions-viewer');
         }
 
-        // Acceso del estudiante con direccionamiento automático y exacto al capítulo configurado por el profesor en Firebase
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -976,7 +1043,6 @@
 
             currentStudent = { name, code, group, classname };
 
-            // Consultar en Firebase el capítulo creado por el docente (por ejemplo, capítulo 5, 6 u 8)
             db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const classData = snapshot.val();
                 if(classData && classData.capituloId) {
@@ -997,8 +1063,9 @@
             const banner = document.getElementById('workspace-chapter-banner');
             const container = document.getElementById('workspace-videos-container');
 
-            const chapterData = typeof capitulosCatalog !== 'undefined' ? capitulosCatalog.find(c => c.id === selectedChapterId) : null;
-            const chapterVideos = typeof videosPorCapitulo !== 'undefined' ? videosPorCapitulo[selectedChapterId] : [];
+            const catalog = getCatalog();
+            const chapterData = catalog.find(c => c.id === selectedChapterId) || catalog[0];
+            const chapterVideos = getVideosForChapter(selectedChapterId);
 
             if(banner && chapterData) {
                 banner.innerHTML = `
@@ -1006,8 +1073,8 @@
                         <div style="flex:1;">
                             <div style="font-size:0.78rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">Capítulo ${chapterData.id}</div>
                             <h3 style="margin:0 0 0.4rem 0; font-family:Georgia,serif; font-size:1.4rem; color:var(--text-main);">${chapterData.title}</h3>
-                            <p style="margin:0 0 0.6rem 0; font-size:0.92rem; color:var(--text-muted);"><strong>${chapterData.objGeneral}</strong></p>
-                            <div class="lab-info-card">${chapterData.introLab}</div>
+                            <p style="margin:0 0 0.6rem 0; font-size:0.92rem; color:var(--text-muted);"><strong>${chapterData.objGeneral || ''}</strong></p>
+                            <div class="lab-info-card">${chapterData.introLab || ''}</div>
                         </div>
                     </div>
                 `;
@@ -1020,20 +1087,21 @@
 
                     preguntasList.forEach((p, pIdx) => {
                         activeQuestionsRendered.push({
-                            idVideo: vid.archivo,
+                            idVideo: vid.archivo || `vid-${vIdx}`,
                             preguntaIndex: pIdx,
                             correcta: p.correcta,
-                            enunciado: p.pregunta
+                            enunciado: p.pregunta,
+                            explicacion: p.explicacion || "Respuesta basada en principios físicos experimentales."
                         });
                     });
 
-                    const cleanVideoTitle = `Video ${vIdx + 1}: ${vid.tema}`;
-                    const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + vid.archivo;
+                    const cleanVideoTitle = `Video ${vIdx + 1}: ${vid.tema || vid.titulo || 'Demostración experimental'}`;
+                    const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + (vid.archivo || `${vid.id}.mp4`);
 
                     return `
                         <div class="video-card">
                             <div class="video-title-bar">${cleanVideoTitle}</div>
-                            <div class="video-theme-bar">Importante: Demostración oficial UNMSM</div>
+                            <div class="video-theme-bar">Demostración oficial UNMSM</div>
                             
                             <div class="video-responsive">
                                 <video controls preload="metadata">
@@ -1043,12 +1111,12 @@
                             </div>
 
                             <div class="video-objective-box">
-                                <strong>Objetivo del Video:</strong> ${vid.objetivo}
+                                <strong>Objetivo del Video:</strong> ${vid.objetivo || 'Analizar el comportamiento físico.'}
                             </div>
 
                             <div class="quiz-container-box">
                                 <div class="quiz-title">📝 Cuestionario de Evaluación del Video</div>
-                                ${preguntasList.length > 0 ? preguntasList.map((q, qIdx) => `
+                                ${preguntasList.map((q, qIdx) => `
                                     <div class="quiz-question-item">
                                         <div class="quiz-question-title">Pregunta ${qIdx+1}: ${q.pregunta}</div>
                                         ${q.opciones.map((opt, oIdx) => `
@@ -1058,7 +1126,7 @@
                                             </label>
                                         `).join('')}
                                     </div>
-                                `).join('') : '<p style="color:var(--text-muted); font-size:0.9rem;">No hay preguntas configuradas para este video.</p>'}
+                                `).join('')}
                             </div>
                         </div>
                     `;
@@ -1082,17 +1150,52 @@
             let feedbackHTML = '';
 
             activeQuestionsRendered.forEach((item, idx) => {
-                const selectedOption = document.querySelector(`input[name="q_${Math.floor(idx/2)}_${idx%2}"]:checked`);
-                const userChoice = selectedOption ? parseInt(selectedOption.value) : -1;
-                const isCorrect = userChoice === item.correcta;
+                const qNum = idx; 
+                // Buscamos dinámicamente el input seleccionado evaluando los índices de video y pregunta
+                let selectedOption = null;
+                // Intentamos rastrear mediante querySelectorAll
+                const radios = document.querySelectorAll(`input[type="radio"]`);
+                // Como las preguntas están mapeadas secuencialmente en activeQuestionsRendered:
+                let currentRadioGroupIndex = 0;
+                
+                // Recorremos los videos y preguntas para encontrar el input seleccionado del índice idx
+                let matchChoice = -1;
+                let foundInput = false;
+                
+                // Forma directa buscando por el nombre compuesto q_{v}_{q}
+                for(let v = 0; v < 10; v++) {
+                    for(let q = 0; q < 10; q++) {
+                        const sel = document.querySelector(`input[name="q_${v}_${q}"]:checked`);
+                        if(sel) {
+                            // Verificamos si corresponde al índice global actual
+                            if(currentRadioGroupIndex === idx) {
+                                matchChoice = parseInt(sel.value);
+                                foundInput = true;
+                                break;
+                            }
+                            currentRadioGroupIndex++;
+                        } else {
+                            // Contamos los grupos existentes aunque no estén marcados
+                            const groupExists = document.querySelectorAll(`input[name="q_${v}_${q}"]`);
+                            if(groupExists.length > 0) {
+                                if(currentRadioGroupIndex === idx) {
+                                    foundInput = true;
+                                }
+                                currentRadioGroupIndex++;
+                            }
+                        }
+                    }
+                    if(foundInput) break;
+                }
 
+                const isCorrect = matchChoice === item.correcta;
                 if(isCorrect) aciertos++; else errores++;
 
                 feedbackHTML += `
                     <div style="background:#ffffff; border:1px solid var(--border-soft); border-left:4px solid ${isCorrect ? '#059669' : '#ef4444'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem;">
                         <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem;">Pregunta ${idx+1}: ${item.enunciado}</div>
                         <div style="font-size:0.88rem; margin-bottom:0.4rem;">Estado: <strong>${isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
-                        <div style="font-size:0.85rem; color:var(--text-muted);">Explicación didáctica: En este fenómeno de demostración física, la respuesta correcta es la opción ${String.fromCharCode(65 + item.correcta)}, fundamentada en los principios teóricos del capítulo analizado en el laboratorio de la UNMSM.</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted);">Explicación didáctica: ${item.explicacion}</div>
                     </div>
                 `;
             });
