@@ -706,7 +706,17 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Extracción dinámica del catálogo leyendo DIRECTAMENTE de pregunta.js o videos.js sin inventar datos
+        // Función auxiliar para limpiar el nombre del video a partir de su archivo (ej: Copia_de_06-01_Deslizadores_de_reacción.mp4 -> Deslizadores de reacción)
+        function cleanVideoTitle(filename, fallbackTema) {
+            if (!filename) return fallbackTema || "Demostración experimental";
+            let name = filename.replace(/\.[^/.]+$/, ""); // Quitar extensión .mp4
+            // Remover prefijos como Copia_de_, números de capítulo y guiones iniciales (ej: Copia_de_06-01_)
+            name = name.replace(/^Copia_de_/i, "").replace(/^\d+[-_]\d+[-_]?/i, "");
+            // Reemplazar guiones bajos por espacios y capitalizar adecuadamente
+            name = name.replace(/_/g, " ");
+            return name.trim();
+        }
+
         function getCatalog() {
             let catalog = [];
 
@@ -735,10 +745,12 @@
             return catalog;
         }
 
-        // Función para obtener los datos de los videos según la estructura oficial declarada en sus archivos
         function getVideosForChapter(chapterId) {
             if (typeof videosPorCapitulo !== 'undefined' && videosPorCapitulo[chapterId]) {
-                return videosPorCapitulo[chapterId];
+                return videosPorCapitulo[chapterId].map(v => ({
+                    ...v,
+                    nombreLimpio: cleanVideoTitle(v.archivo, v.tema)
+                }));
             }
 
             let bank = null;
@@ -747,12 +759,16 @@
             }
 
             if (bank && bank.videos && Array.isArray(bank.videos)) {
-                return bank.videos.map(v => ({
-                    id: v.id,
-                    archivo: `${v.id}.mp4`,
-                    tema: v.titulo || v.tema || "Demostración experimental",
-                    objetivo: v.objetivoVideo || v.objetivo || "Análisis de magnitudes e interacciones."
-                }));
+                return bank.videos.map(v => {
+                    const arc = v.archivo || `${v.id}.mp4`;
+                    return {
+                        id: v.id,
+                        archivo: arc,
+                        tema: v.titulo || v.tema || "Demostración experimental",
+                        objetivo: v.objetivoVideo || v.objetivo || "Análisis de magnitudes e interacciones.",
+                        nombreLimpio: cleanVideoTitle(arc, v.titulo || v.tema)
+                    };
+                });
             }
             return [];
         }
@@ -887,11 +903,12 @@
             if(videosContainer) {
                 videosContainer.innerHTML = chapterVideos.map((vid, idx) => {
                     const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
-                    const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema || vid.titulo || 'Demostración'}`;
+                    const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
+                    const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
 
                     return `
                         <div class="teacher-config-video-card" id="config-card-${idx}">
-                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${cleanVideoTitle}</div>
+                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${displayVideoTitle}</div>
                             <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo: ${vid.archivo || 'video.mp4'} | Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
                             <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas (${preguntasList.length}):</div>
                             
@@ -1078,11 +1095,12 @@
 
             viewerContainer.innerHTML = chapterVideos.map((vid, idx) => {
                 const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
-                const cleanVideoTitle = `Video ${idx + 1}: ${vid.tema || vid.titulo || 'Demostración'}`;
+                const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
+                const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
 
                 return `
                     <div class="teacher-config-video-card" style="margin-bottom:1.5rem;">
-                        <div style="font-weight:800; color:var(--accent-teacher); font-size:1.05rem; margin-bottom:0.3rem;">${cleanVideoTitle}</div>
+                        <div style="font-weight:800; color:var(--accent-teacher); font-size:1.05rem; margin-bottom:0.3rem;">${displayVideoTitle}</div>
                         <div style="font-size:0.86rem; color:var(--text-muted); margin-bottom:1rem;">Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
                         ${preguntasList.map((p, pIdx) => `
                             <div class="teacher-suggested-q">
@@ -1180,7 +1198,8 @@
                 activeQuestionsRendered = [];
                 container.innerHTML = chapterVideos.map((vid, vIdx) => {
                     const preguntasList = getPreguntasForVideo(selectedChapterId, vIdx, vid);
-                    const cleanVideoTitle = `Video ${vIdx + 1}: ${vid.tema || vid.titulo || 'Demostración experimental'}`;
+                    const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
+                    const cleanVideoTitle = `Video ${vIdx + 1}: ${cleanTitle}`;
 
                     preguntasList.forEach((p, pIdx) => {
                         activeQuestionsRendered.push({
