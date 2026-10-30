@@ -28,7 +28,7 @@
             --input-bg: #ffffff;
         }
 
-        /* VARIABLES PARA MODO OSCURO */
+        /* MODO OSCURO */
         body.dark-theme {
             --bg-main: #0f172a;
             --panel-bg: #1e293b;
@@ -62,7 +62,7 @@
         header {
             background: var(--panel-bg);
             border-bottom: 4px solid var(--accent-student);
-            padding: 1.4rem 2rem;
+            padding: 1.2rem 1.5rem;
             box-shadow: var(--shadow-md);
             position: sticky;
             top: 0;
@@ -73,54 +73,63 @@
         .header-content {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 1.2rem;
+            justify-content: space-between;
+            gap: 1rem;
             max-width: 1200px;
             margin: 0 auto;
             flex-wrap: wrap;
-            position: relative;
+        }
+
+        .header-left-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 260px;
         }
 
         .header-logo-placeholder {
-            width: 75px; height: 75px;
+            width: 60px; height: 60px;
             background: linear-gradient(135deg, var(--accent-student), #34d399);
             color: #fff; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
         }
 
-        .header-text { text-align: left; flex: 1; min-width: 280px; }
+        .header-text { text-align: left; }
         .header-instituciones {
-            font-size: 0.78rem; font-weight: 700;
-            letter-spacing: 1.2px; color: var(--accent-student);
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 1px; color: var(--accent-student);
             text-transform: uppercase;
         }
 
-        header h1 { margin: 0.1rem 0; font-family: Georgia, serif; font-size: 1.65rem; color: var(--text-main); }
-        header h2 { margin: 0; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+        header h1 { margin: 0.1rem 0; font-family: Georgia, serif; font-size: 1.35rem; color: var(--text-main); }
+        header h2 { margin: 0; font-size: 0.72rem; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
 
-        /* BOTÓN DE MODO CLARO / MODO OSCURO */
+        /* BOTÓN DE MODO CLARO / OSCURO RESPONSIVO */
         .theme-toggle-btn {
             background: var(--panel-alt);
             color: var(--text-main);
             border: 1.5px solid var(--border-strong);
-            padding: 0.55rem 1rem;
+            padding: 0.5rem 0.9rem;
             border-radius: 20px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
         }
         .theme-toggle-btn:hover {
             transform: translateY(-2px);
             border-color: var(--accent-student);
         }
 
-        .container { max-width: 1150px; margin: 2rem auto; padding: 0 1.5rem; }
+        .container { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; }
 
         .view { display: none; }
         .view.active { display: block; animation: fadeIn 0.3s ease; }
@@ -133,37 +142,37 @@
         .role-selection-box {
             background: var(--panel-bg);
             border-radius: var(--radius-box);
-            padding: 3rem 2.5rem;
+            padding: 2rem 1.5rem;
             text-align: center;
             box-shadow: var(--shadow-lg);
             border: 1px solid var(--border-soft);
-            max-width: 850px;
-            margin: 2rem auto;
+            max-width: 750px;
+            margin: 1.5rem auto;
         }
 
         .role-selection-box h3 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--text-main);
-            margin-bottom: 2.2rem;
+            margin-bottom: 1.8rem;
             font-family: Georgia, serif;
         }
 
         .role-buttons-grid {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.2rem;
         }
 
         .role-card {
-            border-radius: 16px;
-            padding: 1.8rem 2rem;
+            border-radius: 14px;
+            padding: 1.4rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: flex-start;
-            gap: 1.8rem;
+            gap: 1.2rem;
             box-shadow: var(--shadow-md);
             border: 2px solid var(--border-soft);
             text-align: left;
@@ -171,20 +180,13 @@
         }
 
         .role-card.student { background: var(--panel-bg); border-color: var(--accent-student); }
-        .role-card.student:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(5, 150, 105, 0.2);
-        }
+        .role-card.student:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(5, 150, 105, 0.15); }
 
         .role-card.teacher { background: var(--panel-bg); border-color: var(--border-strong); }
-        .role-card.teacher:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(30, 58, 138, 0.2);
-            border-color: var(--accent-teacher);
-        }
+        .role-card.teacher:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(30, 58, 138, 0.15); border-color: var(--accent-teacher); }
 
         .role-card-icon {
-            width: 85px; height: 85px;
+            width: 65px; height: 65px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; box-shadow: var(--shadow-sm);
         }
@@ -192,56 +194,57 @@
         .role-card.student .role-card-icon { background: #059669; color: #ffffff; }
         .role-card.teacher .role-card-icon { background: #1e3a8a; color: #ffffff; }
 
-        .role-card-body { display: flex; flex-direction: column; gap: 0.3rem; }
-        .role-card-title { font-size: 1.45rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
+        .role-card-body { display: flex; flex-direction: column; gap: 0.2rem; }
+        .role-card-title { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
         .role-card.student .role-card-title { color: var(--accent-student); }
         .role-card.teacher .role-card-title { color: var(--accent-teacher); }
-        .role-card-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.4; font-weight: 500; }
+        .role-card-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.35; font-weight: 500; }
 
         .chapters-selection-list {
-            display: flex; flex-direction: column; gap: 0.9rem; margin-top: 1rem;
-            max-height: 480px; overflow-y: auto; padding-right: 0.3rem;
+            display: flex; flex-direction: column; gap: 0.8rem; margin-top: 0.8rem;
+            max-height: 420px; overflow-y: auto; padding-right: 0.2rem;
         }
 
         .chapter-select-card {
-            background: var(--panel-bg); border: 2px solid var(--border-soft); border-radius: 14px;
-            padding: 1rem 1.2rem; display: flex; align-items: center; gap: 1.2rem; cursor: pointer;
+            background: var(--panel-bg); border: 2px solid var(--border-soft); border-radius: 12px;
+            padding: 0.9rem 1rem; display: flex; align-items: center; gap: 1rem; cursor: pointer;
             transition: all 0.2s ease; text-align: left;
         }
 
-        .chapter-select-card:hover { border-color: var(--accent-student); background: var(--panel-alt); transform: translateY(-2px); }
+        .chapter-select-card:hover { border-color: var(--accent-student); background: var(--panel-alt); }
         .chapter-select-card.selected { border-color: var(--accent-student); background: var(--panel-alt); box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15); }
 
         .chapter-icon-badge {
-            width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; color: #ffffff; flex-shrink: 0; box-shadow: var(--shadow-sm); font-size: 1.2rem; background: var(--accent-teacher);
+            width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: #ffffff; flex-shrink: 0; box-shadow: var(--shadow-sm); font-size: 1rem; background: var(--accent-teacher);
         }
 
-        .chapter-card-info { flex: 1; }
-        .chapter-card-title { font-weight: 700; font-size: 1rem; color: var(--text-main); margin-bottom: 0.2rem; }
-        .chapter-card-desc { font-size: 0.84rem; color: var(--text-muted); line-height: 1.35; }
-        .chapter-arrow { color: var(--text-muted); font-size: 1.2rem; font-weight: 700; }
+        .chapter-card-info { flex: 1; min-width: 0; }
+        .chapter-card-title { font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.15rem; }
+        .chapter-card-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chapter-arrow { color: var(--text-muted); font-size: 1.1rem; font-weight: 700; flex-shrink: 0; }
 
         .form-card {
             background: var(--panel-bg); border: 1.5px solid var(--border-soft);
-            border-radius: var(--radius-box); padding: 2.2rem; box-shadow: var(--shadow-md);
-            max-width: 850px; margin: 0 auto 2rem auto;
+            border-radius: var(--radius-box); padding: 1.8rem 1.5rem; box-shadow: var(--shadow-md);
+            max-width: 800px; margin: 0 auto 1.5rem auto;
         }
 
         .form-card h3 {
             margin-top: 0; color: var(--text-main); font-family: Georgia, serif;
-            font-size: 1.35rem; border-bottom: 2px solid var(--panel-alt); padding-bottom: 0.75rem;
+            font-size: 1.25rem; border-bottom: 2px solid var(--panel-alt); padding-bottom: 0.6rem;
         }
 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1.2rem; }
-        .form-field { display: flex; flex-direction: column; gap: 0.35rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+        .form-field { display: flex; flex-direction: column; gap: 0.3rem; }
         .form-field.full { grid-column: 1 / -1; }
 
-        .form-field label { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--text-main); }
+        .form-field label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-main); }
         .form-field label .req { color: var(--error); }
         .form-field input, .form-field select, .form-field textarea {
-            padding: 0.8rem 0.95rem; border: 1.5px solid var(--border-strong);
-            border-radius: 8px; font-size: 0.95rem; background: var(--input-bg); color: var(--text-main); font-family: inherit;
+            padding: 0.75rem 0.85rem; border: 1.5px solid var(--border-strong);
+            border-radius: 8px; font-size: 0.92rem; background: var(--input-bg); color: var(--text-main); font-family: inherit;
+            width: 100%;
         }
         .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
             outline: none; border-color: var(--accent-student);
@@ -250,119 +253,118 @@
 
         .btn-action-student {
             background: linear-gradient(135deg, #059669, #047857);
-            color: #ffffff; border: none; padding: 1rem 1.5rem;
+            color: #ffffff; border: none; padding: 0.9rem 1.2rem;
             border-radius: 10px; cursor: pointer; font-weight: 700;
-            font-size: 0.95rem; width: 100%; text-transform: uppercase;
-            letter-spacing: 1px; margin-top: 1.5rem;
+            font-size: 0.9rem; width: 100%; text-transform: uppercase;
+            letter-spacing: 0.8px; margin-top: 1.2rem;
             transition: background 0.2s;
         }
         .btn-action-student:hover { background: linear-gradient(135deg, #047857, #065f46); }
 
         .btn-action-teacher {
             background: linear-gradient(135deg, #1e3a8a, #1e40af);
-            color: #ffffff; border: none; padding: 1rem 1.5rem;
+            color: #ffffff; border: none; padding: 0.9rem 1.2rem;
             border-radius: 10px; cursor: pointer; font-weight: 700;
-            font-size: 0.95rem; width: 100%; text-transform: uppercase;
-            letter-spacing: 1px; margin-top: 1.5rem;
+            font-size: 0.9rem; width: 100%; text-transform: uppercase;
+            letter-spacing: 0.8px; margin-top: 1.2rem;
         }
 
         .btn-secondary {
             background: var(--panel-bg); color: var(--text-main); border: 1.5px solid var(--border-strong);
-            padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem;
-            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.45rem 0.9rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.82rem;
+            display: inline-flex; align-items: center; gap: 0.35rem;
         }
 
         .alert-banner-docente {
             background: var(--panel-alt); border: 2px solid var(--accent-student); border-left: 6px solid var(--accent-student);
-            padding: 1.2rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; color: var(--text-main);
+            padding: 1rem 1.2rem; border-radius: 10px; margin-bottom: 1.2rem; color: var(--text-main); font-size: 0.9rem;
         }
 
         .teacher-stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem;
         }
-        @media (max-width: 750px) { .teacher-stats-grid { grid-template-columns: 1fr; } }
 
         .stat-card {
-            background: var(--panel-bg); border-radius: 12px; padding: 1.2rem; border: 1.5px solid var(--border-soft);
+            background: var(--panel-bg); border-radius: 10px; padding: 1rem; border: 1.5px solid var(--border-soft);
             box-shadow: var(--shadow-sm); border-left: 5px solid var(--accent-teacher);
         }
         .stat-card.success { border-left-color: var(--accent-student); }
         .stat-card.danger { border-left-color: #ef4444; }
-        .stat-card-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem; }
-        .stat-card-body { font-size: 0.92rem; font-weight: 600; color: var(--text-main); }
+        .stat-card-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+        .stat-card-body { font-size: 0.88rem; font-weight: 600; color: var(--text-main); }
 
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-        .dashboard-table-container { background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--border-soft); overflow-x: auto; margin-bottom: 2rem; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.8rem; }
+        .dashboard-table-container { background: var(--panel-bg); border-radius: 10px; border: 1px solid var(--border-soft); overflow-x: auto; margin-bottom: 1.8rem; }
         
-        table.dashboard-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
-        table.dashboard-table th { background: linear-gradient(135deg, #1e3a8a, #1e40af); color: #ffffff; padding: 0.9rem 1rem; font-size: 0.8rem; text-transform: uppercase; }
-        table.dashboard-table td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border-soft); color: var(--text-main); }
+        table.dashboard-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; min-width: 550px; }
+        table.dashboard-table th { background: linear-gradient(135deg, #1e3a8a, #1e40af); color: #ffffff; padding: 0.8rem; font-size: 0.75rem; text-transform: uppercase; }
+        table.dashboard-table td { padding: 0.75rem 0.8rem; border-bottom: 1px solid var(--border-soft); color: var(--text-main); }
         table.dashboard-table tr:hover { background: var(--panel-alt); }
 
         .chapter-header-box {
-            background: var(--panel-bg); border-radius: 16px; padding: 1.6rem 2rem;
-            border: 1.5px solid var(--border-soft); border-left: 6px solid var(--accent-student); margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm); display: flex; gap: 1.4rem; align-items: flex-start;
+            background: var(--panel-bg); border-radius: 14px; padding: 1.4rem;
+            border: 1.5px solid var(--border-soft); border-left: 6px solid var(--accent-student); margin-bottom: 1.2rem;
+            box-shadow: var(--shadow-sm); display: flex; gap: 1rem; align-items: flex-start;
         }
         
         .lab-info-card {
-            background: var(--panel-alt); border: 1.5px solid var(--border-strong); border-radius: 12px;
-            padding: 1.1rem 1.3rem; margin-top: 0.6rem; font-size: 0.9rem; color: var(--text-main); line-height: 1.5;
+            background: var(--panel-alt); border: 1.5px solid var(--border-strong); border-radius: 10px;
+            padding: 1rem; margin-top: 0.5rem; font-size: 0.88rem; color: var(--text-main); line-height: 1.4;
         }
 
         .video-card {
-            background: var(--panel-bg); border-radius: 16px; padding: 1.8rem; margin-bottom: 2rem;
+            background: var(--panel-bg); border-radius: 14px; padding: 1.4rem; margin-bottom: 1.8rem;
             border: 1.5px solid var(--border-soft); box-shadow: var(--shadow-sm);
         }
         .video-title-bar {
-            font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.3rem; font-family: Georgia, serif;
+            font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.2rem; font-family: Georgia, serif;
         }
         .video-theme-bar {
-            font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; font-weight: 500;
+            font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem; font-weight: 500;
         }
         .video-responsive video {
-            width: 100%; max-height: 440px; border-radius: 10px; background: #000; display: block; margin-bottom: 1rem;
+            width: 100%; max-height: 400px; border-radius: 8px; background: #000; display: block; margin-bottom: 1rem;
             box-shadow: var(--shadow-sm);
         }
         .video-objective-box {
             background: var(--panel-alt); border: 1.5px solid var(--border-soft); border-left: 4px solid var(--accent-teacher);
-            padding: 0.9rem 1.2rem; border-radius: 8px; font-size: 0.9rem; color: var(--text-main); margin-bottom: 1.5rem;
+            padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.88rem; color: var(--text-main); margin-bottom: 1.2rem;
         }
         
         .quiz-container-box {
             background: var(--card-quiz-bg); border: 1.5px solid var(--card-quiz-border); border-left: 5px solid #f59e0b;
-            border-radius: 12px; padding: 1.5rem; margin-top: 1.2rem;
+            border-radius: 10px; padding: 1.2rem; margin-top: 1rem;
         }
         .quiz-title {
-            font-size: 0.82rem; font-weight: 800; letter-spacing: 1.2px; color: #f59e0b; text-transform: uppercase;
-            border-bottom: 2px dashed var(--border-soft); padding-bottom: 0.5rem; margin-bottom: 1.3rem;
+            font-size: 0.78rem; font-weight: 800; letter-spacing: 1px; color: #f59e0b; text-transform: uppercase;
+            border-bottom: 2px dashed var(--border-soft); padding-bottom: 0.4rem; margin-bottom: 1rem;
         }
         .quiz-question-item {
-            margin-bottom: 1.5rem; font-size: 0.92rem;
+            margin-bottom: 1.2rem; font-size: 0.88rem;
         }
         .quiz-question-title {
-            font-weight: 700; color: var(--text-main); margin-bottom: 0.8rem; line-height: 1.45;
+            font-weight: 700; color: var(--text-main); margin-bottom: 0.6rem; line-height: 1.4;
         }
         
         .quiz-options-grid {
             display: flex;
             flex-direction: column;
-            gap: 0.6rem;
+            gap: 0.5rem;
         }
         .quiz-option-btn {
             display: flex;
             align-items: flex-start;
-            gap: 0.8rem;
+            gap: 0.7rem;
             background: var(--panel-bg);
             border: 1.5px solid var(--border-soft);
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            padding: 0.65rem 0.9rem;
             cursor: pointer;
             transition: all 0.2s ease;
             text-align: left;
             width: 100%;
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: var(--text-main);
         }
         .quiz-option-btn:hover {
@@ -379,15 +381,15 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             background: var(--panel-alt);
             color: var(--text-main);
             font-weight: 700;
-            border-radius: 6px;
+            border-radius: 5px;
             flex-shrink: 0;
             border: 1px solid var(--border-strong);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .quiz-option-btn.selected .option-letter-badge {
             background: var(--accent-student);
@@ -396,20 +398,40 @@
         }
 
         .teacher-config-video-card {
-            background: var(--panel-bg); border: 1.5px solid var(--border-strong); border-radius: 14px;
-            padding: 1.5rem; margin-bottom: 1.5rem;
+            background: var(--panel-bg); border: 1.5px solid var(--border-strong); border-radius: 12px;
+            padding: 1.2rem; margin-bottom: 1.2rem;
         }
         .teacher-suggested-q {
-            background: var(--panel-alt); border: 1px solid var(--border-soft); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.88rem;
+            background: var(--panel-alt); border: 1px solid var(--border-soft); padding: 0.9rem; border-radius: 8px; margin-bottom: 0.8rem; font-size: 0.85rem;
         }
 
         .comment-box-list {
-            background: var(--panel-bg); border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;
+            background: var(--panel-bg); border: 1px solid var(--border-soft); border-radius: 10px; padding: 1.2rem; margin-top: 1.2rem;
         }
         .comment-item {
-            padding: 0.8rem 0; border-bottom: 1px solid var(--border-soft); font-size: 0.9rem; color: var(--text-main);
+            padding: 0.7rem 0; border-bottom: 1px solid var(--border-soft); font-size: 0.88rem; color: var(--text-main);
         }
         .comment-item:last-child { border-bottom: none; }
+
+        /* ADAPTABILIDAD EXCLUSIVA PARA CELULARES (MOBILE-FRIENDLY) */
+        @media (max-width: 768px) {
+            header { padding: 0.8rem 1rem; }
+            .header-content { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+            .header-left-group { width: 100%; justify-content: flex-start; }
+            .theme-toggle-btn { align-self: flex-end; width: auto; }
+            
+            .container { padding: 0 0.6rem; margin: 1rem auto; }
+            .role-selection-box { padding: 1.4rem 1rem; margin: 1rem auto; }
+            .role-card { flex-direction: column; text-align: center; gap: 0.8rem; padding: 1.2rem; }
+            .role-card-body { align-items: center; }
+            
+            .form-card { padding: 1.2rem 1rem; }
+            .form-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+            .teacher-stats-grid { grid-template-columns: 1fr; }
+            
+            .video-card { padding: 1rem; }
+            .chapter-header-box { flex-direction: column; padding: 1rem; }
+        }
 
         @media print {
             header, .btn-secondary, .btn-action-teacher, .btn-action-student, #view-role-selection, .theme-toggle-btn { display: none !important; }
@@ -428,17 +450,19 @@
 
     <header>
         <div class="header-content">
-            <div class="header-logo-placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="38" height="38">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                </svg>
+            <div class="header-left-group">
+                <div class="header-logo-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <div class="header-instituciones">UNMSM · Facultad de Ciencias Físicas</div>
+                    <h1>Enciclopedia en Videos de Física</h1>
+                    <h2>Portal Académico Interactivo</h2>
+                </div>
             </div>
-            <div class="header-text">
-                <div class="header-instituciones">Universidad Nacional Mayor de San Marcos · Facultad de Ciencias Físicas</div>
-                <h1>Enciclopedia en Videos de Demostración de Física</h1>
-                <h2>Portal Académico Interactivo</h2>
-            </div>
-            <!-- BOTÓN INTERACTIVO DE MODO CLARO / OSCURO -->
+            <!-- BOTÓN DE MODO CLARO / OSCURO -->
             <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Modo Claro / Oscuro">
                 <span id="theme-icon">☀️</span>
                 <span id="theme-text">Modo Claro</span>
@@ -455,7 +479,7 @@
                 <div class="role-buttons-grid">
                     <button class="role-card student" onclick="switchView('view-student-access')">
                         <div class="role-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="44" height="44">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36">
                                 <path d="M22 10l-10-5L2 10l10 5 10-5z" fill="currentColor" fill-opacity="0.2"/>
                                 <path d="M22 10l-10-5L2 10l10 5 10-5z"/>
                                 <path d="M6 12v5c3 3 9 3 12 0v-5"/>
@@ -470,7 +494,7 @@
 
                     <button class="role-card teacher" onclick="switchView('view-teacher-register')">
                         <div class="role-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="44" height="44">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36">
                                 <rect x="3" y="4" width="18" height="12" rx="2" fill="currentColor" fill-opacity="0.15"/>
                                 <rect x="3" y="4" width="18" height="12" rx="2"/>
                                 <path d="M7 20h10"/><path d="M12 16v4"/><path d="M7 8h10"/><path d="M7 11h6"/>
@@ -488,23 +512,23 @@
         <!-- 2. REGISTRO DE CLASE (DOCENTE) -->
         <div id="view-teacher-register" class="view">
             <div class="form-card">
-                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 1rem;">← Volver</button>
+                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
                 <h3>Registro de Clase y Selección de Capítulo</h3>
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Nombre del Docente <span class="req">*</span></label>
                         <input type="text" id="t-teachername" placeholder="Ej: Dr. Juan Pérez">
-                        <small style="color:var(--text-muted); font-size:0.78rem;">Debe ingresar nombre y apellido (Ej: Dr. Juan Pérez).</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Debe ingresar nombre y apellido (Ej: Dr. Juan Pérez).</small>
                     </div>
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
                         <input type="text" id="t-classname" placeholder="Ej: Newton">
-                        <small style="color:var(--text-muted); font-size:0.78rem;">Ej: Newton (sin espacios ni símbolos raros).</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Ej: Newton (sin espacios ni símbolos raros).</small>
                     </div>
                     <div class="form-field">
                         <label>Contraseña de la Clase <span class="req">*</span></label>
                         <input type="password" id="t-pass" placeholder="6 dígitos" maxlength="6">
-                        <small style="color:var(--text-muted); font-size:0.78rem;">Exactamente 6 dígitos numéricos (Ej: 123456).</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 6 dígitos numéricos (Ej: 123456).</small>
                     </div>
                     
                     <div class="form-field full">
@@ -518,10 +542,10 @@
 
         <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
         <div id="view-teacher-config" class="view">
-            <div class="form-card" style="max-width: 950px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 1rem;">← Cambiar Capítulo</button>
+            <div class="form-card" style="max-width: 900px;">
+                <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 0.8rem;">← Cambiar Capítulo</button>
                 <div id="teacher-config-header-info"></div>
-                <div id="teacher-config-videos-container" style="margin-top: 1.5rem;"></div>
+                <div id="teacher-config-videos-container" style="margin-top: 1.2rem;"></div>
                 <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">CREAR E INICIAR LA CLASE ➔</button>
             </div>
         </div>
@@ -532,31 +556,31 @@
             
             <div class="teacher-stats-grid">
                 <div class="stat-card success">
-                    <div class="stat-card-title">⭐ Pregunta más acertada por el aula</div>
+                    <div class="stat-card-title">⭐ Pregunta más acertada</div>
                     <div class="stat-card-body" id="stat-most-correct">Calculando datos...</div>
                 </div>
                 <div class="stat-card danger">
-                    <div class="stat-card-title">⚠️ Pregunta con mayor dificultad</div>
+                    <div class="stat-card-title">⚠️ Mayor dificultad</div>
                     <div class="stat-card-body" id="stat-least-correct">Calculando datos...</div>
                 </div>
             </div>
 
-            <div class="teacher-stats-grid" style="margin-bottom: 1.5rem;">
+            <div class="teacher-stats-grid" style="margin-bottom: 1.2rem;">
                 <div class="stat-card" style="border-left-color: #f59e0b;">
-                    <div class="stat-card-title">📊 Evaluaciones de la Página (Promedios)</div>
+                    <div class="stat-card-title">📊 Evaluaciones de la Página</div>
                     <div class="stat-card-body" id="stat-page-ratings">Calculando calificaciones...</div>
                 </div>
                 <div class="stat-card" style="border-left-color: #059669;">
-                    <div class="stat-card-title">💬 Comentarios y Sugerencias de Alumnos</div>
-                    <div class="stat-card-body" id="stat-comments-count">0 comentarios registrados</div>
+                    <div class="stat-card-title">💬 Comentarios de Alumnos</div>
+                    <div class="stat-card-body" id="stat-comments-count">0 registrados</div>
                 </div>
             </div>
 
             <div class="dashboard-header">
-                <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif;">Registro y Calificación de Alumnos</h3>
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                    <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#1e3a8a; color:#fff; border:none;">📋 Ver Preguntas de la Clase</button>
-                    <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir Reporte / Guardar PDF</button>
+                <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif; font-size:1.15rem;">Registro y Calificación de Alumnos</h3>
+                <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                    <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#1e3a8a; color:#fff; border:none;">📋 Ver Preguntas</button>
+                    <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir PDF</button>
                 </div>
             </div>
 
@@ -568,7 +592,7 @@
                             <th>Apellidos y Nombres</th>
                             <th>Código</th>
                             <th>Grupo</th>
-                            <th>Nota Final (0-20)</th>
+                            <th>Nota (0-20)</th>
                             <th>Aciertos / Errores</th>
                         </tr>
                     </thead>
@@ -577,45 +601,45 @@
             </div>
 
             <div class="comment-box-list">
-                <h4 style="margin:0 0 1rem 0; color:var(--text-main); font-family:Georgia, serif;">Comentarios y Sugerencias Recibidas de los Alumnos</h4>
+                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">Comentarios y Sugerencias Recibidas</h4>
                 <div id="teacher-comments-container">
-                    <p style="color:var(--text-muted); font-size:0.9rem;">Aún no hay comentarios registrados.</p>
+                    <p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados.</p>
                 </div>
             </div>
 
-            <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-top: 2rem;">Cerrar Sesión Docente</button>
+            <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-top: 1.5rem;">Cerrar Sesión Docente</button>
         </div>
 
         <!-- VISTA DE CONSULTA DE PREGUNTAS PARA EL DOCENTE -->
         <div id="view-teacher-questions-viewer" class="view">
-            <div class="form-card" style="max-width: 900px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 1rem;">← Volver al Panel de Control</button>
+            <div class="form-card" style="max-width: 850px;">
+                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 0.8rem;">← Volver al Panel</button>
                 <h3 style="color: var(--accent-teacher); font-family: Georgia, serif;">Banco de Preguntas Activas de la Sesión</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Consulte aquí el detalle de las preguntas asignadas a los videos de la clase.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Consulte aquí el detalle de las preguntas asignadas a los videos de la clase.</p>
                 
                 <div id="teacher-viewer-content-container"></div>
 
-                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 2rem;">← Volver al Panel de Control</button>
+                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
             </div>
         </div>
 
         <!-- 5. ACCESO DEL ESTUDIANTE -->
         <div id="view-student-access" class="view">
             <div class="form-card">
-                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 1rem;">← Volver</button>
+                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
                 <h3>Acceso del Estudiante</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem;">Ingrese con el nombre de la clase y contraseña asignados por su docente.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese con el nombre de la clase y contraseña asignados por su docente.</p>
                 
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Apellidos y Nombres <span class="req">*</span></label>
                         <input type="text" id="s-name" placeholder="Ej: Quispe Mendoza, Carlos Alberto">
-                        <small style="color:var(--text-muted); font-size:0.78rem;">Mínimo un apellido y un nombre (Ej: Quispe Mendoza, Carlos Alberto).</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Mínimo un apellido y un nombre (Ej: Quispe Mendoza, Carlos Alberto).</small>
                     </div>
                     <div class="form-field">
                         <label>Código de Matrícula <span class="req">*</span></label>
                         <input type="text" id="s-code" placeholder="Ej: 20130026" maxlength="8">
-                        <small style="color:var(--text-muted); font-size:0.78rem;">Exactamente 8 dígitos numéricos.</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 8 dígitos numéricos.</small>
                     </div>
                     <div class="form-field">
                         <label>Grupo / Sección <span class="req">*</span></label>
@@ -630,12 +654,12 @@
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
                         <input type="text" id="s-classname" placeholder="Ej: Newton">
-                        <small style="color:var(--text-muted); font-size:0.78rem;">Debe coincidir exactamente con el de la clase.</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Debe coincidir exactamente con el de la clase.</small>
                     </div>
                     <div class="form-field">
                         <label>Contraseña <span class="req">*</span></label>
                         <input type="password" id="s-pass" placeholder="6 dígitos" maxlength="6">
-                        <small style="color:var(--text-muted); font-size:0.78rem;">Exactamente 6 dígitos numéricos.</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 6 dígitos numéricos.</small>
                     </div>
                 </div>
                 <button class="btn-action-student" onclick="studentEnter()">INGRESAR A LA CLASE ➔</button>
@@ -644,27 +668,27 @@
 
         <!-- 6. ENTORNO DE TRABAJO DEL ESTUDIANTE (VIDEOS Y PREGUNTAS) -->
         <div id="view-student-workspace" class="view">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.5rem;">
                 <button class="btn-secondary" onclick="switchView('view-student-access')">← Salir de la Clase</button>
-                <div id="student-session-info" style="font-weight:700; color:var(--accent-student);"></div>
+                <div id="student-session-info" style="font-weight:700; color:var(--accent-student); font-size:0.9rem;"></div>
             </div>
             
             <div id="workspace-chapter-banner"></div>
             <div id="workspace-videos-container"></div>
 
-            <div style="text-align: center; margin: 2rem 0;">
-                <button class="btn-action-student" onclick="proceedToPageEvaluation()" style="max-width: 400px; font-size: 1.05rem;">EVALUAR (IR A CALIFICACIÓN DE LA PÁGINA) ➔</button>
+            <div style="text-align: center; margin: 1.8rem 0;">
+                <button class="btn-action-student" onclick="proceedToPageEvaluation()" style="max-width: 380px; font-size: 0.95rem;">EVALUAR (CALIFICAR PÁGINA WEB) ➔</button>
             </div>
         </div>
 
         <!-- 7. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
         <div id="view-page-evaluation" class="view">
-            <div class="form-card" style="max-width: 750px;">
-                <button class="btn-secondary" onclick="switchView('view-student-workspace')" style="margin-bottom: 1rem;">← Volver al Cuestionario</button>
+            <div class="form-card" style="max-width: 700px;">
+                <button class="btn-secondary" onclick="switchView('view-student-workspace')" style="margin-bottom: 0.8rem;">← Volver al Cuestionario</button>
                 <h3 style="color: var(--accent-student); font-family: Georgia, serif;">Evaluación Obligatoria de la Página Web</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Para poder visualizar su nota final, aciertos, errores y explicaciones detalladas, es requisito obligatorio calificar la plataforma y dejar su comentario.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Para poder visualizar su nota final, aciertos, errores y explicaciones detalladas, es requisito obligatorio calificar la plataforma y dejar su comentario.</p>
                 
-                <div class="form-field" style="margin-bottom: 1.2rem;">
+                <div class="form-field" style="margin-bottom: 1rem;">
                     <label>1. ¿Qué tan útil y clara fue la interfaz para su aprendizaje? <span class="req">*</span></label>
                     <select id="eval-q1">
                         <option value="5">5 - Excelente / Muy útil</option>
@@ -675,7 +699,7 @@
                     </select>
                 </div>
 
-                <div class="form-field" style="margin-bottom: 1.2rem;">
+                <div class="form-field" style="margin-bottom: 1rem;">
                     <label>2. ¿Cómo califica la calidad y nitidez de los videos demostrativos? <span class="req">*</span></label>
                     <select id="eval-q2">
                         <option value="5">5 - Excelente calidad</option>
@@ -686,7 +710,7 @@
                     </select>
                 </div>
 
-                <div class="form-field" style="margin-bottom: 1.2rem;">
+                <div class="form-field" style="margin-bottom: 1rem;">
                     <label>3. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación? <span class="req">*</span></label>
                     <select id="eval-q3">
                         <option value="5">5 - Muy didácticos</option>
@@ -697,22 +721,22 @@
                     </select>
                 </div>
 
-                <div class="form-field" style="margin-bottom: 1.5rem;">
+                <div class="form-field" style="margin-bottom: 1.2rem;">
                     <label>Comentarios y sugerencias para mejorar la página: <span class="req">*</span></label>
-                    <textarea id="eval-comment" rows="4" placeholder="Escriba aquí sus sugerencias u opiniones detalladas..."></textarea>
+                    <textarea id="eval-comment" rows="3" placeholder="Escriba aquí sus sugerencias u opiniones detalladas..."></textarea>
                 </div>
 
-                <button class="btn-action-student" onclick="submitEvaluationAndGetResults()">ENVIAR EVALUACIÓN Y VER MI NOTA Y RESPUESTAS ➔</button>
+                <button class="btn-action-student" onclick="submitEvaluationAndGetResults()">ENVIAR EVALUACIÓN Y VER MI NOTA ➔</button>
             </div>
         </div>
 
         <!-- 8. RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
         <div id="view-student-feedback" class="view">
-            <div class="form-card" style="max-width: 900px;">
-                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 1rem;">← Salir al Inicio</button>
-                <div id="feedback-header-box" style="text-align: center; margin-bottom: 2rem; padding: 1.5rem; background: var(--panel-alt); border-radius: 14px; border: 1.5px solid var(--accent-student);"></div>
+            <div class="form-card" style="max-width: 850px;">
+                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Salir al Inicio</button>
+                <div id="feedback-header-box" style="text-align: center; margin-bottom: 1.5rem; padding: 1.2rem; background: var(--panel-alt); border-radius: 12px; border: 1.5px solid var(--accent-student);"></div>
                 <div id="feedback-details-container"></div>
-                <button class="btn-action-student" onclick="switchView('view-role-selection')" style="margin-top: 2rem;">FINALIZAR Y SALIR</button>
+                <button class="btn-action-student" onclick="switchView('view-role-selection')" style="margin-top: 1.5rem;">FINALIZAR Y SALIR</button>
             </div>
         </div>
 
@@ -969,9 +993,9 @@
 
             if(headerInfo && chapterData) {
                 headerInfo.innerHTML = `
-                    <div style="background: var(--panel-alt); border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1.2rem; border-radius: 10px; margin-bottom: 1.5rem;">
-                        <h4 style="margin:0 0 0.5rem 0; color:var(--text-main); font-family:Georgia, serif;">Configurando: ${chapterData.title}</h4>
-                        <p style="margin:0; font-size:0.9rem; color:var(--text-muted);">${chapterData.introLab || chapterData.objGeneral}</p>
+                    <div style="background: var(--panel-alt); border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1rem; border-radius: 8px; margin-bottom: 1.2rem;">
+                        <h4 style="margin:0 0 0.4rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">Configurando: ${chapterData.title}</h4>
+                        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">${chapterData.introLab || chapterData.objGeneral}</p>
                     </div>
                 `;
             }
@@ -984,46 +1008,46 @@
 
                     return `
                         <div class="teacher-config-video-card" id="config-card-${idx}">
-                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.4rem;">${displayVideoTitle}</div>
-                            <div style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">Archivo: ${vid.archivo || 'video.mp4'} | Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
-                            <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.6rem;">Preguntas configuradas (${preguntasList.length}):</div>
+                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem;">${displayVideoTitle}</div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;">Archivo: ${vid.archivo || 'video.mp4'} | Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
+                            <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.5rem;">Preguntas configuradas (${preguntasList.length}):</div>
                             
                             <div id="q-list-container-${idx}">
                                 ${preguntasList.map((p, pIdx) => `
                                     <div class="teacher-suggested-q">
                                         <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
-                                        <div style="margin-top:0.4rem; color:var(--accent-student); font-size:0.84rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
+                                        <div style="margin-top:0.3rem; color:var(--accent-student); font-size:0.82rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
                                     </div>
                                 `).join('')}
                             </div>
 
-                            <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:10px; padding:1.2rem; margin-top:1rem;">
-                                <div style="font-weight:700; font-size:0.85rem; text-transform:uppercase; color:#f59e0b; margin-bottom:0.8rem;">✏️ Proponer o Reemplazar Pregunta en este Video</div>
+                            <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:8px; padding:1rem; margin-top:0.8rem;">
+                                <div style="font-weight:700; font-size:0.82rem; text-transform:uppercase; color:#f59e0b; margin-bottom:0.6rem;">✏️ Proponer o Reemplazar Pregunta</div>
                                 
                                 <div class="form-grid" style="margin-top:0;">
                                     <div class="form-field">
                                         <label>Acción</label>
                                         <select id="action-type-${idx}" onchange="toggleInlineReplaceSelector(${idx})">
-                                            <option value="proponer">Agregar Pregunta (Proponer)</option>
-                                            <option value="reemplazar">Reemplazar Pregunta Existente</option>
+                                            <option value="proponer">Agregar Pregunta</option>
+                                            <option value="reemplazar">Reemplazar Existente</option>
                                         </select>
                                     </div>
                                     <div class="form-field" id="replace-select-wrapper-${idx}" style="display:none;">
                                         <label>Elegir cuál reemplazar</label>
                                         <select id="replace-target-${idx}">
-                                            ${preguntasList.map((p, pIdx) => `<option value="${pIdx}">Pregunta ${pIdx+1}: ${p.pregunta.substring(0,35)}...</option>`).join('')}
+                                            ${preguntasList.map((p, pIdx) => `<option value="${pIdx}">Pregunta ${pIdx+1}: ${p.pregunta.substring(0,30)}...</option>`).join('')}
                                         </select>
                                     </div>
                                     <div class="form-field full">
-                                        <label>Enunciado de la Pregunta</label>
+                                        <label>Enunciado</label>
                                         <textarea id="inline-q-text-${idx}" rows="2" placeholder="Escriba el enunciado..."></textarea>
                                     </div>
-                                    <div class="form-field"><label>Alternativa A</label><input type="text" id="inline-opt-${idx}-0" placeholder="Opción A"></div>
-                                    <div class="form-field"><label>Alternativa B</label><input type="text" id="inline-opt-${idx}-1" placeholder="Opción B"></div>
-                                    <div class="form-field"><label>Alternativa C</label><input type="text" id="inline-opt-${idx}-2" placeholder="Opción C"></div>
-                                    <div class="form-field"><label>Alternativa D</label><input type="text" id="inline-opt-${idx}-3" placeholder="Opción D"></div>
+                                    <div class="form-field"><label>Alt A</label><input type="text" id="inline-opt-${idx}-0" placeholder="Opción A"></div>
+                                    <div class="form-field"><label>Alt B</label><input type="text" id="inline-opt-${idx}-1" placeholder="Opción B"></div>
+                                    <div class="form-field"><label>Alt C</label><input type="text" id="inline-opt-${idx}-2" placeholder="Opción C"></div>
+                                    <div class="form-field"><label>Alt D</label><input type="text" id="inline-opt-${idx}-3" placeholder="Opción D"></div>
                                     <div class="form-field full">
-                                        <label>Respuesta Correcta</label>
+                                        <label>Correcta</label>
                                         <select id="inline-correct-${idx}">
                                             <option value="0">Opción A</option>
                                             <option value="1">Opción B</option>
@@ -1032,7 +1056,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <button class="btn-secondary" onclick="submitInlineQuestion(${selectedChapterId}, ${idx})" style="border-color:#f59e0b; color:#f59e0b; margin-top:1rem; width:100%; justify-content:center;">
+                                <button class="btn-secondary" onclick="submitInlineQuestion(${selectedChapterId}, ${idx})" style="border-color:#f59e0b; color:#f59e0b; margin-top:0.8rem; width:100%; justify-content:center;">
                                     ➕ Guardar y Aplicar en este Video
                                 </button>
                             </div>
@@ -1101,10 +1125,10 @@
             document.getElementById('docente-info-banner').innerHTML = `
                 <strong>Sesión Activa:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
-            document.getElementById('stat-most-correct').innerText = "Pregunta 01 (94% de aciertos)";
-            document.getElementById('stat-least-correct').innerText = "Pregunta 02 (42% de aciertos)";
-            document.getElementById('stat-page-ratings').innerText = "4.8 / 5.0 (Excelente interfaz)";
-            document.getElementById('stat-comments-count').innerText = "12 comentarios registrados";
+            document.getElementById('stat-most-correct').innerText = "Pregunta 01 (94%)";
+            document.getElementById('stat-least-correct').innerText = "Pregunta 02 (42%)";
+            document.getElementById('stat-page-ratings').innerText = "4.8 / 5.0";
+            document.getElementById('stat-comments-count').innerText = "12 registrados";
 
             switchView('view-teacher-dashboard');
         }
@@ -1117,7 +1141,7 @@
                 if(!tbody) return;
 
                 if(!data) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Esperando conexiones de alumnos en tiempo real desde Firebase...</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Esperando conexiones de alumnos en tiempo real...</td></tr>`;
                     return;
                 }
 
@@ -1146,7 +1170,7 @@
                 if(!container) return;
 
                 if(!data) {
-                    container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Aún no hay comentarios registrados.</p>`;
+                    container.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados.</p>`;
                     return;
                 }
 
@@ -1175,13 +1199,13 @@
                 const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
 
                 return `
-                    <div class="teacher-config-video-card" style="margin-bottom:1.5rem;">
-                        <div style="font-weight:800; color:var(--accent-teacher); font-size:1.05rem; margin-bottom:0.3rem;">${displayVideoTitle}</div>
-                        <div style="font-size:0.86rem; color:var(--text-muted); margin-bottom:1rem;">Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
+                    <div class="teacher-config-video-card" style="margin-bottom:1.2rem;">
+                        <div style="font-weight:800; color:var(--accent-teacher); font-size:1rem; margin-bottom:0.2rem;">${displayVideoTitle}</div>
+                        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.8rem;">Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
                         ${preguntasList.map((p, pIdx) => `
                             <div class="teacher-suggested-q">
                                 <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
-                                <ul style="margin: 0.5rem 0 0 1rem; padding:0; font-size:0.86rem; list-style-type:none;">
+                                <ul style="margin: 0.4rem 0 0 1rem; padding:0; font-size:0.82rem; list-style-type:none;">
                                     ${p.opciones.map((opt, oIdx) => `
                                         <li style="color:${oIdx === p.correcta ? 'var(--accent-student)' : 'var(--text-main)'}; font-weight:${oIdx === p.correcta ? '700' : '400'};">
                                             ${String.fromCharCode(65 + oIdx)}. ${opt} ${oIdx === p.correcta ? ' ✓ (Correcta)' : ''}
@@ -1260,10 +1284,10 @@
             if(banner && chapterData) {
                 banner.innerHTML = `
                     <div class="chapter-header-box">
-                        <div style="flex:1;">
-                            <div style="font-size:0.78rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.3rem;">Capítulo ${chapterData.id}</div>
-                            <h3 style="margin:0 0 0.4rem 0; font-family:Georgia,serif; font-size:1.4rem; color:var(--text-main);">${chapterData.title}</h3>
-                            <p style="margin:0 0 0.6rem 0; font-size:0.92rem; color:var(--text-muted);"><strong>${chapterData.objGeneral || ''}</strong></p>
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.2rem;">Capítulo ${chapterData.id}</div>
+                            <h3 style="margin:0 0 0.3rem 0; font-family:Georgia,serif; font-size:1.25rem; color:var(--text-main);">${chapterData.title}</h3>
+                            <p style="margin:0 0 0.5rem 0; font-size:0.88rem; color:var(--text-muted);"><strong>${chapterData.objGeneral || ''}</strong></p>
                             <div class="lab-info-card">${chapterData.introLab || ''}</div>
                         </div>
                     </div>
@@ -1390,15 +1414,15 @@
             let feedbackHTML = '';
             for(let vTitle in videosMap) {
                 feedbackHTML += `
-                    <div style="background:var(--panel-alt); border:1.5px solid var(--border-soft); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem;">
-                        <h4 style="margin:0 0 1rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1.1rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.5rem;">${vTitle}</h4>
+                    <div style="background:var(--panel-alt); border:1.5px solid var(--border-soft); border-radius:10px; padding:1.2rem; margin-bottom:1.2rem;">
+                        <h4 style="margin:0 0 0.8rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.4rem;">${vTitle}</h4>
                 `;
                 videosMap[vTitle].forEach(q => {
                     feedbackHTML += `
-                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? 'var(--accent-student)' : '#ef4444'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem;">
-                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
-                            <div style="font-size:0.88rem; margin-bottom:0.4rem;">Estado: <strong>${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
-                            <div style="font-size:0.85rem; color:var(--text-muted);">Explicación didáctica: ${q.explicacion}</div>
+                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? 'var(--accent-student)' : '#ef4444'}; padding:1rem; border-radius:8px; margin-bottom:0.8rem;">
+                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.3rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
+                            <div style="font-size:0.85rem; margin-bottom:0.3rem;">Estado: <strong>${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
+                            <div style="font-size:0.82rem; color:var(--text-muted);">Explicación didáctica: ${q.explicacion}</div>
                         </div>
                     `;
                 });
@@ -1427,13 +1451,13 @@
             }
 
             document.getElementById('feedback-header-box').innerHTML = `
-                <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
-                <div style="font-size:1.4rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
-                <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
+                <h2 style="margin:0 0 0.4rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.25rem;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
+                <div style="font-size:1.25rem; font-weight:800; color:var(--accent-student); margin:0.4rem 0;">Calificación Final: ${notaFinal} / 20</div>
+                <div style="font-size:0.88rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
             `;
 
             document.getElementById('feedback-details-container').innerHTML = `
-                <h4 style="margin:0 0 1rem 0; font-family:Georgia,serif; color:var(--text-main);">Retroalimentación y Explicaciones Detalladas por Video:</h4>
+                <h4 style="margin:0 0 0.8rem 0; font-family:Georgia,serif; color:var(--text-main); font-size:1rem;">Retroalimentación y Explicaciones Detalladas por Video:</h4>
                 ${feedbackHTML}
             `;
 
