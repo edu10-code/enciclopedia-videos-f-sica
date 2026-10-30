@@ -299,7 +299,6 @@
             font-weight: 700; color: var(--text-main); margin-bottom: 0.8rem; line-height: 1.45;
         }
         
-        /* ESTILO NUEVO: Alternativas limpias tipo botón con letras A, B, C, D (Sin círculos redundantes) */
         .quiz-options-grid {
             display: flex;
             flex-direction: column;
@@ -696,11 +695,17 @@
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
 
+        // Catálogo corregido con los nombres oficiales de los 9 capítulos de Física Experimental
         const fallbackCapitulosCatalog = [
-            { id: 1, title: "Capítulo 1: Unidades e Incertidumbres", introLab: "Introducción a unidades del SI y mediciones.", objGeneral: "Comprender el SI y propagación de errores.", color: "#059669", icon: "01" },
-            { id: 2, title: "Capítulo 2: Cinemática en una Dimensión", introLab: "Estudio de MRU y MRUV en rieles de aire.", objGeneral: "Analizar la cinemática mediante sensores.", color: "#1e3a8a", icon: "02" },
-            { id: 3, title: "Capítulo 3: Dinámica y Leyes de Newton", introLab: "Leyes de Newton, poleas, resortes y caída libre.", objGeneral: "Validar experimentalmente la segunda ley de Newton.", color: "#b45309", icon: "03" },
-            { id: 4, title: "Capítulo 4: Cinemática Bidimensional", introLab: "Tiro parabólico e independencia de movimientos.", objGeneral: "Verificar principio de Galileo en dos dimensiones.", color: "#7c3aed", icon: "04" }
+            { id: 1, title: "Capítulo 1: Unidades y vectores", introLab: "Introducción al uso de unidades del SI y cálculo vectorial.", objGeneral: "Comprender el manejo de magnitudes y vectores.", color: "#059669", icon: "01" },
+            { id: 2, title: "Capítulo 2: Cinemática lineal", introLab: "Estudio del movimiento rectilíneo en rieles de aire.", objGeneral: "Analizar velocidad y aceleración en una dimensión.", color: "#1e3a8a", icon: "02" },
+            { id: 3, title: "Capítulo 3: Dinámica lineal", introLab: "Análisis de fuerzas y leyes fundamentales del movimiento.", objGeneral: "Validar experimentalmente la relación de fuerzas.", color: "#b45309", icon: "03" },
+            { id: 4, title: "Capítulo 4: Movimiento en un plano", introLab: "Estudio de trayectorias bidimensionales y componentes.", objGeneral: "Analizar el movimiento parabólico y superposición.", color: "#7c3aed", icon: "04" },
+            { id: 5, title: "Capítulo 5: Inercia", introLab: "Demostración de la tendencia de los cuerpos a mantener su estado.", objGeneral: "Comprobar el principio de inercia en sistemas.", color: "#0284c7", icon: "05" },
+            { id: 6, title: "Capítulo 6: Acción y reacción", introLab: "Estudio de las fuerzas mutuas entre deslizadores.", objGeneral: "Comprobar la tercera ley de Newton en colisiones.", color: "#4f46e5", icon: "06" },
+            { id: 7, title: "Capítulo 7: Fricción", introLab: "Medición de fuerzas de fricción estática y cinética.", objGeneral: "Determinar coeficientes de fricción en superficies.", color: "#db2777", icon: "07" },
+            { id: 8, title: "Capítulo 8: Trabajo, energía y potencia", introLab: "Conservación de la energía mecánica en sistemas físicos.", objGeneral: "Evaluar transformaciones energéticas experimentales.", color: "#ca8a04", icon: "08" },
+            { id: 9, title: "Capítulo 9: Centro de masa", introLab: "Determinación del punto de equilibrio y centro de gravedad.", objGeneral: "Analizar la distribución de masa en cuerpos.", color: "#0d9488", icon: "09" }
         ];
 
         window.onload = function() {
@@ -758,7 +763,6 @@
             renderChapterSelectionCards();
         }
 
-        // VALIDACIÓN ESTRICTA REGISTRO DOCENTE
         function goToTeacherConfig() {
             const name = document.getElementById('t-teachername').value.trim();
             const classname = document.getElementById('t-classname').value.trim();
@@ -769,19 +773,16 @@
                 return;
             }
 
-            // Validar mínimo nombre y apellido
             if(name.split(/\s+/).length < 2) {
                 alert("El nombre del docente debe incluir al menos un nombre y un apellido (Ej: Dr. Juan Pérez).");
                 return;
             }
 
-            // Validar contraseña de exactamente 6 dígitos
             if(!/^\d{6}$/.test(pass)) {
                 alert("La contraseña de la clase debe tener exactamente 6 dígitos numéricos.");
                 return;
             }
 
-            // Validar nombre de clase formato correcto (letras/números sin espacios excesivos)
             if(!/^[a-zA-Z0-9_-]{3,20}$/.test(classname)) {
                 alert("El nombre de la clase debe ser adecuado y sin espacios (Ej: Newton).");
                 return;
@@ -1109,7 +1110,6 @@
             switchView('view-teacher-questions-viewer');
         }
 
-        // VALIDACIÓN ESTRICTA ACCESO ESTUDIANTE
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -1122,19 +1122,16 @@
                 return;
             }
 
-            // Validar mínimo nombre y apellido
             if(name.split(/\s+/).length < 2) {
                 alert("Debe ingresar obligatoriamente un nombre y un apellido (Ej: Quispe Mendoza, Carlos Alberto).");
                 return;
             }
 
-            // Validar código exactamente de 8 dígitos numéricos
             if(!/^\d{8}$/.test(code)) {
                 alert("El código de matrícula debe tener exactamente 8 dígitos numéricos (Ej: 20130026).");
                 return;
             }
 
-            // Validar contraseña de exactamente 6 dígitos
             if(!/^\d{6}$/.test(pass)) {
                 alert("La contraseña debe tener exactamente 6 dígitos numéricos.");
                 return;
@@ -1246,7 +1243,6 @@
             }
         }
 
-        // Función interactiva para seleccionar alternativas haciendo clic directamente en las letras A, B, C, D
         function selectQuizOption(vIdx, qIdx, oIdx) {
             const container = document.getElementById(`q_group_${vIdx}_${qIdx}`);
             const buttons = container.querySelectorAll('.quiz-option-btn');
@@ -1282,7 +1278,6 @@
                     videosMap[item.videoTitle] = [];
                 }
 
-                // Recogemos la alternativa seleccionada desde el botón con data-selected
                 const container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
                 let matchChoice = -1;
                 if(container) {
