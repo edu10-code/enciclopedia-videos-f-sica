@@ -603,7 +603,6 @@
             return preguntasList;
         }
 
-        // VISTA DE CONFIGURACIÓN DEL DOCENTE (CON REPRODUCTOR Y SIN TEXTO TÉCNICO DE ARCHIVO)
         function renderTeacherConfigurationView() {
             const headerInfo = document.getElementById('teacher-config-header-info');
             const videosContainer = document.getElementById('teacher-config-videos-container');
@@ -633,7 +632,6 @@
                             <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem; font-size:1.05rem;">${displayVideoTitle}</div>
                             <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;"><strong>Objetivo:</strong> ${vid.objetivo || 'Análisis físico de laboratorio'}</div>
                             
-                            <!-- REPRODUCTOR DE VIDEO PARA EL DOCENTE -->
                             <div class="video-responsive" style="margin-bottom: 1rem;">
                                 <video controls preload="metadata">
                                     <source src="${videoCloudinaryUrl}" type="video/mp4">
@@ -907,7 +905,6 @@
             switchView('view-teacher-questions-viewer');
         }
 
-        // VISTA ESTADÍSTICA DE LAS 4 PREGUNTAS DE EVALUACIÓN WEB PARA EL DOCENTE
         function openTeacherWebEvaluations() {
             const container = document.getElementById('teacher-web-evals-container');
             if (!container || !classroomConfig) return;
