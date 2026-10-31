@@ -1148,7 +1148,7 @@
             const totalPreguntas = activeQuestionsRendered.length || 1;
             const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
             
-            // Cálculo del promedio general de las 4 métricas (estrellas de 1-6 convertidas a escala de 1-5, o promediadas directamente con las demás)
+            // Cálculo del promedio general de las 4 métricas
             const normalizedStars = (studentEvalData.stars / 6) * 5;
             const promedioAlumnoEval = ((normalizedStars + studentEvalData.q2 + studentEvalData.q3 + studentEvalData.q4) / 4).toFixed(1);
 
