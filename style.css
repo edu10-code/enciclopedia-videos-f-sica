@@ -1,1295 +1,714 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enciclopedia en Videos de Demostración de Física - UNMSM</title>
-    <!-- Enlace a la hoja de estilos CSS externa -->
-    <link rel="stylesheet" href="style.css">
-
-    <!-- LIBRERÍAS DE FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-</head>
-<body>
-
-    <header>
-        <div class="header-content">
-            <div class="header-left-group">
-                <!-- LOGOTIPO DE PERROVACA -->
-                <div class="header-logo-placeholder" style="overflow: hidden; padding: 0; border-radius: 10px;">
-                    <img src="perrovaca.jpg" alt="Logo Perrovaca" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="header-text">
-                    <div class="header-instituciones">UNMSM · Facultad de Ciencias Físicas</div>
-                    <h1>Enciclopedia en Videos de Física</h1>
-                    <h2>Portal Académico Interactivo</h2>
-                </div>
-            </div>
-            <!-- BOTÓN DE MODO CLARO / OSCURO -->
-            <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Modo Claro / Oscuro">
-                <span id="theme-icon">☀️</span>
-                <span id="theme-text">Modo Claro</span>
-            </button>
-        </div>
-    </header>
-
-    <div class="container">
-
-        <!-- 1. PORTADA PRINCIPAL -->
-        <div id="view-role-selection" class="view active">
-            <div class="role-selection-box">
-                <h3>Bienvenido a la Enciclopedia. Seleccione su rol institucional:</h3>
-                <div class="role-buttons-grid">
-                    <button class="role-card student" onclick="switchView('view-student-access')">
-                        <div class="role-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36">
-                                <path d="M22 10l-10-5L2 10l10 5 10-5z" fill="currentColor" fill-opacity="0.2"/>
-                                <path d="M22 10l-10-5L2 10l10 5 10-5z"/>
-                                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                                <path d="M22 10v6"/>
-                            </svg>
-                        </div>
-                        <div class="role-card-body">
-                            <div class="role-card-title">SOY ALUMNO</div>
-                            <div class="role-card-desc">Accede a tus cursos, videos demostrativos y evaluaciones interactivas</div>
-                        </div>
-                    </button>
-
-                    <button class="role-card teacher" onclick="switchView('view-teacher-register')">
-                        <div class="role-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36">
-                                <rect x="3" y="4" width="18" height="12" rx="2" fill="currentColor" fill-opacity="0.15"/>
-                                <rect x="3" y="4" width="18" height="12" rx="2"/>
-                                <path d="M7 20h10"/><path d="M12 16v4"/><path d="M7 8h10"/><path d="M7 11h6"/>
-                            </svg>
-                        </div>
-                        <div class="role-card-body">
-                            <div class="role-card-title">SOY DOCENTE</div>
-                            <div class="role-card-desc">Gestiona tus clases, alumnos, calificaciones y configuración de preguntas</div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. REGISTRO DE CLASE (DOCENTE) -->
-        <div id="view-teacher-register" class="view">
-            <div class="form-card">
-                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
-                <h3>Registro y Validación de Clase Independiente</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese el nombre del docente, un nombre de clase único y una contraseña de 6 dígitos. Cada aula maneja sus propios alumnos, notas y comentarios independientes.</p>
-                <div class="form-grid">
-                    <div class="form-field full">
-                        <label>Nombre del Docente <span class="req">*</span></label>
-                        <input type="text" id="t-teachername" placeholder="Ej: Dr. Juan Pérez">
-                    </div>
-                    <div class="form-field">
-                        <label>Nombre de la Clase <span class="req">*</span></label>
-                        <input type="text" id="t-classname" placeholder="Ej: Sol (Único para tu aula)">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Sin espacios ni caracteres especiales.</small>
-                    </div>
-                    <div class="form-field">
-                        <label>Contraseña de la Clase <span class="req">*</span></label>
-                        <input type="password" id="t-pass" placeholder="6 dígitos" maxlength="6">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 6 dígitos numéricos.</small>
-                    </div>
-                    
-                    <div class="form-field full">
-                        <label>Seleccionar Capítulo Asignado <span class="req">*</span></label>
-                        <div class="chapters-selection-list" id="chapters-cards-container"></div>
-                    </div>
-                </div>
-                <button class="btn-action-teacher" onclick="goToTeacherConfig()">VALIDAR E INGRESAR AL PANEL ➔</button>
-            </div>
-        </div>
-
-        <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
-        <div id="view-teacher-config" class="view">
-            <div class="form-card" style="max-width: 900px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 0.8rem;">← Volver</button>
-                <div id="teacher-config-header-info"></div>
-                <div id="teacher-config-videos-container" style="margin-top: 1.2rem;"></div>
-                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">ACTIVAR Y ABRIR CLASE ➔</button>
-            </div>
-        </div>
-
-        <!-- 4. PANEL DEL DOCENTE Y ESTADÍSTICAS -->
-        <div id="view-teacher-dashboard" class="view">
-            <div class="alert-banner-docente" id="docente-info-banner"></div>
-            
-            <div class="teacher-stats-grid">
-                <div class="stat-card success">
-                    <div class="stat-card-title">⭐ Total Alumnos Registrados</div>
-                    <div class="stat-card-body" id="stat-most-correct">0 alumnos</div>
-                </div>
-                <div class="stat-card danger">
-                    <div class="stat-card-title">⚠️ Estado de la Clase</div>
-                    <div class="stat-card-body" id="stat-least-correct">Independiente & Segura</div>
-                </div>
-            </div>
-
-            <div class="teacher-stats-grid" style="margin-bottom: 1.2rem;">
-                <div class="stat-card" style="border-left-color: #f59e0b;">
-                    <div class="stat-card-title">📊 Calificación Promedio de la Página</div>
-                    <div class="stat-card-body" id="stat-page-ratings">Sin valoraciones aún</div>
-                </div>
-                <div class="stat-card" style="border-left-color: #059669;">
-                    <div class="stat-card-title">💬 Comentarios de esta Clase</div>
-                    <div class="stat-card-body" id="stat-comments-count">0 comentarios</div>
-                </div>
-            </div>
-
-            <div class="dashboard-header">
-                <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif; font-size:1.15rem;">Registro y Calificación de Alumnos de esta Aula</h3>
-                <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
-                    <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#1e3a8a; color:#fff; border:none;">📋 Ver Preguntas</button>
-                    <button class="btn-secondary" onclick="openTeacherWebEvaluations()" style="background:#d97706; color:#fff; border:none;">📊 Ver Evaluaciones Web</button>
-                    <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir PDF</button>
-                </div>
-            </div>
-
-            <div class="dashboard-table-container">
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>Puesto</th>
-                            <th>Apellidos y Nombres</th>
-                            <th>Código</th>
-                            <th>Grupo</th>
-                            <th>Nota (0-20)</th>
-                            <th>Aciertos / Errores</th>
-                        </tr>
-                    </thead>
-                    <tbody id="students-table-body">
-                        <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="comment-box-list">
-                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">Comentarios y Sugerencias Exclusivas de esta Clase</h4>
-                <div id="teacher-comments-container">
-                    <p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios en esta clase.</p>
-                </div>
-            </div>
-
-            <button class="btn-secondary" onclick="logoutTeacher()" style="margin-top: 1.5rem;">Cerrar Sesión Docente</button>
-        </div>
-
-        <!-- VISTA DE CONSULTA DE PREGUNTAS PARA EL DOCENTE -->
-        <div id="view-teacher-questions-viewer" class="view">
-            <div class="form-card" style="max-width: 850px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 0.8rem;">← Volver al Panel</button>
-                <h3 style="color: var(--accent-teacher); font-family: Georgia, serif;">Banco de Preguntas Activas de la Sesión</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Consulte aquí el detalle de las preguntas asignadas a los videos de la clase.</p>
-                
-                <div id="teacher-viewer-content-container"></div>
-
-                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
-            </div>
-        </div>
-
-        <!-- VISTA DETALLADA DE EVALUACIONES WEB PARA EL DOCENTE -->
-        <div id="view-teacher-web-evaluations" class="view">
-            <div class="form-card" style="max-width: 850px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 0.8rem;">← Volver al Panel</button>
-                <h3 style="color: var(--accent-teacher); font-family: Georgia, serif;">Evaluaciones Detalladas de la Página Web (Alumnos)</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Estadísticas de conteo y porcentaje por cada una de las 4 preguntas respondidas por los estudiantes.</p>
-                
-                <div id="teacher-web-evals-container">
-                    <p style="color: var(--text-muted);">Cargando valoraciones de la plataforma...</p>
-                </div>
-
-                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
-            </div>
-        </div>
-
-        <!-- 5. ACCESO DEL ESTUDIANTE -->
-        <div id="view-student-access" class="view">
-            <div class="form-card">
-                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
-                <h3>Acceso del Estudiante</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese con el nombre de la clase y contraseña asignados por su docente.</p>
-                
-                <div class="form-grid">
-                    <div class="form-field full">
-                        <label>Apellidos y Nombres <span class="req">*</span></label>
-                        <input type="text" id="s-name" placeholder="Ej: Quispe Mendoza, Carlos Alberto">
-                    </div>
-                    <div class="form-field">
-                        <label>Código de Matrícula <span class="req">*</span></label>
-                        <input type="text" id="s-code" placeholder="Ej: 20130026" maxlength="8">
-                    </div>
-                    <div class="form-field">
-                        <label>Grupo / Sección <span class="req">*</span></label>
-                        <select id="s-group">
-                            <option value="1">Grupo 1</option>
-                            <option value="2">Grupo 2</option>
-                            <option value="3" selected>Grupo 3</option>
-                            <option value="4">Grupo 4</option>
-                            <option value="5">Grupo 5</option>
-                        </select>
-                    </div>
-                    <div class="form-field">
-                        <label>Nombre de la Clase <span class="req">*</span></label>
-                        <input type="text" id="s-classname" placeholder="Ej: Sol">
-                    </div>
-                    <div class="form-field">
-                        <label>Contraseña <span class="req">*</span></label>
-                        <input type="password" id="s-pass" placeholder="6 dígitos" maxlength="6">
-                    </div>
-                </div>
-                <button class="btn-action-student" onclick="studentEnter()">INGRESAR A LA CLASE ➔</button>
-            </div>
-        </div>
-
-        <!-- 6. ENTORNO DE TRABAJO DEL ESTUDIANTE (VIDEOS Y PREGUNTAS) -->
-        <div id="view-student-workspace" class="view">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.5rem;">
-                <button class="btn-secondary" onclick="logoutStudent()">← Salir de la Clase</button>
-                <div id="student-session-info" style="font-weight:700; color:var(--accent-student); font-size:0.9rem;"></div>
-            </div>
-            
-            <div id="workspace-chapter-banner"></div>
-            <div id="workspace-videos-container"></div>
-
-            <div style="text-align: center; margin: 1.8rem 0;">
-                <button class="btn-action-student" onclick="proceedToPageEvaluation()" style="max-width: 380px; font-size: 0.95rem;">EVALUAR (CALIFICAR PÁGINA WEB) ➔</button>
-            </div>
-        </div>
-
-        <!-- 7. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
-        <div id="view-page-evaluation" class="view">
-            <div class="form-card" style="max-width: 750px;">
-                <button class="btn-secondary" onclick="switchView('view-student-workspace')" style="margin-bottom: 0.8rem;">← Volver al Cuestionario</button>
-                <h3 style="color: var(--accent-student); font-family: Georgia, serif;">Evaluación de la Página Web</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Para poder visualizar su nota final, aciertos, errores y explicaciones detalladas, es requisito obligatorio calificar la plataforma y dejar su comentario.</p>
-                
-                <!-- PREGUNTA 1: CALIFICACIÓN CON 6 ESTRELLAS -->
-                <div class="form-field" style="margin-bottom: 1.5rem;">
-                    <label>1. ¿Qué te pareció la página web? <span class="req">*</span></label>
-                    <div class="rating-stars-container" id="star-rating-group">
-                        <button type="button" class="star-btn" onclick="selectStarRating(1)" title="1 Estrellas">★</button>
-                        <button type="button" class="star-btn" onclick="selectStarRating(2)" title="2 Estrellas">★</button>
-                        <button type="button" class="star-btn" onclick="selectStarRating(3)" title="3 Estrellas">★</button>
-                        <button type="button" class="star-btn" onclick="selectStarRating(4)" title="4 Estrellas">★</button>
-                        <button type="button" class="star-btn" onclick="selectStarRating(5)" title="5 Estrellas">★</button>
-                        <button type="button" class="star-btn" onclick="selectStarRating(6)" title="6 Estrellas">★</button>
-                    </div>
-                </div>
-
-                <!-- PREGUNTA 2: INTERFAZ -->
-                <div class="form-field" style="margin-bottom: 1.5rem;">
-                    <label>2. ¿Qué tan útil y clara fue la interfaz para su aprendizaje? <span class="req">*</span></label>
-                    <div class="eval-options-grid" id="eval-q2-group">
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 1, this)">Deficiente</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 2, this)">Poco útil</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 3, this)">Regular</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 4, this)">Buena</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 5, this)">Excelente</button>
-                    </div>
-                </div>
-
-                <!-- PREGUNTA 3: VIDEOS -->
-                <div class="form-field" style="margin-bottom: 1.5rem;">
-                    <label>3. ¿Cómo califica la calidad y nitidez de los videos demostrativos? <span class="req">*</span></label>
-                    <div class="eval-options-grid" id="eval-q3-group">
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 1, this)">Mala</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 2, this)">Baja calidad</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 3, this)">Aceptable</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 4, this)">Buena</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 5, this)">Excelente</button>
-                    </div>
-                </div>
-
-                <!-- PREGUNTA 4: CUESTIONARIOS -->
-                <div class="form-field" style="margin-bottom: 1.5rem;">
-                    <label>4. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación? <span class="req">*</span></label>
-                    <div class="eval-options-grid" id="eval-q4-group">
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 1, this)">Deficiente</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 2, this)">Bajo</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 3, this)">Regulares</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 4, this)">Buenos</button>
-                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 5, this)">Muy didácticos</button>
-                    </div>
-                </div>
-
-                <!-- COMENTARIOS Y SUGERENCIAS -->
-                <div class="form-field" style="margin-bottom: 1.5rem;">
-                    <label>Comentarios y sugerencias para mejorar la página: <span class="req">*</span></label>
-                    <textarea id="eval-comment" rows="3" placeholder="Escriba aquí sus sugerencias u opiniones detalladas..."></textarea>
-                </div>
-
-                <button class="btn-action-student" onclick="submitEvaluationAndGetResults()">ENVIAR EVALUACIÓN Y VER MI NOTA ➔</button>
-            </div>
-        </div>
-
-        <!-- 8. RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
-        <div id="view-student-feedback" class="view">
-            <div class="form-card" style="max-width: 850px;">
-                <button class="btn-secondary" onclick="logoutStudent()" style="margin-bottom: 0.8rem;">← Salir al Inicio</button>
-                <div id="feedback-header-box" style="text-align: center; margin-bottom: 1.5rem; padding: 1.2rem; background: var(--panel-alt); border-radius: 12px; border: 1.5px solid var(--accent-student);"></div>
-                <div id="feedback-details-container"></div>
-                <button class="btn-action-student" onclick="logoutStudent()" style="margin-top: 1.5rem;">FINALIZAR Y SALIR</button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- CARGA DE ARCHIVOS JS EXTERNOS -->
-    <script src="videos.js"></script>
-    <script src="pregunta.js"></script>
-
-    <script>
-        // Configuración de Firebase Realtime Database
-        const firebaseConfig = {
-            apiKey: "AIzaSyDGh2mQiNkVyv5E15v7LqK8bQ39c5mZ8v4",
-            authDomain: "enciclopediafisica-7793b.firebaseapp.com",
-            databaseURL: "https://enciclopediafisica-7793b-default-rtdb.firebaseio.com",
-            projectId: "enciclopediafisica-7793b",
-            storageBucket: "enciclopediafisica-7793b.appspot.com",
-            messagingSenderId: "658717387773",
-            appId: "1:658717387773:web:3f16395e3ac000c8e28794"
-        };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.database();
-
-        let currentStudent = null;
-        let classroomConfig = null;
-        let selectedChapterId = 1;
-        let activeQuestionsRendered = [];
-        let customQuestionsStore = {};
-
-        // Variables para almacenar las respuestas seleccionadas en la evaluación moderna
-        let studentEvalData = {
-            stars: 0,
-            q2: 0,
-            q3: 0,
-            q4: 0
-        };
-
-        let activeStudentsListener = null;
-        let activeCommentsListener = null;
-        let activeEvaluationsListener = null;
-
-        // LÓGICA DE MODO CLARO Y OSCURO
-        function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark-theme');
-            const themeIcon = document.getElementById('theme-icon');
-            const themeText = document.getElementById('theme-text');
-
-            if (isDark) {
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Modo Oscuro';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Modo Claro';
-                localStorage.setItem('theme', 'light');
-            }
-        }
-
-        (function initTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
-                window.addEventListener('DOMContentLoaded', () => {
-                    document.getElementById('theme-icon').textContent = '🌙';
-                    document.getElementById('theme-text').textContent = 'Modo Oscuro';
-                });
-            }
-        })();
-
-        window.onload = function() {
-            renderChapterSelectionCards();
-            localStorage.removeItem('activeTeacherClass');
-            localStorage.removeItem('activeStudentData');
-        };
-
-        function switchView(viewId) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function cleanVideoTitle(filename, fallbackTema) {
-            if (!filename) return fallbackTema || "Demostración experimental";
-            let name = filename.replace(/\.[^/.]+$/, "");
-            name = name.replace(/^Copia_de_/i, "").replace(/^\d+[-_]\d+[-_]?/i, "");
-            name = name.replace(/_/g, " ");
-            return name.trim();
-        }
-
-        function getCatalog() {
-            let catalog = [];
-
-            if (typeof capitulosCatalog !== 'undefined' && Array.isArray(capitulosCatalog) && capitulosCatalog.length > 0) {
-                return capitulosCatalog;
-            }
-
-            if (typeof bancoPreguntas !== 'undefined') {
-                for (let key in bancoPreguntas) {
-                    const capObj = bancoPreguntas[key];
-                    if (capObj) {
-                        const numId = parseInt(key) || capObj.capitulo || 1;
-                        catalog.push({
-                            id: numId,
-                            title: capObj.titulo || `Capítulo ${numId}`,
-                            introLab: capObj.introduccion || capObj.tema || "Análisis experimental del fenómeno.",
-                            objGeneral: capObj.objetivoGeneral || capObj.objetivo || "Validación de leyes físicas en laboratorio.",
-                            color: capObj.color || "#1e3a8a",
-                            icon: numId < 10 ? `0${numId}` : `${numId}`
-                        });
-                    }
-                }
-            }
-
-            catalog.sort((a, b) => a.id - b.id);
-            return catalog;
-        }
-
-        function getVideosForChapter(chapterId) {
-            if (typeof videosPorCapitulo !== 'undefined' && videosPorCapitulo[chapterId]) {
-                return videosPorCapitulo[chapterId].map(v => ({
-                    ...v,
-                    nombreLimpio: cleanVideoTitle(v.archivo, v.tema)
-                }));
-            }
-
-            let bank = null;
-            if (typeof bancoPreguntas !== 'undefined') {
-                bank = bancoPreguntas[chapterId] || bancoPreguntas[String(chapterId)] || bancoPreguntas[Number(chapterId)];
-            }
-
-            if (bank && bank.videos && Array.isArray(bank.videos)) {
-                return bank.videos.map(v => {
-                    const arc = v.archivo || `${v.id}.mp4`;
-                    return {
-                        id: v.id,
-                        archivo: arc,
-                        tema: v.titulo || v.tema || "Demostración experimental",
-                        objetivo: v.objetivoVideo || v.objetivo || "Análisis de magnitudes e interacciones.",
-                        nombreLimpio: cleanVideoTitle(arc, v.titulo || v.tema)
-                    };
-                });
-            }
-            return [];
-        }
-
-        function renderChapterSelectionCards() {
-            const container = document.getElementById('chapters-cards-container');
-            if(!container) return;
-            const catalog = getCatalog();
-
-            if (catalog.length > 0 && !catalog.some(c => c.id === selectedChapterId)) {
-                selectedChapterId = catalog[0].id;
-            }
-
-            container.innerHTML = catalog.map(ch => `
-                <div class="chapter-select-card ${ch.id === selectedChapterId ? 'selected' : ''}" onclick="selectChapter(${ch.id})">
-                    <div class="chapter-icon-badge" style="background: ${ch.color || '#1e3a8a'};">${ch.icon || ch.id}</div>
-                    <div class="chapter-card-info">
-                        <div class="chapter-card-title">${ch.title}</div>
-                    </div>
-                    <div class="chapter-arrow">➔</div>
-                </div>
-            `).join('');
-        }
-
-        function selectChapter(id) {
-            selectedChapterId = id;
-            renderChapterSelectionCards();
-        }
-
-        function goToTeacherConfig() {
-            const name = document.getElementById('t-teachername').value.trim();
-            const classname = document.getElementById('t-classname').value.trim();
-            const pass = document.getElementById('t-pass').value.trim();
-
-            if(!name || !classname || !pass) {
-                alert("Por favor, complete todos los campos obligatorios.");
-                return;
-            }
-
-            if(name.split(/\s+/).length < 2) {
-                alert("El nombre del docente debe incluir al menos un nombre y un apellido.");
-                return;
-            }
-
-            if(!/^\d{6}$/.test(pass)) {
-                alert("La contraseña debe tener exactamente 6 dígitos numéricos.");
-                return;
-            }
-
-            if(!/^[a-zA-Z0-9_-]{3,20}$/.test(classname)) {
-                alert("El nombre de la clase debe ser adecuado y sin espacios.");
-                return;
-            }
-
-            db.ref('clase_activa/' + classname).once('value', (snapshot) => {
-                const data = snapshot.val();
-                
-                if (data) {
-                    if (data.password !== pass) {
-                        alert("La clase '" + classname + "' ya existe con otra contraseña. Ingrese la contraseña correcta para acceder.");
-                        return;
-                    }
-                    selectedChapterId = parseInt(data.capituloId || 1);
-                    customQuestionsStore = data.customQuestions || {};
-                } else {
-                    customQuestionsStore = {};
-                    db.ref('clase_activa/' + classname).set({
-                        docente: name,
-                        password: pass,
-                        capituloId: selectedChapterId,
-                        customQuestions: customQuestionsStore
-                    });
-                }
-
-                classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
-                renderTeacherConfigurationView();
-                switchView('view-teacher-config');
-            });
-        }
-
-        function getPreguntasForVideo(chapterId, videoIdx, videoObj) {
-            let preguntasList = [];
-            
-            let bank = null;
-            if (typeof bancoPreguntas !== 'undefined') {
-                bank = bancoPreguntas[chapterId] || bancoPreguntas[String(chapterId)] || bancoPreguntas[Number(chapterId)];
-            }
-
-            if (bank && bank.videos && Array.isArray(bank.videos)) {
-                let matched = null;
-                if (videoObj && videoObj.id) {
-                    matched = bank.videos.find(v => v.id === videoObj.id);
-                }
-                if (!matched && bank.videos[videoIdx]) {
-                    matched = bank.videos[videoIdx];
-                }
-                if (!matched && videoObj && videoObj.archivo) {
-                    matched = bank.videos.find(v => videoObj.archivo.includes(v.id));
-                }
-                if (matched && matched.preguntas) {
-                    preguntasList = [...matched.preguntas];
-                }
-            }
-
-            if (preguntasList.length === 0 && bank && bank.preguntas && bank.preguntas[videoIdx]) {
-                preguntasList = [...bank.preguntas[videoIdx]];
-            }
-
-            let storeForChapter = customQuestionsStore[chapterId] || customQuestionsStore[String(chapterId)] || customQuestionsStore[Number(chapterId)];
-            if (storeForChapter && storeForChapter[videoIdx]) {
-                const mod = storeForChapter[videoIdx];
-                if (mod.reemplazos) {
-                    for (let targetIdx in mod.reemplazos) {
-                        let tIdx = parseInt(targetIdx);
-                        if (mod.reemplazos[targetIdx]) {
-                            preguntasList[tIdx] = mod.reemplazos[targetIdx];
-                        }
-                    }
-                }
-                if (mod.adicionales && Array.isArray(mod.adicionales)) {
-                    preguntasList = preguntasList.concat(mod.adicionales);
-                }
-            }
-
-            return preguntasList;
-        }
-
-        // VISTA DE CONFIGURACIÓN DEL DOCENTE (CON VIDEO VISIBLE Y SIN TEXTO DE ARCHIVO TÉCNICO)
-        function renderTeacherConfigurationView() {
-            const headerInfo = document.getElementById('teacher-config-header-info');
-            const videosContainer = document.getElementById('teacher-config-videos-container');
-            
-            const catalog = getCatalog();
-            const chapterData = catalog.find(c => c.id === selectedChapterId) || catalog[0];
-            const chapterVideos = getVideosForChapter(selectedChapterId);
-
-            if(headerInfo && chapterData) {
-                headerInfo.innerHTML = `
-                    <div style="background: var(--panel-alt); border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1rem; border-radius: 8px; margin-bottom: 1.2rem;">
-                        <h4 style="margin:0 0 0.4rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">Configurando Clase: ${classroomConfig.classname} (${chapterData.title})</h4>
-                        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">${chapterData.introLab || chapterData.objGeneral}</p>
-                    </div>
-                `;
-            }
-
-            if(videosContainer) {
-                videosContainer.innerHTML = chapterVideos.map((vid, idx) => {
-                    const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
-                    const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
-                    const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
-                    const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + (vid.archivo || `${vid.id}.mp4`);
-
-                    return `
-                        <div class="teacher-config-video-card" id="config-card-${idx}">
-                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem; font-size:1.05rem;">${displayVideoTitle}</div>
-                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;"><strong>Objetivo:</strong> ${vid.objetivo || 'Análisis físico de laboratorio'}</div>
-                            
-                            <!-- REPRODUCTOR DE VIDEO PARA EL DOCENTE -->
-                            <div class="video-responsive" style="margin-bottom: 1rem;">
-                                <video controls preload="metadata">
-                                    <source src="${videoCloudinaryUrl}" type="video/mp4">
-                                    Su navegador no soporta la reproducción de video HTML5.
-                                </video>
-                            </div>
-
-                            <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.5rem;">Preguntas configuradas (${preguntasList.length}):</div>
-                            
-                            <div id="q-list-container-${idx}">
-                                ${preguntasList.map((p, pIdx) => `
-                                    <div class="teacher-suggested-q">
-                                        <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
-                                        <div style="margin-top:0.3rem; color:var(--accent-student); font-size:0.82rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:8px; padding:1rem; margin-top:0.8rem;">
-                                <div style="font-weight:700; font-size:0.82rem; text-transform:uppercase; color:#f59e0b; margin-bottom:0.6rem;">✏️ Proponer o Reemplazar Pregunta</div>
-                                
-                                <div class="form-grid" style="margin-top:0;">
-                                    <div class="form-field">
-                                        <label>Acción</label>
-                                        <select id="action-type-${idx}" onchange="toggleInlineReplaceSelector(${idx})">
-                                            <option value="proponer">Agregar Pregunta</option>
-                                            <option value="reemplazar">Reemplazar Existente</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-field" id="replace-select-wrapper-${idx}" style="display:none;">
-                                        <label>Elegir cuál reemplazar</label>
-                                        <select id="replace-target-${idx}">
-                                            ${preguntasList.map((p, pIdx) => `<option value="${pIdx}">Pregunta ${pIdx+1}: ${p.pregunta.substring(0,30)}...</option>`).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="form-field full">
-                                        <label>Enunciado</label>
-                                        <textarea id="inline-q-text-${idx}" rows="2" placeholder="Escriba el enunciado..."></textarea>
-                                    </div>
-                                    <div class="form-field"><label>Alt A</label><input type="text" id="inline-opt-${idx}-0" placeholder="Opción A"></div>
-                                    <div class="form-field"><label>Alt B</label><input type="text" id="inline-opt-${idx}-1" placeholder="Opción B"></div>
-                                    <div class="form-field"><label>Alt C</label><input type="text" id="inline-opt-${idx}-2" placeholder="Opción C"></div>
-                                    <div class="form-field"><label>Alt D</label><input type="text" id="inline-opt-${idx}-3" placeholder="Opción D"></div>
-                                    <div class="form-field full">
-                                        <label>Correcta</label>
-                                        <select id="inline-correct-${idx}">
-                                            <option value="0">Opción A</option>
-                                            <option value="1">Opción B</option>
-                                            <option value="2">Opción C</option>
-                                            <option value="3">Opción D</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <button class="btn-secondary" onclick="submitInlineQuestion(${selectedChapterId}, ${idx})" style="border-color:#f59e0b; color:#f59e0b; margin-top:0.8rem; width:100%; justify-content:center;">
-                                    ➕ Guardar y Aplicar en este Video
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
-
-        function toggleInlineReplaceSelector(idx) {
-            const action = document.getElementById(`action-type-${idx}`).value;
-            const wrapper = document.getElementById(`replace-select-wrapper-${idx}`);
-            wrapper.style.display = (action === 'reemplazar') ? 'block' : 'none';
-        }
-
-        function submitInlineQuestion(chapterId, videoIdx) {
-            const action = document.getElementById(`action-type-${videoIdx}`).value;
-            const qText = document.getElementById(`inline-q-text-${videoIdx}`).value.trim();
-            const opts = [
-                document.getElementById(`inline-opt-${videoIdx}-0`).value.trim(),
-                document.getElementById(`inline-opt-${videoIdx}-1`).value.trim(),
-                document.getElementById(`inline-opt-${videoIdx}-2`).value.trim(),
-                document.getElementById(`inline-opt-${videoIdx}-3`).value.trim()
-            ];
-            const correcta = parseInt(document.getElementById(`inline-correct-${videoIdx}`).value);
-
-            if(!qText || opts.some(o => !o)) {
-                alert("Por favor, complete el enunciado de la pregunta y todas las alternativas.");
-                return;
-            }
-
-            if(!customQuestionsStore[chapterId]) customQuestionsStore[chapterId] = {};
-            if(!customQuestionsStore[chapterId][videoIdx]) customQuestionsStore[chapterId][videoIdx] = { adicionales: [], reemplazos: {} };
-
-            const newQObj = { pregunta: qText, opciones: opts, correcta: correcta, explicacion: "Pregunta sugerida y personalizada por el docente." };
-
-            if(action === 'proponer') {
-                customQuestionsStore[chapterId][videoIdx].adicionales.push(newQObj);
-                alert("¡Pregunta adicional agregada con éxito!");
-            } else {
-                const targetIdx = parseInt(document.getElementById(`replace-target-${videoIdx}`).value);
-                customQuestionsStore[chapterId][videoIdx].reemplazos[targetIdx] = newQObj;
-                alert("¡Pregunta reemplazada con éxito!");
-            }
-
-            if(classroomConfig && classroomConfig.classname) {
-                db.ref('clase_activa/' + classroomConfig.classname).update({
-                    customQuestions: customQuestionsStore
-                });
-            }
-
-            renderTeacherConfigurationView();
-        }
-
-        function saveTeacherConfiguration() {
-            if(classroomConfig && classroomConfig.classname) {
-                db.ref('clase_activa/' + classroomConfig.classname).update({
-                    docente: classroomConfig.teacher,
-                    capituloId: selectedChapterId,
-                    customQuestions: customQuestionsStore
-                });
-            }
-
-            document.getElementById('docente-info-banner').innerHTML = `
-                <strong>Clase:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
-            `;
-            
-            listenToClassroomRealtimeData(classroomConfig.classname);
-            switchView('view-teacher-dashboard');
-        }
-
-        function logoutTeacher() {
-            if (activeStudentsListener) activeStudentsListener.off();
-            if (activeCommentsListener) activeCommentsListener.off();
-            if (activeEvaluationsListener) activeEvaluationsListener.off();
-
-            classroomConfig = null;
-            switchView('view-role-selection');
-        }
-
-        function logoutStudent() {
-            localStorage.removeItem('activeStudentData');
-            currentStudent = null;
-            switchView('view-role-selection');
-        }
-
-        function listenToClassroomRealtimeData(classname) {
-            if (activeStudentsListener) activeStudentsListener.off();
-            if (activeCommentsListener) activeCommentsListener.off();
-            if (activeEvaluationsListener) activeEvaluationsListener.off();
-
-            const tbody = document.getElementById('students-table-body');
-            const commentsContainer = document.getElementById('teacher-comments-container');
-            
-            if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>`;
-            if (commentsContainer) commentsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando comentarios...</p>`;
-
-            activeStudentsListener = db.ref('alumnos_clase/' + classname);
-            activeStudentsListener.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if(!tbody) return;
-
-                if(!data) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aún no hay alumnos registrados en esta clase.</td></tr>`;
-                    document.getElementById('stat-most-correct').innerText = "0 alumnos";
-                    document.getElementById('stat-least-correct').innerText = "AULA ACTIVA";
-                    return;
-                }
-
-                let rowsHTML = '';
-                let index = 1;
-                let totalAlumnosCount = 0;
-
-                for(let key in data) {
-                    const st = data[key];
-                    totalAlumnosCount++;
-
-                    rowsHTML += `
-                        <tr>
-                            <td>${index++}</td>
-                            <td>${st.nombre || 'Sin nombre'}</td>
-                            <td>${st.codigo || '---'}</td>
-                            <td>Grupo ${st.grupo || '1'}</td>
-                            <td><strong>${st.notaFinal || '0.0'}</strong></td>
-                            <td>${st.aciertos || 0} aciertos / ${st.errores || 0} errores</td>
-                        </tr>
-                    `;
-                }
-                tbody.innerHTML = rowsHTML;
-                document.getElementById('stat-most-correct').innerText = `${totalAlumnosCount} estudiantes registrados`;
-                document.getElementById('stat-least-correct').innerText = "AULA ACTIVA";
-            });
-
-            activeCommentsListener = db.ref('comentarios_pagina/' + classname);
-            activeCommentsListener.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if(!commentsContainer) return;
-
-                if(!data) {
-                    commentsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados en esta clase.</p>`;
-                    document.getElementById('stat-comments-count').innerText = "0 comentarios";
-                    return;
-                }
-
-                let commentsHTML = '';
-                let count = 0;
-                for(let key in data) {
-                    const com = data[key];
-                    count++;
-                    commentsHTML += `
-                        <div class="comment-item">
-                            <strong>${com.estudiante || 'Alumno'} (Grupo ${com.grupo || '3'}):</strong> "${com.comentario}"
-                        </div>
-                    `;
-                }
-                commentsContainer.innerHTML = commentsHTML;
-                document.getElementById('stat-comments-count').innerText = `${count} registrados`;
-            });
-
-            activeEvaluationsListener = db.ref('evaluaciones_pagina/' + classname);
-            activeEvaluationsListener.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if(!data) {
-                    document.getElementById('stat-page-ratings').innerText = "Sin valoraciones aún";
-                    return;
-                }
-
-                let suma = 0;
-                let total = 0;
-                for(let key in data) {
-                    const evalObj = data[key];
-                    if(evalObj.promedioAlumno) {
-                        suma += parseFloat(evalObj.promedioAlumno);
-                        total++;
-                    }
-                }
-                if(total > 0) {
-                    const promFinal = (suma / total).toFixed(1);
-                    document.getElementById('stat-page-ratings').innerText = `${promFinal} / 6.0 (${total} valoraciones)`;
-                } else {
-                    document.getElementById('stat-page-ratings').innerText = "Sin valoraciones aún";
-                }
-            });
-        }
-
-        function openTeacherQuestionsViewer() {
-            const viewerContainer = document.getElementById('teacher-viewer-content-container');
-            const chapterVideos = getVideosForChapter(selectedChapterId);
-
-            if(!viewerContainer) return;
-
-            viewerContainer.innerHTML = chapterVideos.map((vid, idx) => {
-                const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
-                const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
-                const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
-
-                return `
-                    <div class="teacher-config-video-card" style="margin-bottom:1.2rem;">
-                        <div style="font-weight:800; color:var(--accent-teacher); font-size:1rem; margin-bottom:0.2rem;">${displayVideoTitle}</div>
-                        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.8rem;">Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
-                        ${preguntasList.map((p, pIdx) => `
-                            <div class="teacher-suggested-q">
-                                <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
-                                <ul style="margin: 0.4rem 0 0 1rem; padding:0; font-size:0.82rem; list-style-type:none;">
-                                    ${p.opciones.map((opt, oIdx) => `
-                                        <li style="color:${oIdx === p.correcta ? 'var(--accent-student)' : 'var(--text-main)'}; font-weight:${oIdx === p.correcta ? '700' : '400'};">
-                                            ${String.fromCharCode(65 + oIdx)}. ${opt} ${oIdx === p.correcta ? ' ✓ (Correcta)' : ''}
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }).join('');
-
-            switchView('view-teacher-questions-viewer');
-        }
-
-        // VISTA ESTADÍSTICA DE LAS 4 PREGUNTAS DE EVALUACIÓN WEB PARA EL DOCENTE
-        function openTeacherWebEvaluations() {
-            const container = document.getElementById('teacher-web-evals-container');
-            if (!container || !classroomConfig) return;
-
-            db.ref('evaluaciones_pagina/' + classroomConfig.classname).once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data) {
-                    container.innerHTML = `<p style="color:var(--text-muted);">Aún no hay evaluaciones de la página web registradas en esta clase.</p>`;
-                    switchView('view-teacher-web-evaluations');
-                    return;
-                }
-
-                const list = Object.values(data);
-                const totalAlumnos = list.length;
-
-                const starsCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-                const q2Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                const q3Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                const q4Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-                list.forEach(ev => {
-                    if (ev.stars) starsCount[ev.stars] = (starsCount[ev.stars] || 0) + 1;
-                    if (ev.q2) q2Count[ev.q2] = (q2Count[ev.q2] || 0) + 1;
-                    if (ev.q3) q3Count[ev.q3] = (q3Count[ev.q3] || 0) + 1;
-                    if (ev.q4) q4Count[ev.q4] = (q4Count[ev.q4] || 0) + 1;
-                });
-
-                const labelsQ2 = { 1: "Deficiente", 2: "Poco útil", 3: "Regular", 4: "Buena", 5: "Excelente" };
-                const labelsQ3 = { 1: "Mala", 2: "Baja calidad", 3: "Aceptable", 4: "Buena", 5: "Excelente" };
-                const labelsQ4 = { 1: "Deficiente", 2: "Bajo", 3: "Regulares", 4: "Buenos", 5: "Muy didácticos" };
-
-                function renderQuestionBlock(title, countsObj, labelMap, isStars = false) {
-                    let html = `
-                        <div style="background:var(--panel-alt); border:1px solid var(--border-soft); border-radius:12px; padding:1.2rem; margin-bottom:1.5rem;">
-                            <h4 style="margin:0 0 1rem 0; color:var(--accent-teacher); font-family:Georgia,serif;">${title}</h4>
-                    `;
-
-                    for (let key in countsObj) {
-                        const count = countsObj[key];
-                        const pct = totalAlumnos > 0 ? ((count / totalAlumnos) * 100).toFixed(1) : 0;
-                        const optionLabel = isStars ? `${key} Estrella${key > 1 ? 's' : ''} ★` : labelMap[key];
-
-                        html += `
-                            <div style="margin-bottom: 0.8rem;">
-                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;">
-                                    <span><strong>${optionLabel}</strong></span>
-                                    <span>${count} alumno${count !== 1 ? 's' : ''} (${pct}%)</span>
-                                </div>
-                                <div style="background:var(--panel-bg); height:10px; border-radius:5px; overflow:hidden; border:1px solid var(--border-soft);">
-                                    <div style="background:var(--accent-student); width:${pct}%; height:100%; border-radius:5px; transition:width 0.4s ease;"></div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    html += `</div>`;
-                    return html;
-                }
-
-                let summaryHTML = `
-                    <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:12px; padding:1rem; margin-bottom:1.2rem; text-align:center;">
-                        <h4 style="margin:0; color:var(--accent-student);">Resumen Consolidado de la Clase</h4>
-                        <p style="margin:0.2rem 0 0 0; font-size:0.9rem; color:var(--text-muted);">Total de respuestas procesadas: <strong>${totalAlumnos} estudiante(s)</strong></p>
-                    </div>
-                `;
-
-                summaryHTML += renderQuestionBlock("1. Impresión General de la Página Web (Estrellas 1 a 6)", starsCount, {}, true);
-                summaryHTML += renderQuestionBlock("2. ¿Qué tan útil y clara fue la interfaz para su aprendizaje?", q2Count, labelsQ2);
-                summaryHTML += renderQuestionBlock("3. ¿Cómo califica la calidad y nitidez de los videos demostrativos?", q3Count, labelsQ3);
-                summaryHTML += renderQuestionBlock("4. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación?", q4Count, labelsQ4);
-
-                container.innerHTML = summaryHTML;
-                switchView('view-teacher-web-evaluations');
-            });
-        }
-
-        function studentEnter() {
-            const name = document.getElementById('s-name').value.trim();
-            const code = document.getElementById('s-code').value.trim();
-            const group = document.getElementById('s-group').value;
-            const classname = document.getElementById('s-classname').value.trim();
-            const pass = document.getElementById('s-pass').value.trim();
-
-            if(!name || !code || !classname || !pass) {
-                alert("Por favor, complete todos sus datos de acceso y credenciales de clase.");
-                return;
-            }
-
-            if(name.split(/\s+/).length < 2) {
-                alert("Debe ingresar obligatoriamente un nombre y un apellido.");
-                return;
-            }
-
-            if(!/^\d{8}$/.test(code)) {
-                alert("El código de matrícula debe tener exactamente 8 dígitos numéricos.");
-                return;
-            }
-
-            if(!/^\d{6}$/.test(pass)) {
-                alert("La contraseña debe tener exactamente 6 dígitos numéricos.");
-                return;
-            }
-
-            db.ref('clase_activa/' + classname).once('value', (snapshot) => {
-                const classData = snapshot.val();
-
-                if(!classData) {
-                    alert("La clase ingresada no existe o aún no ha sido creada por el docente.");
-                    return;
-                }
-
-                if(classData.password && classData.password !== pass) {
-                    alert("Contraseña de clase incorrecta. Verifique con su docente.");
-                    return;
-                }
-
-                if(classData.capituloId) {
-                    selectedChapterId = parseInt(classData.capituloId);
-                }
-                if(classData.customQuestions) {
-                    customQuestionsStore = classData.customQuestions;
-                }
-
-                currentStudent = { name, code, group, classname };
-                localStorage.setItem('activeStudentData', JSON.stringify(currentStudent));
-
-                const studentKey = code.replace(/[.#$\/\[\]]/g, '_');
-                db.ref('alumnos_clase/' + classname + '/' + studentKey).set({
-                    nombre: name,
-                    codigo: code,
-                    grupo: group,
-                    notaFinal: "0.0 (En progreso)",
-                    aciertos: 0,
-                    errores: 0
-                });
-
-                document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Clase: ${classname} [Grupo ${group}]`;
-                renderStudentWorkspace();
-                switchView('view-student-workspace');
-            });
-        }
-
-        function renderStudentWorkspace() {
-            const banner = document.getElementById('workspace-chapter-banner');
-            const container = document.getElementById('workspace-videos-container');
-
-            const catalog = getCatalog();
-            const chapterData = catalog.find(c => c.id === selectedChapterId) || catalog[0];
-            const chapterVideos = getVideosForChapter(selectedChapterId);
-
-            if(banner && chapterData) {
-                banner.innerHTML = `
-                    <div class="chapter-header-box">
-                        <div style="flex:1; min-width:0;">
-                            <div style="font-size:0.75rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.2rem;">Capítulo ${chapterData.id}</div>
-                            <h3 style="margin:0 0 0.3rem 0; font-family:Georgia,serif; font-size:1.25rem; color:var(--text-main);">${chapterData.title}</h3>
-                            <p style="margin:0 0 0.5rem 0; font-size:0.88rem; color:var(--text-muted);"><strong>${chapterData.objGeneral || ''}</strong></p>
-                            <div class="lab-info-card">${chapterData.introLab || ''}</div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            if(container) {
-                activeQuestionsRendered = [];
-                container.innerHTML = chapterVideos.map((vid, vIdx) => {
-                    const preguntasList = getPreguntasForVideo(selectedChapterId, vIdx, vid);
-                    const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
-                    const cleanVideoTitle = `Video ${vIdx + 1}: ${cleanTitle}`;
-
-                    preguntasList.forEach((p, pIdx) => {
-                        activeQuestionsRendered.push({
-                            videoIndex: vIdx,
-                            videoTitle: cleanVideoTitle,
-                            localPreguntaIndex: pIdx,
-                            correcta: p.correcta,
-                            enunciado: p.pregunta,
-                            explicacion: p.explicacion || "Respuesta basada en principios físicos experimentales."
-                        });
-                    });
-
-                    const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + (vid.archivo || `${vid.id}.mp4`);
-
-                    return `
-                        <div class="video-card">
-                            <div class="video-title-bar">${cleanVideoTitle}</div>
-                            <div class="video-theme-bar">Demostración oficial UNMSM</div>
-                            
-                            <div class="video-responsive">
-                                <video controls preload="metadata">
-                                    <source src="${videoCloudinaryUrl}" type="video/mp4">
-                                    Su navegador no soporta la reproducción de video HTML5.
-                                </video>
-                            </div>
-
-                            <div class="video-objective-box">
-                                <strong>Objetivo del Video:</strong> ${vid.objetivo || 'Analizar el comportamiento físico.'}
-                            </div>
-
-                            <div class="quiz-container-box">
-                                <div class="quiz-title">📝 Cuestionario de Evaluación del Video</div>
-                                ${preguntasList.map((q, qIdx) => `
-                                    <div class="quiz-question-item">
-                                        <div class="quiz-question-title">Pregunta ${qIdx+1}: ${q.pregunta}</div>
-                                        <div class="quiz-options-grid" id="q_group_${vIdx}_${qIdx}">
-                                            ${q.opciones.map((opt, oIdx) => {
-                                                const letter = String.fromCharCode(65 + oIdx);
-                                                return `
-                                                    <button type="button" class="quiz-option-btn" onclick="selectQuizOption(${vIdx}, ${qIdx}, ${oIdx})">
-                                                        <span class="option-letter-badge">${letter}</span>
-                                                        <span>${opt}</span>
-                                                    </button>
-                                                `;
-                                            }).join('')}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
-
-        function selectQuizOption(vIdx, qIdx, oIdx) {
-            const container = document.getElementById(`q_group_${vIdx}_${qIdx}`);
-            const buttons = container.querySelectorAll('.quiz-option-btn');
-            
-            buttons.forEach((btn, idx) => {
-                if(idx === oIdx) {
-                    btn.classList.add('selected');
-                    btn.setAttribute('data-selected', 'true');
-                } else {
-                    btn.classList.remove('selected');
-                    btn.removeAttribute('data-selected');
-                }
-            });
-        }
-
-        function proceedToPageEvaluation() {
-            for (let i = 0; i < activeQuestionsRendered.length; i++) {
-                let item = activeQuestionsRendered[i];
-                let container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
-                if (!container || !container.querySelector('.quiz-option-btn[data-selected="true"]')) {
-                    alert(`Falta responder una pregunta obligatoria en el Video ${item.videoIndex + 1} (Pregunta ${item.localPreguntaIndex + 1}). Debe responder todas para continuar.`);
-                    return;
-                }
-            }
-            switchView('view-page-evaluation');
-        }
-
-        function selectStarRating(rating) {
-            studentEvalData.stars = rating;
-            const buttons = document.querySelectorAll('#star-rating-group .star-btn');
-            buttons.forEach((btn, idx) => {
-                if (idx < rating) {
-                    btn.classList.add('active');
-                    btn.textContent = '★';
-                } else {
-                    btn.classList.remove('active');
-                    btn.textContent = '★';
-                }
-            });
-        }
-
-        function selectEvalOption(questionKey, value, element) {
-            studentEvalData[questionKey] = value;
-            const container = document.getElementById(`eval-${questionKey}-group`);
-            const chips = container.querySelectorAll('.eval-option-chip');
-            chips.forEach(chip => chip.classList.remove('selected'));
-            element.classList.add('selected');
-        }
-
-        function submitEvaluationAndGetResults() {
-            const comment = document.getElementById('eval-comment').value.trim();
-
-            if (studentEvalData.stars === 0) {
-                alert("Por favor, califique la página web seleccionando las estrellas (Pregunta 1).");
-                return;
-            }
-            if (studentEvalData.q2 === 0 || studentEvalData.q3 === 0 || studentEvalData.q4 === 0) {
-                alert("Por favor, responda todas las preguntas de la evaluación de la página web para continuar.");
-                return;
-            }
-            if(!comment) {
-                alert("Por favor, escriba sus comentarios y sugerencias sobre la plataforma para continuar.");
-                return;
-            }
-
-            let aciertos = 0;
-            let errores = 0;
-            let videosMap = {};
-
-            activeQuestionsRendered.forEach((item) => {
-                if(!videosMap[item.videoTitle]) {
-                    videosMap[item.videoTitle] = [];
-                }
-
-                const container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
-                let matchChoice = -1;
-                if(container) {
-                    const selectedBtn = container.querySelector('.quiz-option-btn[data-selected="true"]');
-                    if(selectedBtn) {
-                        const buttonsArray = Array.from(container.querySelectorAll('.quiz-option-btn'));
-                        matchChoice = buttonsArray.indexOf(selectedBtn);
-                    }
-                }
-
-                const isCorrect = matchChoice === item.correcta;
-                if(isCorrect) aciertos++; else errores++;
-
-                videosMap[item.videoTitle].push({
-                    localNum: item.localPreguntaIndex + 1,
-                    enunciado: item.enunciado,
-                    isCorrect: isCorrect,
-                    explicacion: item.explicacion
-                });
-            });
-
-            let feedbackHTML = '';
-            for(let vTitle in videosMap) {
-                feedbackHTML += `
-                    <div style="background:var(--panel-alt); border:1.5px solid var(--border-soft); border-radius:10px; padding:1.2rem; margin-bottom:1.2rem;">
-                        <h4 style="margin:0 0 0.8rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.4rem;">${vTitle}</h4>
-                `;
-                videosMap[vTitle].forEach(q => {
-                    feedbackHTML += `
-                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? 'var(--accent-student)' : '#ef4444'}; padding:1rem; border-radius:8px; margin-bottom:0.8rem;">
-                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.3rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
-                            <div style="font-size:0.85rem; margin-bottom:0.3rem;">Estado: <strong>${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
-                            <div style="font-size:0.82rem; color:var(--text-muted);">Explicación didáctica: ${q.explicacion}</div>
-                        </div>
-                    `;
-                });
-                feedbackHTML += `</div>`;
-            }
-
-            const totalPreguntas = activeQuestionsRendered.length || 1;
-            const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
-            
-            const promedioAlumnoEval = ((studentEvalData.stars + studentEvalData.q2 + studentEvalData.q3 + studentEvalData.q4) / 4).toFixed(1);
-
-            if(currentStudent) {
-                const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
-                
-                db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
-                    nombre: currentStudent.name,
-                    codigo: currentStudent.code,
-                    grupo: currentStudent.grupo,
-                    notaFinal: notaFinal,
-                    aciertos: aciertos,
-                    errores: errores
-                });
-
-                db.ref('comentarios_pagina/' + currentStudent.classname).push({
-                    estudiante: currentStudent.name,
-                    grupo: currentStudent.group,
-                    comentario: comment
-                });
-
-                db.ref('evaluaciones_pagina/' + currentStudent.classname).push({
-                    estudiante: currentStudent.name,
-                    stars: studentEvalData.stars,
-                    q2: studentEvalData.q2,
-                    q3: studentEvalData.q3,
-                    q4: studentEvalData.q4,
-                    promedioAlumno: promedioAlumnoEval
-                });
-            }
-
-            document.getElementById('feedback-header-box').innerHTML = `
-                <h2 style="margin:0 0 0.4rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.25rem;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
-                <div style="font-size:1.25rem; font-weight:800; color:var(--accent-student); margin:0.4rem 0;">Calificación Final: ${notaFinal} / 20</div>
-                <div style="font-size:0.88rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
-            `;
-
-            document.getElementById('feedback-details-container').innerHTML = `
-                <h4 style="margin:0 0 0.8rem 0; font-family:Georgia,serif; color:var(--text-main); font-size:1rem;">Retroalimentación y Explicaciones Detalladas por Video:</h4>
-                ${feedbackHTML}
-            `;
-
-            switchView('view-student-feedback');
-        }
-    </script>
-</body>
-</html>
+/* ================================================================= */
+/* ESTILOS GENERALES Y CONFIGURACIÓN DE TEMA CLARO / OSCURO           */
+/* ================================================================= */
+
+:root {
+    --bg-main: #f8fafc;
+    --panel-bg: #ffffff;
+    --panel-alt: #f1f5f9;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-soft: #cbd5e1;
+    --accent-student: #0284c7;
+    --accent-teacher: #1e3a8a;
+}
+
+body.dark-theme {
+    --bg-main: #0b0f19;
+    --panel-bg: #111827;
+    --panel-alt: #1f2937;
+    --text-main: #f9fafb;
+    --text-muted: #9ca3af;
+    --border-soft: #374151;
+    --accent-student: #38bdf8;
+    --accent-teacher: #60a5fa;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ================================================================= */
+/* CABECERA (HEADER)                                                 */
+/* ================================================================= */
+
+header {
+    background-color: var(--panel-bg);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 1rem 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* CONTENEDOR DEL LOGOTIPO DE PERROVACA (AJUSTADO Y CORREGIDO) */
+.header-logo-placeholder {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border-soft);
+    background-color: var(--panel-alt);
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.header-logo-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.header-text .header-instituciones {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #059669;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.1rem;
+}
+
+.header-text h1 {
+    font-size: 1.25rem;
+    font-family: Georgia, serif;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.header-text h2 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.1rem;
+}
+
+/* BOTÓN DE MODO CLARO / OSCURO */
+.theme-toggle-btn {
+    background: var(--panel-alt);
+    border: 1px solid var(--border-soft);
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--border-soft);
+}
+
+/* ================================================================= */
+/* CONTENEDOR PRINCIPAL Y VISTAS                                     */
+/* ================================================================= */
+
+.container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    flex: 1;
+    width: 100%;
+}
+
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================= */
+/* TARJETAS, FORMULARIOS Y BOTONES                                   */
+/* ================================================================= */
+
+.role-selection-box, .form-card {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.role-selection-box h3, .form-card h3 {
+    font-family: Georgia, serif;
+    color: var(--text-main);
+    margin-bottom: 1.5rem;
+    font-size: 1.35rem;
+    text-align: center;
+}
+
+.role-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+}
+
+.role-card {
+    background: var(--panel-alt);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.role-card:hover {
+    border-color: var(--accent-student);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
+
+.role-card.student .role-card-icon {
+    color: var(--accent-student);
+}
+
+.role-card.teacher .role-card-icon {
+    color: var(--accent-teacher);
+}
+
+.role-card-title {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+}
+
+.role-card-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+/* ================================================================= */
+/* CAMPOS DE FORMULARIO Y GRILLAS                                    */
+/* ================================================================= */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-field.full {
+    grid-column: span 2;
+}
+
+.form-field label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.form-field input, .form-field select, .form-field textarea {
+    background-color: var(--panel-alt);
+    border: 1.5px solid var(--border-soft);
+    color: var(--text-main);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+    border-color: var(--accent-student);
+}
+
+.req {
+    color: #ef4444;
+}
+
+/* BOTONES DE ACCIÓN PRINCIPALES */
+.btn-action-student, .btn-action-teacher {
+    width: 100%;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s;
+}
+
+.btn-action-student {
+    background-color: var(--accent-student);
+    color: #ffffff;
+}
+
+.btn-action-teacher {
+    background-color: var(--accent-teacher);
+    color: #ffffff;
+}
+
+.btn-action-student:hover, .btn-action-teacher:hover {
+    opacity: 0.9;
+}
+
+.btn-secondary {
+    background: var(--panel-alt);
+    border: 1px solid var(--border-soft);
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--border-soft);
+}
+
+/* ================================================================= */
+/* SELECCIÓN DE CAPÍTULOS Y TARJETAS                                  */
+/* ================================================================= */
+
+.chapters-selection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 0.4rem;
+}
+
+.chapter-select-card {
+    background: var(--panel-alt);
+    border: 2px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chapter-select-card.selected {
+    border-color: var(--accent-teacher);
+    background-color: rgba(30, 58, 138, 0.05);
+}
+
+.chapter-icon-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.chapter-card-info {
+    flex: 1;
+}
+
+.chapter-card-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+.chapter-arrow {
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
+/* ================================================================= */
+/* PANEL DEL DOCENTE Y TABLAS                                        */
+/* ================================================================= */
+
+.alert-banner-docente {
+    background: var(--panel-bg);
+    border-left: 5px solid var(--accent-teacher);
+    border: 1px solid var(--border-soft);
+    padding: 1rem 1.2rem;
+    border-radius: 8px;
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+}
+
+.teacher-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-soft);
+    border-left: 4px solid var(--accent-student);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.stat-card.success { border-left-color: #059669; }
+.stat-card.danger { border-left-color: #dc2626; }
+
+.stat-card-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+}
+
+.stat-card-body {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.5rem 0 1rem 0;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.dashboard-table-container {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+}
+
+.dashboard-table th, .dashboard-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.dashboard-table th {
+    background-color: var(--panel-alt);
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.dashboard-table tr:last-child td {
+    border-bottom: none;
+}
+
+.comment-box-list {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 1.2rem;
+}
+
+.comment-item {
+    background: var(--panel-alt);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+    border-left: 3px solid var(--accent-student);
+}
+
+.comment-item:last-child {
+    margin-bottom: 0;
+}
+
+/* ================================================================= */
+/* CONFIGURACIÓN DE VIDEOS DEL DOCENTE                               */
+/* ================================================================= */
+
+.teacher-config-video-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 1.2rem;
+}
+
+.teacher-suggested-q {
+    background: var(--panel-alt);
+    border: 1px solid var(--border-soft);
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+}
+
+/* ================================================================= */
+/* ENTORNO DE TRABAJO DEL ESTUDIANTE                                 */
+/* ================================================================= */
+
+.chapter-header-box {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.lab-info-card {
+    background: var(--panel-alt);
+    border-left: 4px solid var(--accent-student);
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+}
+
+.video-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.8rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.video-title-bar {
+    background-color: var(--accent-teacher);
+    color: #ffffff;
+    padding: 0.75rem 1.2rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.video-theme-bar {
+    background-color: var(--panel-alt);
+    padding: 0.4rem 1.2rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.video-responsive {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    background: #000;
+}
+
+.video-responsive video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.video-objective-box {
+    padding: 1rem 1.2rem;
+    background: var(--panel-alt);
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 0.88rem;
+}
+
+/* ================================================================= */
+/* CUESTIONARIOS Y EVALUACIONES INTERACTIVAS                           */
+/* ================================================================= */
+
+.quiz-container-box {
+    padding: 1.2rem;
+}
+
+.quiz-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--accent-student);
+    margin-bottom: 1rem;
+}
+
+.quiz-question-item {
+    margin-bottom: 1.2rem;
+}
+
+.quiz-question-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+}
+
+.quiz-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.5rem;
+}
+
+.quiz-option-btn {
+    background: var(--panel-alt);
+    border: 1.5px solid var(--border-soft);
+    color: var(--text-main);
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.quiz-option-btn:hover {
+    border-color: var(--accent-student);
+}
+
+.quiz-option-btn.selected {
+    background-color: rgba(2, 132, 199, 0.1);
+    border-color: var(--accent-student);
+    font-weight: 700;
+}
+
+.option-letter-badge {
+    background: var(--border-soft);
+    color: var(--text-main);
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+/* ================================================================= */
+/* ESTILOS DE EVALUACIÓN DE LA PÁGINA WEB                              */
+/* ================================================================= */
+
+.rating-stars-container {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.star-btn {
+    background: var(--panel-alt);
+    border: 1px solid var(--border-soft);
+    font-size: 1.5rem;
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.star-btn.active {
+    color: #f59e0b;
+    border-color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.08);
+}
+
+.eval-options-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+}
+
+@media(max-width: 600px) {
+    .eval-options-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.eval-option-chip {
+    background: var(--panel-alt);
+    border: 1.5px solid var(--border-soft);
+    color: var(--text-main);
+    padding: 0.6rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.eval-option-chip:hover {
+    border-color: var(--accent-student);
+}
+
+.eval-option-chip.selected {
+    background-color: var(--accent-student);
+    color: #ffffff;
+    border-color: var(--accent-student);
+}
