@@ -16,9 +16,9 @@
     <header>
         <div class="header-content">
             <div class="header-left-group">
-                <!-- LOGOTIPO DE PERROVACA AJUSTADO AL TAMAÑO EXACTO -->
-                <div class="header-logo-placeholder" style="width: 50px; height: 50px; min-width: 50px; min-height: 50px; overflow: hidden; padding: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                    <img src="perrovaca.jpg" alt="Logo Perrovaca" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                <!-- LOGOTIPO DE PERROVACA -->
+                <div class="header-logo-placeholder" style="overflow: hidden; padding: 0; border-radius: 10px;">
+                    <img src="perrovaca.jpg" alt="Logo Perrovaca" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <div class="header-text">
                     <div class="header-instituciones">UNMSM · Facultad de Ciencias Físicas</div>
@@ -603,6 +603,7 @@
             return preguntasList;
         }
 
+        // VISTA DE CONFIGURACIÓN DEL DOCENTE (CON VIDEO VISIBLE Y SIN TEXTO DE ARCHIVO TÉCNICO)
         function renderTeacherConfigurationView() {
             const headerInfo = document.getElementById('teacher-config-header-info');
             const videosContainer = document.getElementById('teacher-config-videos-container');
@@ -632,6 +633,7 @@
                             <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem; font-size:1.05rem;">${displayVideoTitle}</div>
                             <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;"><strong>Objetivo:</strong> ${vid.objetivo || 'Análisis físico de laboratorio'}</div>
                             
+                            <!-- REPRODUCTOR DE VIDEO PARA EL DOCENTE -->
                             <div class="video-responsive" style="margin-bottom: 1rem;">
                                 <video controls preload="metadata">
                                     <source src="${videoCloudinaryUrl}" type="video/mp4">
@@ -905,6 +907,7 @@
             switchView('view-teacher-questions-viewer');
         }
 
+        // VISTA ESTADÍSTICA DE LAS 4 PREGUNTAS DE EVALUACIÓN WEB PARA EL DOCENTE
         function openTeacherWebEvaluations() {
             const container = document.getElementById('teacher-web-evals-container');
             if (!container || !classroomConfig) return;
