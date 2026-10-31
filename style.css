@@ -1,4 +1,28 @@
 :root {
+    --bg-main: #f1f5f9;
+    --panel-bg: rgba(255, 255, 255, 0.85);
+    --panel-alt: rgba(241, 245, 249, 0.8);
+    --accent-student: #059669;
+    --accent-student-hover: #047857;
+    --accent-teacher: #2563eb;
+    --accent-teacher-hover: #1d4ed8;
+    --highlight: #f59e0b;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-soft: rgba(15, 23, 42, 0.08);
+    --border-strong: rgba(15, 23, 42, 0.15);
+    --error: #ef4444;
+    --shadow-sm: 0 4px 20px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 8px 30px rgba(5, 150, 105, 0.08);
+    --shadow-lg: 0 15px 40px rgba(15, 23, 42, 0.1);
+    --radius-box: 20px;
+    --card-quiz-bg: rgba(255, 253, 245, 0.9);
+    --card-quiz-border: rgba(253, 224, 71, 0.5);
+    --input-bg: rgba(255, 255, 255, 0.9);
+}
+
+/* MODO OSCURO (ESTILO FUTURISTA CYBER ACTIVO) */
+body.dark-theme {
     --bg-main: #070b19;
     --panel-bg: rgba(17, 24, 39, 0.75);
     --panel-alt: rgba(30, 41, 59, 0.6);
@@ -15,30 +39,9 @@
     --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 8px 30px rgba(0, 255, 204, 0.08);
     --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.6);
-    --radius-box: 20px;
     --card-quiz-bg: rgba(30, 27, 16, 0.6);
     --card-quiz-border: rgba(245, 158, 11, 0.3);
     --input-bg: rgba(15, 23, 42, 0.6);
-}
-
-/* MODO CLARO (CON TOQUE FUTURISTA CLEAN) */
-body.light-theme {
-    --bg-main: #f1f5f9;
-    --panel-bg: rgba(255, 255, 255, 0.85);
-    --panel-alt: rgba(241, 245, 249, 0.8);
-    --accent-student: #059669;
-    --accent-student-hover: #047857;
-    --accent-teacher: #2563eb;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --border-soft: rgba(15, 23, 42, 0.08);
-    --border-strong: rgba(15, 23, 42, 0.15);
-    --shadow-sm: 0 4px 20px rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 8px 30px rgba(5, 150, 105, 0.08);
-    --shadow-lg: 0 15px 40px rgba(15, 23, 42, 0.1);
-    --card-quiz-bg: rgba(255, 253, 245, 0.9);
-    --card-quiz-border: rgba(253, 224, 71, 0.5);
-    --input-bg: rgba(255, 255, 255, 0.9);
 }
 
 * { box-sizing: border-box; }
@@ -108,7 +111,7 @@ header {
 header h1 { margin: 0.1rem 0; font-family: Georgia, serif; font-size: 1.25rem; color: var(--text-main); }
 header h2 { margin: 0; font-size: 0.68rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
 
-/* BOTÓN DE MODO CLARO / OSCURO FUTURISTA */
+/* BOTÓN DE MODO CLARO / OSCURO */
 .theme-toggle-btn {
     background: var(--panel-alt);
     color: var(--text-main);
@@ -232,7 +235,6 @@ header h2 { margin: 0; font-size: 0.68rem; color: var(--text-muted); letter-spac
 
 .chapter-card-info { flex: 1; min-width: 0; }
 .chapter-card-title { font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.15rem; }
-.chapter-card-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .chapter-arrow { color: var(--text-muted); font-size: 1.1rem; font-weight: 700; flex-shrink: 0; }
 
 .form-card {
