@@ -115,29 +115,29 @@
             </div>
         </div>
 
-        <!-- 4. PANEL DEL DOCENTE Y ESTADÍSTICAS -->
+        <!-- 4. PANEL DEL DOCENTE Y ESTADÍSTICAS (AISLADO COMPLETAMENTE) -->
         <div id="view-teacher-dashboard" class="view">
             <div class="alert-banner-docente" id="docente-info-banner"></div>
             
             <div class="teacher-stats-grid">
                 <div class="stat-card success">
-                    <div class="stat-card-title">⭐ Pregunta más acertada</div>
-                    <div class="stat-card-body" id="stat-most-correct">Calculando datos...</div>
+                    <div class="stat-card-title">⭐ Total Alumnos Registrados</div>
+                    <div class="stat-card-body" id="stat-most-correct">0 alumnos</div>
                 </div>
                 <div class="stat-card danger">
-                    <div class="stat-card-title">⚠️ Mayor dificultad</div>
-                    <div class="stat-card-body" id="stat-least-correct">Calculando datos...</div>
+                    <div class="stat-card-title">⚠️ Estado de la Clase</div>
+                    <div class="stat-card-body" id="stat-least-correct">Sin actividad previa</div>
                 </div>
             </div>
 
             <div class="teacher-stats-grid" style="margin-bottom: 1.2rem;">
                 <div class="stat-card" style="border-left-color: #f59e0b;">
-                    <div class="stat-card-title">📊 Evaluaciones de la Página</div>
-                    <div class="stat-card-body" id="stat-page-ratings">Calculando calificaciones...</div>
+                    <div class="stat-card-title">📊 Calificación Promedio de la Página</div>
+                    <div class="stat-card-body" id="stat-page-ratings">Sin valoraciones aún</div>
                 </div>
                 <div class="stat-card" style="border-left-color: #059669;">
-                    <div class="stat-card-title">💬 Comentarios de Alumnos</div>
-                    <div class="stat-card-body" id="stat-comments-count">0 registrados</div>
+                    <div class="stat-card-title">💬 Comentarios de esta Clase</div>
+                    <div class="stat-card-body" id="stat-comments-count">0 comentarios</div>
                 </div>
             </div>
 
@@ -161,14 +161,16 @@
                             <th>Aciertos / Errores</th>
                         </tr>
                     </thead>
-                    <tbody id="students-table-body"></tbody>
+                    <tbody id="students-table-body">
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando panel de la clase...</td></tr>
+                    </tbody>
                 </table>
             </div>
 
             <div class="comment-box-list">
-                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">Comentarios y Sugerencias Recibidas</h4>
+                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">Comentarios y Sugerencias Recibidas de Alumnos</h4>
                 <div id="teacher-comments-container">
-                    <p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados en esta clase.</p>
+                    <p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios en esta clase.</p>
                 </div>
             </div>
 
@@ -334,6 +336,11 @@
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
 
+        // Variables para los listeners activos de Firebase Realtime
+        let activeStudentsListener = null;
+        let activeCommentsListener = null;
+        let activeEvaluationsListener = null;
+
         // LÓGICA DE MODO CLARO Y OSCURO
         function toggleTheme() {
             const isDark = document.body.classList.toggle('dark-theme');
@@ -383,6 +390,8 @@
                         `;
                         listenToClassroomRealtimeData(savedTeacherClass);
                         switchView('view-teacher-dashboard');
+                    } else {
+                        localStorage.removeItem('activeTeacherClass');
                     }
                 });
             } else if (savedStudentData) {
@@ -522,10 +531,17 @@
             }
 
             classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
-            
+
+            // Verificamos si la clase ya existe y validamos contraseña
             db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const data = snapshot.val();
-                if(data && data.customQuestions) {
+                
+                if (data && data.password && data.password !== pass) {
+                    alert("Esta clase ya fue creada por otro docente con una contraseña diferente. Ingrese la contraseña correcta o utilice un nombre de clase distinto.");
+                    return;
+                }
+
+                if (data && data.customQuestions) {
                     customQuestionsStore = data.customQuestions;
                 } else {
                     customQuestionsStore = {};
@@ -725,7 +741,7 @@
                     customQuestions: customQuestionsStore
                 });
                 
-                // Guardamos sesión activa en localStorage
+                // Guardamos la sesión en el almacenamiento local
                 localStorage.setItem('activeTeacherClass', classroomConfig.classname);
             }
 
@@ -735,12 +751,17 @@
                 <strong>Sesión Activa:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
             
+            // Inicia escucha aislada exclusiva para esta clase
             listenToClassroomRealtimeData(classroomConfig.classname);
 
             switchView('view-teacher-dashboard');
         }
 
         function logoutTeacher() {
+            if (activeStudentsListener) activeStudentsListener.off();
+            if (activeCommentsListener) activeCommentsListener.off();
+            if (activeEvaluationsListener) activeEvaluationsListener.off();
+
             localStorage.removeItem('activeTeacherClass');
             classroomConfig = null;
             switchView('view-role-selection');
@@ -752,17 +773,30 @@
             switchView('view-role-selection');
         }
 
+        // AISLAMIENTO TOTAL: La función limpia la pantalla y escucha solo los datos de la clase enviada por parámetro
         function listenToClassroomRealtimeData(classname) {
-            const studentsRef = db.ref('alumnos_clase/' + classname);
-            studentsRef.on('value', (snapshot) => {
+            // Desconectar oyentes previos si existían
+            if (activeStudentsListener) activeStudentsListener.off();
+            if (activeCommentsListener) activeCommentsListener.off();
+            if (activeEvaluationsListener) activeEvaluationsListener.off();
+
+            // Limpieza visual inmediata
+            const tbody = document.getElementById('students-table-body');
+            const commentsContainer = document.getElementById('teacher-comments-container');
+            
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando alumnos de la clase ${classname}...</td></tr>`;
+            if (commentsContainer) commentsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando comentarios...</p>`;
+
+            // Escuchar alumnos de la clase específica
+            activeStudentsListener = db.ref('alumnos_clase/' + classname);
+            activeStudentsListener.on('value', (snapshot) => {
                 const data = snapshot.val();
-                const tbody = document.getElementById('students-table-body');
                 if(!tbody) return;
 
                 if(!data) {
                     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aún no hay alumnos registrados en esta clase.</td></tr>`;
-                    document.getElementById('stat-most-correct').innerText = "Sin datos aún";
-                    document.getElementById('stat-least-correct').innerText = "Sin datos aún";
+                    document.getElementById('stat-most-correct').innerText = "0 alumnos";
+                    document.getElementById('stat-least-correct').innerText = "Sin actividad previa";
                     return;
                 }
 
@@ -790,16 +824,15 @@
                 document.getElementById('stat-least-correct').innerText = `Activo en tiempo real`;
             });
 
-            const commentsRef = db.ref('comentarios_pagina/' + classname);
-            commentsRef.on('value', (snapshot) => {
+            // Escuchar comentarios de la clase específica
+            activeCommentsListener = db.ref('comentarios_pagina/' + classname);
+            activeCommentsListener.on('value', (snapshot) => {
                 const data = snapshot.val();
-                const container = document.getElementById('teacher-comments-container');
-                if(!container) return;
+                if(!commentsContainer) return;
 
                 if(!data) {
-                    container.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados en esta clase.</p>`;
-                    document.getElementById('stat-comments-count').innerText = "0 registrados";
-                    document.getElementById('stat-page-ratings').innerText = "Sin calificaciones";
+                    commentsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados en esta clase.</p>`;
+                    document.getElementById('stat-comments-count').innerText = "0 comentarios";
                     return;
                 }
 
@@ -814,9 +847,34 @@
                         </div>
                     `;
                 }
-                container.innerHTML = commentsHTML;
+                commentsContainer.innerHTML = commentsHTML;
                 document.getElementById('stat-comments-count').innerText = `${count} registrados`;
-                document.getElementById('stat-page-ratings').innerText = "4.8 / 5.0 (Excelente)";
+            });
+
+            // Escuchar evaluaciones y promedio de la página para la clase específica
+            activeEvaluationsListener = db.ref('evaluaciones_pagina/' + classname);
+            activeEvaluationsListener.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if(!data) {
+                    document.getElementById('stat-page-ratings').innerText = "Sin valoraciones aún";
+                    return;
+                }
+
+                let suma = 0;
+                let total = 0;
+                for(let key in data) {
+                    const evalObj = data[key];
+                    if(evalObj.promedioAlumno) {
+                        suma += parseFloat(evalObj.promedioAlumno);
+                        total++;
+                    }
+                }
+                if(total > 0) {
+                    const promFinal = (suma / total).toFixed(1);
+                    document.getElementById('stat-page-ratings').innerText = `${promFinal} / 5.0 (${total} valoraciones)`;
+                } else {
+                    document.getElementById('stat-page-ratings').innerText = "Sin valoraciones aún";
+                }
             });
         }
 
@@ -904,7 +962,7 @@
                 currentStudent = { name, code, group, classname };
                 localStorage.setItem('activeStudentData', JSON.stringify(currentStudent));
 
-                // REGISTRO INMEDIATO: El alumno aparece en el panel del docente apenas entra a la clase
+                // REGISTRO INMEDIATO EN LA CLASE ESPECÍFICA DEL DOCENTE
                 const studentKey = code.replace(/[.#$\/\[\]]/g, '_');
                 db.ref('alumnos_clase/' + classname + '/' + studentKey).set({
                     nombre: name,
@@ -1024,6 +1082,10 @@
 
         function submitEvaluationAndGetResults() {
             const comment = document.getElementById('eval-comment').value.trim();
+            const q1Val = parseFloat(document.getElementById('eval-q1').value);
+            const q2Val = parseFloat(document.getElementById('eval-q2').value);
+            const q3Val = parseFloat(document.getElementById('eval-q3').value);
+
             if(!comment) {
                 alert("Por favor, complete sus comentarios y sugerencias sobre la plataforma para continuar.");
                 return;
@@ -1079,11 +1141,12 @@
 
             const totalPreguntas = activeQuestionsRendered.length || 1;
             const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
+            const promedioAlumnoEval = ((q1Val + q2Val + q3Val) / 3).toFixed(1);
 
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
                 
-                // ACTUALIZACIÓN DE NOTAS EN TIEMPO REAL AL ENVIAR EVALUACIÓN
+                // Actualizar las notas reales del estudiante en la clase de su docente
                 db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
@@ -1093,10 +1156,17 @@
                     errores: errores
                 });
 
+                // Registrar comentarios aislados por clase
                 db.ref('comentarios_pagina/' + currentStudent.classname).push({
                     estudiante: currentStudent.name,
                     grupo: currentStudent.group,
                     comentario: comment
+                });
+
+                // Registrar valoraciones de la página aisladas por clase
+                db.ref('evaluaciones_pagina/' + currentStudent.classname).push({
+                    estudiante: currentStudent.name,
+                    promedioAlumno: promedioAlumnoEval
                 });
             }
 
