@@ -83,17 +83,17 @@
                     <div class="form-field full">
                         <label>Nombre del Docente <span class="req">*</span></label>
                         <input type="text" id="t-teachername" placeholder="Ej: Dr. Juan Pérez">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Debe ingresar nombre y apellido (Ej: Dr. Juan Pérez).</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Debe coincidir exactamente con el registrado en la clase.</small>
                     </div>
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
                         <input type="text" id="t-classname" placeholder="Ej: Newton">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Ej: Newton (sin espacios ni símbolos raros).</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Ej: Newton (sin espacios).</small>
                     </div>
                     <div class="form-field">
                         <label>Contraseña de la Clase <span class="req">*</span></label>
                         <input type="password" id="t-pass" placeholder="6 dígitos" maxlength="6">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 6 dígitos numéricos (Ej: 123456).</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 6 dígitos numéricos.</small>
                     </div>
                     
                     <div class="form-field full">
@@ -101,21 +101,21 @@
                         <div class="chapters-selection-list" id="chapters-cards-container"></div>
                     </div>
                 </div>
-                <button class="btn-action-teacher" onclick="goToTeacherConfig()">CONTINUAR A CONFIGURACIÓN DE PREGUNTAS ➔</button>
+                <button class="btn-action-teacher" onclick="goToTeacherConfig()">VALIDAR E INGRESAR AL PANEL ➔</button>
             </div>
         </div>
 
         <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
         <div id="view-teacher-config" class="view">
             <div class="form-card" style="max-width: 900px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 0.8rem;">← Cambiar Capítulo</button>
+                <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 0.8rem;">← Volver</button>
                 <div id="teacher-config-header-info"></div>
                 <div id="teacher-config-videos-container" style="margin-top: 1.2rem;"></div>
-                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">CREAR E INICIAR LA CLASE ➔</button>
+                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">GUARDAR E INICIAR CLASE ➔</button>
             </div>
         </div>
 
-        <!-- 4. PANEL DEL DOCENTE Y ESTADÍSTICAS (AISLADO COMPLETAMENTE) -->
+        <!-- 4. PANEL DEL DOCENTE Y ESTADÍSTICAS -->
         <div id="view-teacher-dashboard" class="view">
             <div class="alert-banner-docente" id="docente-info-banner"></div>
             
@@ -126,7 +126,7 @@
                 </div>
                 <div class="stat-card danger">
                     <div class="stat-card-title">⚠️ Estado de la Clase</div>
-                    <div class="stat-card-body" id="stat-least-correct">Sin actividad previa</div>
+                    <div class="stat-card-body" id="stat-least-correct">Verificado (3 factores coincidentes)</div>
                 </div>
             </div>
 
@@ -162,7 +162,7 @@
                         </tr>
                     </thead>
                     <tbody id="students-table-body">
-                        <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando panel de la clase...</td></tr>
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -201,12 +201,12 @@
                     <div class="form-field full">
                         <label>Apellidos y Nombres <span class="req">*</span></label>
                         <input type="text" id="s-name" placeholder="Ej: Quispe Mendoza, Carlos Alberto">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Mínimo un apellido y un nombre (Ej: Quispe Mendoza, Carlos Alberto).</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Mínimo un apellido y un nombre.</small>
                     </div>
                     <div class="form-field">
                         <label>Código de Matrícula <span class="req">*</span></label>
                         <input type="text" id="s-code" placeholder="Ej: 20130026" maxlength="8">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 8 dígitos numéricos.</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 8 dígitos.</small>
                     </div>
                     <div class="form-field">
                         <label>Grupo / Sección <span class="req">*</span></label>
@@ -221,12 +221,12 @@
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
                         <input type="text" id="s-classname" placeholder="Ej: Newton">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Debe coincidir exactamente con el de la clase.</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Debe coincidir con la clase.</small>
                     </div>
                     <div class="form-field">
                         <label>Contraseña <span class="req">*</span></label>
                         <input type="password" id="s-pass" placeholder="6 dígitos" maxlength="6">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 6 dígitos numéricos.</small>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">6 dígitos numéricos.</small>
                     </div>
                 </div>
                 <button class="btn-action-student" onclick="studentEnter()">INGRESAR A LA CLASE ➔</button>
@@ -336,7 +336,6 @@
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
 
-        // Variables para los listeners activos de Firebase Realtime
         let activeStudentsListener = null;
         let activeCommentsListener = null;
         let activeEvaluationsListener = null;
@@ -358,7 +357,6 @@
             }
         }
 
-        // Inicialización del tema guardado
         (function initTheme() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
@@ -370,44 +368,11 @@
             }
         })();
 
-        // RECUPERACIÓN DE SESIÓN AL ACTUALIZAR LA PÁGINA
+        // AL ACTUALIZAR LA PÁGINA, SE LIMPIA LA SESIÓN AUTOMÁTICA PARA EXIGIR LOS 3 FACTORES DE NUEVO
         window.onload = function() {
             renderChapterSelectionCards();
-
-            const savedTeacherClass = localStorage.getItem('activeTeacherClass');
-            const savedStudentData = localStorage.getItem('activeStudentData');
-
-            if (savedTeacherClass) {
-                db.ref('clase_activa/' + savedTeacherClass).once('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        classroomConfig = { teacher: data.docente, classname: savedTeacherClass, chapterId: data.capituloId };
-                        selectedChapterId = parseInt(data.capituloId || 1);
-                        customQuestionsStore = data.customQuestions || {};
-                        
-                        document.getElementById('docente-info-banner').innerHTML = `
-                            <strong>Sesión Activa:</strong> ${savedTeacherClass} | <strong>Docente:</strong> ${data.docente} | <strong>Capítulo:</strong> ${selectedChapterId}
-                        `;
-                        listenToClassroomRealtimeData(savedTeacherClass);
-                        switchView('view-teacher-dashboard');
-                    } else {
-                        localStorage.removeItem('activeTeacherClass');
-                    }
-                });
-            } else if (savedStudentData) {
-                const parsedStudent = JSON.parse(savedStudentData);
-                db.ref('clase_activa/' + parsedStudent.classname).once('value', (snapshot) => {
-                    const classData = snapshot.val();
-                    if (classData) {
-                        if (classData.capituloId) selectedChapterId = parseInt(classData.capituloId);
-                        if (classData.customQuestions) customQuestionsStore = classData.customQuestions;
-                    }
-                    currentStudent = parsedStudent;
-                    document.getElementById('student-session-info').innerText = `Estudiante: ${currentStudent.name} | Clase: ${currentStudent.classname} [Grupo ${currentStudent.group}]`;
-                    renderStudentWorkspace();
-                    switchView('view-student-workspace');
-                });
-            }
+            localStorage.removeItem('activeTeacherClass');
+            localStorage.removeItem('activeStudentData');
         };
 
         function switchView(viewId) {
@@ -505,55 +470,55 @@
             renderChapterSelectionCards();
         }
 
+        // VALIDACIÓN ESTRICTA DE LOS 3 FACTORES (Nombre Docente + Nombre Clase + Contraseña)
         function goToTeacherConfig() {
             const name = document.getElementById('t-teachername').value.trim();
             const classname = document.getElementById('t-classname').value.trim();
             const pass = document.getElementById('t-pass').value.trim();
 
             if(!name || !classname || !pass) {
-                alert("Por favor, complete todos los campos obligatorios del registro.");
+                alert("Por favor, complete todos los campos obligatorios.");
                 return;
             }
 
             if(name.split(/\s+/).length < 2) {
-                alert("El nombre del docente debe incluir al menos un nombre y un apellido (Ej: Dr. Juan Pérez).");
+                alert("El nombre del docente debe incluir al menos un nombre y un apellido.");
                 return;
             }
 
             if(!/^\d{6}$/.test(pass)) {
-                alert("La contraseña de la clase debe tener exactamente 6 dígitos numéricos.");
+                alert("La contraseña debe tener exactamente 6 dígitos numéricos.");
                 return;
             }
 
             if(!/^[a-zA-Z0-9_-]{3,20}$/.test(classname)) {
-                alert("El nombre de la clase debe ser adecuado y sin espacios (Ej: Newton).");
+                alert("El nombre de la clase debe ser adecuado y sin espacios.");
                 return;
             }
 
-            classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
-
-            // Verificamos si la clase ya existe y validamos contraseña
             db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const data = snapshot.val();
                 
-                if (data && data.password && data.password !== pass) {
-                    alert("Esta clase ya fue creada por otro docente con una contraseña diferente. Ingrese la contraseña correcta o utilice un nombre de clase distinto.");
-                    return;
-                }
-
-                if (data && data.customQuestions) {
-                    customQuestionsStore = data.customQuestions;
+                if (data) {
+                    // Si la clase ya existe, verificamos estrictamente que COINCIDAN LOS 3 ASPECTOS
+                    if (data.docente !== name || data.password !== pass) {
+                        alert("Acceso denegado: El nombre del docente, el nombre de la clase o la contraseña no coinciden con los registros originales de este aula.");
+                        return;
+                    }
+                    selectedChapterId = parseInt(data.capituloId || 1);
+                    customQuestionsStore = data.customQuestions || {};
                 } else {
+                    // Si es clase nueva, se crea con los datos actuales
                     customQuestionsStore = {};
+                    db.ref('clase_activa/' + classname).set({
+                        docente: name,
+                        password: pass,
+                        capituloId: selectedChapterId,
+                        customQuestions: customQuestionsStore
+                    });
                 }
-                
-                db.ref('clase_activa/' + classname).set({
-                    docente: name,
-                    password: pass,
-                    capituloId: selectedChapterId,
-                    customQuestions: customQuestionsStore
-                });
 
+                classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
                 renderTeacherConfigurationView();
                 switchView('view-teacher-config');
             });
@@ -740,20 +705,15 @@
                     capituloId: selectedChapterId,
                     customQuestions: customQuestionsStore
                 });
-                
-                // Guardamos la sesión en el almacenamiento local
-                localStorage.setItem('activeTeacherClass', classroomConfig.classname);
             }
 
-            alert("¡Clase creada y configurada con éxito en Firebase!");
+            alert("¡Clase verificada y panel activado correctamente!");
             
             document.getElementById('docente-info-banner').innerHTML = `
                 <strong>Sesión Activa:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
             
-            // Inicia escucha aislada exclusiva para esta clase
             listenToClassroomRealtimeData(classroomConfig.classname);
-
             switchView('view-teacher-dashboard');
         }
 
@@ -762,7 +722,6 @@
             if (activeCommentsListener) activeCommentsListener.off();
             if (activeEvaluationsListener) activeEvaluationsListener.off();
 
-            localStorage.removeItem('activeTeacherClass');
             classroomConfig = null;
             switchView('view-role-selection');
         }
@@ -773,21 +732,17 @@
             switchView('view-role-selection');
         }
 
-        // AISLAMIENTO TOTAL: La función limpia la pantalla y escucha solo los datos de la clase enviada por parámetro
         function listenToClassroomRealtimeData(classname) {
-            // Desconectar oyentes previos si existían
             if (activeStudentsListener) activeStudentsListener.off();
             if (activeCommentsListener) activeCommentsListener.off();
             if (activeEvaluationsListener) activeEvaluationsListener.off();
 
-            // Limpieza visual inmediata
             const tbody = document.getElementById('students-table-body');
             const commentsContainer = document.getElementById('teacher-comments-container');
             
-            if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando alumnos de la clase ${classname}...</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>`;
             if (commentsContainer) commentsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando comentarios...</p>`;
 
-            // Escuchar alumnos de la clase específica
             activeStudentsListener = db.ref('alumnos_clase/' + classname);
             activeStudentsListener.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -796,7 +751,7 @@
                 if(!data) {
                     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aún no hay alumnos registrados en esta clase.</td></tr>`;
                     document.getElementById('stat-most-correct').innerText = "0 alumnos";
-                    document.getElementById('stat-least-correct').innerText = "Sin actividad previa";
+                    document.getElementById('stat-least-correct').innerText = "Verificado (3 factores coincidentes)";
                     return;
                 }
 
@@ -821,10 +776,9 @@
                 }
                 tbody.innerHTML = rowsHTML;
                 document.getElementById('stat-most-correct').innerText = `${totalAlumnosCount} estudiantes registrados`;
-                document.getElementById('stat-least-correct').innerText = `Activo en tiempo real`;
+                document.getElementById('stat-least-correct').innerText = "Verificado (3 factores coincidentes)";
             });
 
-            // Escuchar comentarios de la clase específica
             activeCommentsListener = db.ref('comentarios_pagina/' + classname);
             activeCommentsListener.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -851,7 +805,6 @@
                 document.getElementById('stat-comments-count').innerText = `${count} registrados`;
             });
 
-            // Escuchar evaluaciones y promedio de la página para la clase específica
             activeEvaluationsListener = db.ref('evaluaciones_pagina/' + classname);
             activeEvaluationsListener.on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -925,12 +878,12 @@
             }
 
             if(name.split(/\s+/).length < 2) {
-                alert("Debe ingresar obligatoriamente un nombre y un apellido (Ej: Quispe Mendoza, Carlos Alberto).");
+                alert("Debe ingresar obligatoriamente un nombre y un apellido.");
                 return;
             }
 
             if(!/^\d{8}$/.test(code)) {
-                alert("El código de matrícula debe tener exactamente 8 dígitos numéricos (Ej: 20130026).");
+                alert("El código de matrícula debe tener exactamente 8 dígitos numéricos.");
                 return;
             }
 
@@ -962,7 +915,6 @@
                 currentStudent = { name, code, group, classname };
                 localStorage.setItem('activeStudentData', JSON.stringify(currentStudent));
 
-                // REGISTRO INMEDIATO EN LA CLASE ESPECÍFICA DEL DOCENTE
                 const studentKey = code.replace(/[.#$\/\[\]]/g, '_');
                 db.ref('alumnos_clase/' + classname + '/' + studentKey).set({
                     nombre: name,
@@ -1146,7 +1098,6 @@
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
                 
-                // Actualizar las notas reales del estudiante en la clase de su docente
                 db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
@@ -1156,14 +1107,12 @@
                     errores: errores
                 });
 
-                // Registrar comentarios aislados por clase
                 db.ref('comentarios_pagina/' + currentStudent.classname).push({
                     estudiante: currentStudent.name,
                     grupo: currentStudent.group,
                     comentario: comment
                 });
 
-                // Registrar valoraciones de la página aisladas por clase
                 db.ref('evaluaciones_pagina/' + currentStudent.classname).push({
                     estudiante: currentStudent.name,
                     promedioAlumno: promedioAlumnoEval
