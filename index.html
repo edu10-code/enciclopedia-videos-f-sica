@@ -244,47 +244,64 @@
             </div>
         </div>
 
-        <!-- 7. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
+        <!-- 7. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS (ACTUALIZADA) -->
         <div id="view-page-evaluation" class="view">
-            <div class="form-card" style="max-width: 700px;">
+            <div class="form-card" style="max-width: 750px;">
                 <button class="btn-secondary" onclick="switchView('view-student-workspace')" style="margin-bottom: 0.8rem;">← Volver al Cuestionario</button>
-                <h3 style="color: var(--accent-student); font-family: Georgia, serif;">Evaluación Obligatoria de la Página Web</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Para poder visualizar su nota final, aciertos, errores y explicaciones detalladas, es requisito obligatorio calificar la plataforma y dejar su comentario.</p>
+                <h3 style="color: var(--accent-student); font-family: Georgia, serif;">Evaluación de la Página Web</h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Para poder visualizar su nota final, aciertos, errores y explicaciones detalladas, es requisito obligatorio calificar la plataforma y dejar su comentario.</p>
                 
-                <div class="form-field" style="margin-bottom: 1rem;">
-                    <label>1. ¿Qué tan útil y clara fue la interfaz para su aprendizaje? <span class="req">*</span></label>
-                    <select id="eval-q1">
-                        <option value="5">5 - Excelente / Muy útil</option>
-                        <option value="4">4 - Buena</option>
-                        <option value="3" selected>3 - Regular</option>
-                        <option value="2">2 - Poco útil</option>
-                        <option value="1">1 - Deficiente</option>
-                    </select>
+                <!-- PREGUNTA 1: CALIFICACIÓN CON 6 ESTRELLAS -->
+                <div class="form-field" style="margin-bottom: 1.5rem;">
+                    <label>1. ¿Qué te pareció la página web? <span class="req">*</span></label>
+                    <div class="rating-stars-container" id="star-rating-group">
+                        <button type="button" class="star-btn" onclick="selectStarRating(1)" title="1 Estrellas">★</button>
+                        <button type="button" class="star-btn" onclick="selectStarRating(2)" title="2 Estrellas">★</button>
+                        <button type="button" class="star-btn" onclick="selectStarRating(3)" title="3 Estrellas">★</button>
+                        <button type="button" class="star-btn" onclick="selectStarRating(4)" title="4 Estrellas">★</button>
+                        <button type="button" class="star-btn" onclick="selectStarRating(5)" title="5 Estrellas">★</button>
+                        <button type="button" class="star-btn" onclick="selectStarRating(6)" title="6 Estrellas">★</button>
+                    </div>
                 </div>
 
-                <div class="form-field" style="margin-bottom: 1rem;">
-                    <label>2. ¿Cómo califica la calidad y nitidez de los videos demostrativos? <span class="req">*</span></label>
-                    <select id="eval-q2">
-                        <option value="5">5 - Excelente calidad</option>
-                        <option value="4">4 - Buena</option>
-                        <option value="3" selected>3 - Aceptable</option>
-                        <option value="2">2 - Baja calidad</option>
-                        <option value="1">1 - Mala</option>
-                    </select>
+                <!-- PREGUNTA 2: INTERFAZ -->
+                <div class="form-field" style="margin-bottom: 1.5rem;">
+                    <label>2. ¿Qué tan útil y clara fue la interfaz para su aprendizaje? <span class="req">*</span></label>
+                    <div class="eval-options-grid" id="eval-q2-group">
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 1, this)">Deficiente</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 2, this)">Poco útil</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 3, this)">Regular</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 4, this)">Buena</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q2', 5, this)">Excelente</button>
+                    </div>
                 </div>
 
-                <div class="form-field" style="margin-bottom: 1rem;">
-                    <label>3. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación? <span class="req">*</span></label>
-                    <select id="eval-q3">
-                        <option value="5">5 - Muy didácticos</option>
-                        <option value="4">4 - Buenos</option>
-                        <option value="3" selected>3 - Regulares</option>
-                        <option value="2">2</option>
-                        <option value="1">1</option>
-                    </select>
+                <!-- PREGUNTA 3: VIDEOS -->
+                <div class="form-field" style="margin-bottom: 1.5rem;">
+                    <label>3. ¿Cómo califica la calidad y nitidez de los videos demostrativos? <span class="req">*</span></label>
+                    <div class="eval-options-grid" id="eval-q3-group">
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 1, this)">Mala</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 2, this)">Baja calidad</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 3, this)">Aceptable</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 4, this)">Buena</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q3', 5, this)">Excelente</button>
+                    </div>
                 </div>
 
-                <div class="form-field" style="margin-bottom: 1.2rem;">
+                <!-- PREGUNTA 4: CUESTIONARIOS -->
+                <div class="form-field" style="margin-bottom: 1.5rem;">
+                    <label>4. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación? <span class="req">*</span></label>
+                    <div class="eval-options-grid" id="eval-q4-group">
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 1, this)">Deficiente</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 2, this)">Bajo</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 3, this)">Regulares</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 4, this)">Buenos</button>
+                        <button type="button" class="eval-option-chip" onclick="selectEvalOption('q4', 5, this)">Muy didácticos</button>
+                    </div>
+                </div>
+
+                <!-- COMENTARIOS Y SUGERENCIAS -->
+                <div class="form-field" style="margin-bottom: 1.5rem;">
                     <label>Comentarios y sugerencias para mejorar la página: <span class="req">*</span></label>
                     <textarea id="eval-comment" rows="3" placeholder="Escriba aquí sus sugerencias u opiniones detalladas..."></textarea>
                 </div>
@@ -331,6 +348,14 @@
         let selectedChapterId = 1;
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
+
+        // Variables para almacenar las respuestas seleccionadas en la evaluación moderna
+        let studentEvalData = {
+            stars: 0,
+            q2: 0,
+            q3: 0,
+            q4: 0
+        };
 
         let activeStudentsListener = null;
         let activeCommentsListener = null;
@@ -465,7 +490,6 @@
             renderChapterSelectionCards();
         }
 
-        // VALIDACIÓN PARA CREAR INFINITAS CLASES O ACCEDER A UNA EXISTENTE CON SU CONTRASEÑA
         function goToTeacherConfig() {
             const name = document.getElementById('t-teachername').value.trim();
             const classname = document.getElementById('t-classname').value.trim();
@@ -816,7 +840,7 @@
                 }
                 if(total > 0) {
                     const promFinal = (suma / total).toFixed(1);
-                    document.getElementById('stat-page-ratings').innerText = `${promFinal} / 5.0 (${total} valoraciones)`;
+                    document.getElementById('stat-page-ratings').innerText = `${promFinal} / 6.0 (${total} valoraciones)`;
                 } else {
                     document.getElementById('stat-page-ratings').innerText = "Sin valoraciones aún";
                 }
@@ -1020,7 +1044,7 @@
             });
         }
 
-        // VALIDACIÓN ESTRICTA: Las preguntas del cuestionario son obligatorias
+        // VALIDACIÓN OBLIGATORIA DE LAS PREGUNTAS DE LOS VIDEOS ANTES DE IR A EVALUAR
         function proceedToPageEvaluation() {
             for (let i = 0; i < activeQuestionsRendered.length; i++) {
                 let item = activeQuestionsRendered[i];
@@ -1033,14 +1057,43 @@
             switchView('view-page-evaluation');
         }
 
+        // FUNCIONES DE CONTROL PARA LA NUEVA EVALUACIÓN DE LA PÁGINA
+        function selectStarRating(rating) {
+            studentEvalData.stars = rating;
+            const buttons = document.querySelectorAll('#star-rating-group .star-btn');
+            buttons.forEach((btn, idx) => {
+                if (idx < rating) {
+                    btn.classList.add('active');
+                    btn.textContent = '★';
+                } else {
+                    btn.classList.remove('active');
+                    btn.textContent = '★';
+                }
+            });
+        }
+
+        function selectEvalOption(questionKey, value, element) {
+            studentEvalData[questionKey] = value;
+            const container = document.getElementById(`eval-${questionKey}-group`);
+            const chips = container.querySelectorAll('.eval-option-chip');
+            chips.forEach(chip => chip.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
         function submitEvaluationAndGetResults() {
             const comment = document.getElementById('eval-comment').value.trim();
-            const q1Val = parseFloat(document.getElementById('eval-q1').value);
-            const q2Val = parseFloat(document.getElementById('eval-q2').value);
-            const q3Val = parseFloat(document.getElementById('eval-q3').value);
 
+            // Validación estricta obligatoria
+            if (studentEvalData.stars === 0) {
+                alert("Por favor, califique la página web seleccionando las estrellas (Pregunta 1).");
+                return;
+            }
+            if (studentEvalData.q2 === 0 || studentEvalData.q3 === 0 || studentEvalData.q4 === 0) {
+                alert("Por favor, responda todas las preguntas de la evaluación de la página web para continuar.");
+                return;
+            }
             if(!comment) {
-                alert("Por favor, complete sus comentarios y sugerencias sobre la plataforma para continuar.");
+                alert("Por favor, escriba sus comentarios y sugerencias sobre la plataforma para continuar.");
                 return;
             }
 
@@ -1094,7 +1147,10 @@
 
             const totalPreguntas = activeQuestionsRendered.length || 1;
             const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
-            const promedioAlumnoEval = ((q1Val + q2Val + q3Val) / 3).toFixed(1);
+            
+            // Cálculo del promedio general de las 4 métricas (estrellas de 1-6 convertidas a escala de 1-5, o promediadas directamente con las demás)
+            const normalizedStars = (studentEvalData.stars / 6) * 5;
+            const promedioAlumnoEval = ((normalizedStars + studentEvalData.q2 + studentEvalData.q3 + studentEvalData.q4) / 4).toFixed(1);
 
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
@@ -1102,7 +1158,7 @@
                 db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
-                    grupo: currentStudent.group,
+                    grupo: currentStudent.grupo,
                     notaFinal: notaFinal,
                     aciertos: aciertos,
                     errores: errores
