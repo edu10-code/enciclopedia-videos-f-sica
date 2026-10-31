@@ -172,7 +172,7 @@
                 </div>
             </div>
 
-            <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-top: 1.5rem;">Cerrar Sesión Docente</button>
+            <button class="btn-secondary" onclick="logoutTeacher()" style="margin-top: 1.5rem;">Cerrar Sesión Docente</button>
         </div>
 
         <!-- VISTA DE CONSULTA DE PREGUNTAS PARA EL DOCENTE -->
@@ -234,7 +234,7 @@
         <!-- 6. ENTORNO DE TRABAJO DEL ESTUDIANTE (VIDEOS Y PREGUNTAS) -->
         <div id="view-student-workspace" class="view">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.5rem;">
-                <button class="btn-secondary" onclick="switchView('view-student-access')">← Salir de la Clase</button>
+                <button class="btn-secondary" onclick="logoutStudent()">← Salir de la Clase</button>
                 <div id="student-session-info" style="font-weight:700; color:var(--accent-student); font-size:0.9rem;"></div>
             </div>
             
@@ -298,10 +298,10 @@
         <!-- 8. RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
         <div id="view-student-feedback" class="view">
             <div class="form-card" style="max-width: 850px;">
-                <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Salir al Inicio</button>
+                <button class="btn-secondary" onclick="logoutStudent()" style="margin-bottom: 0.8rem;">← Salir al Inicio</button>
                 <div id="feedback-header-box" style="text-align: center; margin-bottom: 1.5rem; padding: 1.2rem; background: var(--panel-alt); border-radius: 12px; border: 1.5px solid var(--accent-student);"></div>
                 <div id="feedback-details-container"></div>
-                <button class="btn-action-student" onclick="switchView('view-role-selection')" style="margin-top: 1.5rem;">FINALIZAR Y SALIR</button>
+                <button class="btn-action-student" onclick="logoutStudent()" style="margin-top: 1.5rem;">FINALIZAR Y SALIR</button>
             </div>
         </div>
 
@@ -363,8 +363,42 @@
             }
         })();
 
+        // RECUPERACIÓN DE SESIÓN AL ACTUALIZAR LA PÁGINA
         window.onload = function() {
             renderChapterSelectionCards();
+
+            const savedTeacherClass = localStorage.getItem('activeTeacherClass');
+            const savedStudentData = localStorage.getItem('activeStudentData');
+
+            if (savedTeacherClass) {
+                db.ref('clase_activa/' + savedTeacherClass).once('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        classroomConfig = { teacher: data.docente, classname: savedTeacherClass, chapterId: data.capituloId };
+                        selectedChapterId = parseInt(data.capituloId || 1);
+                        customQuestionsStore = data.customQuestions || {};
+                        
+                        document.getElementById('docente-info-banner').innerHTML = `
+                            <strong>Sesión Activa:</strong> ${savedTeacherClass} | <strong>Docente:</strong> ${data.docente} | <strong>Capítulo:</strong> ${selectedChapterId}
+                        `;
+                        listenToClassroomRealtimeData(savedTeacherClass);
+                        switchView('view-teacher-dashboard');
+                    }
+                });
+            } else if (savedStudentData) {
+                const parsedStudent = JSON.parse(savedStudentData);
+                db.ref('clase_activa/' + parsedStudent.classname).once('value', (snapshot) => {
+                    const classData = snapshot.val();
+                    if (classData) {
+                        if (classData.capituloId) selectedChapterId = parseInt(classData.capituloId);
+                        if (classData.customQuestions) customQuestionsStore = classData.customQuestions;
+                    }
+                    currentStudent = parsedStudent;
+                    document.getElementById('student-session-info').innerText = `Estudiante: ${currentStudent.name} | Clase: ${currentStudent.classname} [Grupo ${currentStudent.group}]`;
+                    renderStudentWorkspace();
+                    switchView('view-student-workspace');
+                });
+            }
         };
 
         function switchView(viewId) {
@@ -437,7 +471,6 @@
             return [];
         }
 
-        // FUNCIÓN MODIFICADA: Se ha obviado y omitido el texto de introducción o laboratorio para que la tarjeta sea limpia y compacta
         function renderChapterSelectionCards() {
             const container = document.getElementById('chapters-cards-container');
             if(!container) return;
@@ -691,6 +724,9 @@
                     capituloId: selectedChapterId,
                     customQuestions: customQuestionsStore
                 });
+                
+                // Guardamos sesión activa en localStorage
+                localStorage.setItem('activeTeacherClass', classroomConfig.classname);
             }
 
             alert("¡Clase creada y configurada con éxito en Firebase!");
@@ -702,6 +738,18 @@
             listenToClassroomRealtimeData(classroomConfig.classname);
 
             switchView('view-teacher-dashboard');
+        }
+
+        function logoutTeacher() {
+            localStorage.removeItem('activeTeacherClass');
+            classroomConfig = null;
+            switchView('view-role-selection');
+        }
+
+        function logoutStudent() {
+            localStorage.removeItem('activeStudentData');
+            currentStudent = null;
+            switchView('view-role-selection');
         }
 
         function listenToClassroomRealtimeData(classname) {
@@ -738,8 +786,8 @@
                     `;
                 }
                 tbody.innerHTML = rowsHTML;
-                document.getElementById('stat-most-correct').innerText = `${totalAlumnosCount} estudiantes evaluados`;
-                document.getElementById('stat-least-correct').innerText = `Promedio de aciertos activo`;
+                document.getElementById('stat-most-correct').innerText = `${totalAlumnosCount} estudiantes registrados`;
+                document.getElementById('stat-least-correct').innerText = `Activo en tiempo real`;
             });
 
             const commentsRef = db.ref('comentarios_pagina/' + classname);
@@ -854,6 +902,18 @@
                 }
 
                 currentStudent = { name, code, group, classname };
+                localStorage.setItem('activeStudentData', JSON.stringify(currentStudent));
+
+                // REGISTRO INMEDIATO: El alumno aparece en el panel del docente apenas entra a la clase
+                const studentKey = code.replace(/[.#$\/\[\]]/g, '_');
+                db.ref('alumnos_clase/' + classname + '/' + studentKey).set({
+                    nombre: name,
+                    codigo: code,
+                    grupo: group,
+                    notaFinal: "0.0 (En progreso)",
+                    aciertos: 0,
+                    errores: 0
+                });
 
                 document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Clase: ${classname} [Grupo ${group}]`;
                 renderStudentWorkspace();
@@ -1023,6 +1083,7 @@
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
                 
+                // ACTUALIZACIÓN DE NOTAS EN TIEMPO REAL AL ENVIAR EVALUACIÓN
                 db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
