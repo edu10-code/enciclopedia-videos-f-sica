@@ -190,7 +190,7 @@
             </div>
         </div>
 
-        <!-- VISTA DETALLADA DE EVALUACIONES WEB PARA EL DOCENTE (MEJORADA CON CONTEOS Y PORCENTAJES) -->
+        <!-- VISTA DETALLADA DE EVALUACIONES WEB PARA EL DOCENTE -->
         <div id="view-teacher-web-evaluations" class="view">
             <div class="form-card" style="max-width: 850px;">
                 <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 0.8rem;">← Volver al Panel</button>
@@ -603,6 +603,7 @@
             return preguntasList;
         }
 
+        // VISTA DE CONFIGURACIÓN DEL DOCENTE (CON REPRODUCTOR Y SIN TEXTO TÉCNICO DE ARCHIVO)
         function renderTeacherConfigurationView() {
             const headerInfo = document.getElementById('teacher-config-header-info');
             const videosContainer = document.getElementById('teacher-config-videos-container');
@@ -625,11 +626,21 @@
                     const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
                     const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
                     const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
+                    const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + (vid.archivo || `${vid.id}.mp4`);
 
                     return `
                         <div class="teacher-config-video-card" id="config-card-${idx}">
-                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem;">${displayVideoTitle}</div>
-                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;">Archivo: ${vid.archivo || 'video.mp4'} | Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
+                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem; font-size:1.05rem;">${displayVideoTitle}</div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;"><strong>Objetivo:</strong> ${vid.objetivo || 'Análisis físico de laboratorio'}</div>
+                            
+                            <!-- REPRODUCTOR DE VIDEO PARA EL DOCENTE -->
+                            <div class="video-responsive" style="margin-bottom: 1rem;">
+                                <video controls preload="metadata">
+                                    <source src="${videoCloudinaryUrl}" type="video/mp4">
+                                    Su navegador no soporta la reproducción de video HTML5.
+                                </video>
+                            </div>
+
                             <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.5rem;">Preguntas configuradas (${preguntasList.length}):</div>
                             
                             <div id="q-list-container-${idx}">
@@ -1244,7 +1255,7 @@
                 db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
-                    grupo: currentStudent.group,
+                    grupo: currentStudent.grupo,
                     notaFinal: notaFinal,
                     aciertos: aciertos,
                     errores: errores
