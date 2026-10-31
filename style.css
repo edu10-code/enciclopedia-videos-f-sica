@@ -446,6 +446,74 @@ table.dashboard-table tr:hover { background: var(--panel-alt); }
 }
 .comment-item:last-child { border-bottom: none; }
 
+/* NUEVOS ESTILOS PARA LA EVALUACIÓN MODERNA DE LA PÁGINA WEB */
+.rating-stars-container {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.6rem 0 1.2rem 0;
+    justify-content: flex-start;
+}
+
+.star-btn {
+    background: var(--panel-alt);
+    border: 1px solid var(--border-strong);
+    font-size: 1.6rem;
+    cursor: pointer;
+    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-muted);
+}
+
+.star-btn:hover {
+    transform: translateY(-3px);
+    border-color: var(--highlight);
+}
+
+.star-btn.active {
+    color: #f59e0b;
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+.eval-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.6rem;
+    margin: 0.6rem 0 1.2rem 0;
+}
+
+.eval-option-chip {
+    background: var(--panel-alt);
+    border: 1px solid var(--border-soft);
+    color: var(--text-main);
+    padding: 0.8rem 0.9rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.eval-option-chip:hover {
+    border-color: var(--accent-student);
+    background: var(--panel-bg);
+}
+
+.eval-option-chip.selected {
+    border-color: var(--accent-student);
+    background: rgba(0, 255, 204, 0.12);
+    color: var(--accent-student);
+    box-shadow: 0 0 12px rgba(0, 255, 204, 0.15);
+}
+
 /* ADAPTABILIDAD MÓVIL (MOBILE-FRIENDLY) */
 @media (max-width: 768px) {
     header { padding: 0.8rem 1rem; }
@@ -464,6 +532,10 @@ table.dashboard-table tr:hover { background: var(--panel-alt); }
     
     .video-card { padding: 1.2rem; }
     .chapter-header-box { flex-direction: column; padding: 1.2rem; }
+    
+    .rating-stars-container { justify-content: space-between; }
+    .star-btn { width: 40px; height: 40px; font-size: 1.3rem; }
+    .eval-options-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media print {
