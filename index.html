@@ -465,7 +465,7 @@
             renderChapterSelectionCards();
         }
 
-        // PERMITE CREAR INFINITAS CLASES: Si la clase ya existe, valida la contraseña. Si no existe, la crea como nueva.
+        // VALIDACIÓN PARA CREAR INFINITAS CLASES O ACCEDER A UNA EXISTENTE CON SU CONTRASEÑA
         function goToTeacherConfig() {
             const name = document.getElementById('t-teachername').value.trim();
             const classname = document.getElementById('t-classname').value.trim();
@@ -495,7 +495,6 @@
                 const data = snapshot.val();
                 
                 if (data) {
-                    // La clase ya existe: validamos que la contraseña sea correcta para ingresar a verla
                     if (data.password !== pass) {
                         alert("La clase '" + classname + "' ya existe con otra contraseña. Ingrese la contraseña correcta para acceder.");
                         return;
@@ -503,7 +502,6 @@
                     selectedChapterId = parseInt(data.capituloId || 1);
                     customQuestionsStore = data.customQuestions || {};
                 } else {
-                    // La clase NO existe: se crea una nueva clase independiente en el sistema
                     customQuestionsStore = {};
                     db.ref('clase_activa/' + classname).set({
                         docente: name,
@@ -703,8 +701,6 @@
                 });
             }
 
-            alert("¡Clase ingresada al panel con éxito!");
-            
             document.getElementById('docente-info-banner').innerHTML = `
                 <strong>Clase:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
@@ -1024,7 +1020,16 @@
             });
         }
 
+        // VALIDACIÓN ESTRICTA: Las preguntas del cuestionario son obligatorias
         function proceedToPageEvaluation() {
+            for (let i = 0; i < activeQuestionsRendered.length; i++) {
+                let item = activeQuestionsRendered[i];
+                let container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
+                if (!container || !container.querySelector('.quiz-option-btn[data-selected="true"]')) {
+                    alert(`Falta responder una pregunta obligatoria en el Video ${item.videoIndex + 1} (Pregunta ${item.localPreguntaIndex + 1}). Debe responder todas para continuar.`);
+                    return;
+                }
+            }
             switchView('view-page-evaluation');
         }
 
