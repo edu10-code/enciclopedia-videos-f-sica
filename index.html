@@ -437,6 +437,7 @@
             return [];
         }
 
+        // FUNCIÓN MODIFICADA: Se ha obviado y omitido el texto de introducción o laboratorio para que la tarjeta sea limpia y compacta
         function renderChapterSelectionCards() {
             const container = document.getElementById('chapters-cards-container');
             if(!container) return;
@@ -451,7 +452,6 @@
                     <div class="chapter-icon-badge" style="background: ${ch.color || '#1e3a8a'};">${ch.icon || ch.id}</div>
                     <div class="chapter-card-info">
                         <div class="chapter-card-title">${ch.title}</div>
-                        <div class="chapter-card-desc">${ch.introLab || ch.objGeneral || ''}</div>
                     </div>
                     <div class="chapter-arrow">➔</div>
                 </div>
@@ -490,7 +490,6 @@
 
             classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
             
-            // Verificamos si la clase ya tiene preguntas personalizadas guardadas previamente
             db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const data = snapshot.val();
                 if(data && data.customQuestions) {
@@ -700,13 +699,11 @@
                 <strong>Sesión Activa:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
             
-            // Iniciamos la escucha de datos específicos de ESTA clase en tiempo real para 50+ estudiantes
             listenToClassroomRealtimeData(classroomConfig.classname);
 
             switchView('view-teacher-dashboard');
         }
 
-        // AISLAMIENTO DE DATOS: Cada clase escucha únicamente su propia ruta de alumnos y comentarios
         function listenToClassroomRealtimeData(classname) {
             const studentsRef = db.ref('alumnos_clase/' + classname);
             studentsRef.on('value', (snapshot) => {
@@ -723,13 +720,11 @@
 
                 let rowsHTML = '';
                 let index = 1;
-                let totalAciertosSuma = 0;
                 let totalAlumnosCount = 0;
 
                 for(let key in data) {
                     const st = data[key];
                     totalAlumnosCount++;
-                    totalAciertosSuma += (st.aciertos || 0);
 
                     rowsHTML += `
                         <tr>
@@ -811,7 +806,6 @@
             switchView('view-teacher-questions-viewer');
         }
 
-        // VALIDACIÓN DE ACCESO DE ESTUDIANTES CONTRA LA CLASE CREADA EN FIREBASE
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -839,7 +833,6 @@
                 return;
             }
 
-            // Consultamos a Firebase si la clase existe y la contraseña coincide
             db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const classData = snapshot.val();
 
@@ -1030,7 +1023,6 @@
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
                 
-                // GUARDADO AISLADO: Se almacena en la ruta específica de la clase del docente
                 db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
