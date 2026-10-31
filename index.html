@@ -78,8 +78,8 @@
         <div id="view-teacher-register" class="view">
             <div class="form-card">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
-                <h3>Registro o Acceso a Clase</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Cree una nueva clase ingresando un nombre único, o ingrese con los datos de su aula ya creada.</p>
+                <h3>Registro y Validación de Clase Independiente</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese el nombre del docente, un nombre de clase único y una contraseña de 6 dígitos. Cada aula maneja sus propios alumnos, notas y comentarios independientes.</p>
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Nombre del Docente <span class="req">*</span></label>
@@ -87,8 +87,8 @@
                     </div>
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
-                        <input type="text" id="t-classname" placeholder="Ej: Sol">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Nombre único para su aula (ej: Sol, Sal).</small>
+                        <input type="text" id="t-classname" placeholder="Ej: Sol (Único para tu aula)">
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Sin espacios ni caracteres especiales.</small>
                     </div>
                     <div class="form-field">
                         <label>Contraseña de la Clase <span class="req">*</span></label>
@@ -101,7 +101,7 @@
                         <div class="chapters-selection-list" id="chapters-cards-container"></div>
                     </div>
                 </div>
-                <button class="btn-action-teacher" onclick="goToTeacherConfig()">CONTINUAR A CONFIGURACIÓN ➔</button>
+                <button class="btn-action-teacher" onclick="goToTeacherConfig()">VALIDAR E INGRESAR AL PANEL ➔</button>
             </div>
         </div>
 
@@ -111,7 +111,7 @@
                 <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 0.8rem;">← Volver</button>
                 <div id="teacher-config-header-info"></div>
                 <div id="teacher-config-videos-container" style="margin-top: 1.2rem;"></div>
-                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">CREAR O ENTRAR A MI CLASE ➔</button>
+                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">ACTIVAR Y ABRIR CLASE ➔</button>
             </div>
         </div>
 
@@ -126,7 +126,7 @@
                 </div>
                 <div class="stat-card danger">
                     <div class="stat-card-title">⚠️ Estado de la Clase</div>
-                    <div class="stat-card-body" id="stat-least-correct">AULA ACTIVA</div>
+                    <div class="stat-card-body" id="stat-least-correct">Independiente & Segura</div>
                 </div>
             </div>
 
@@ -142,9 +142,10 @@
             </div>
 
             <div class="dashboard-header">
-                <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif; font-size:1.15rem;">Registro y Calificación de Alumnos</h3>
+                <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif; font-size:1.15rem;">Registro y Calificación de Alumnos de esta Aula</h3>
                 <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
                     <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#1e3a8a; color:#fff; border:none;">📋 Ver Preguntas</button>
+                    <button class="btn-secondary" onclick="openTeacherWebEvaluations()" style="background:#d97706; color:#fff; border:none;">📊 Ver Evaluaciones Web</button>
                     <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir PDF</button>
                 </div>
             </div>
@@ -168,7 +169,7 @@
             </div>
 
             <div class="comment-box-list">
-                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">Comentarios y Sugerencias Recibidas de Alumnos</h4>
+                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">Comentarios y Sugerencias Exclusivas de esta Clase</h4>
                 <div id="teacher-comments-container">
                     <p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios en esta clase.</p>
                 </div>
@@ -185,6 +186,21 @@
                 <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Consulte aquí el detalle de las preguntas asignadas a los videos de la clase.</p>
                 
                 <div id="teacher-viewer-content-container"></div>
+
+                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
+            </div>
+        </div>
+
+        <!-- VISTA DETALLADA DE EVALUACIONES WEB PARA EL DOCENTE -->
+        <div id="view-teacher-web-evaluations" class="view">
+            <div class="form-card" style="max-width: 850px;">
+                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 0.8rem;">← Volver al Panel</button>
+                <h3 style="color: var(--accent-teacher); font-family: Georgia, serif;">Evaluaciones Detalladas de la Página Web (Alumnos)</h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Detalle de las respuestas dadas por los estudiantes a las 4 preguntas de evaluación de la plataforma.</p>
+                
+                <div id="teacher-web-evals-container">
+                    <p style="color: var(--text-muted);">Cargando valoraciones de la plataforma...</p>
+                </div>
 
                 <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
             </div>
@@ -244,7 +260,7 @@
             </div>
         </div>
 
-        <!-- 7. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS (ACTUALIZADA) -->
+        <!-- 7. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
         <div id="view-page-evaluation" class="view">
             <div class="form-card" style="max-width: 750px;">
                 <button class="btn-secondary" onclick="switchView('view-student-workspace')" style="margin-bottom: 0.8rem;">← Volver al Cuestionario</button>
@@ -881,6 +897,35 @@
             switchView('view-teacher-questions-viewer');
         }
 
+        // FUNCIÓN PARA QUE EL DOCENTE VEA LAS EVALUACIONES WEB DETALLADAS DE SUS ALUMNOS
+        function openTeacherWebEvaluations() {
+            const container = document.getElementById('teacher-web-evals-container');
+            if(!container || !classroomConfig) return;
+
+            db.ref('evaluaciones_pagina/' + classroomConfig.classname).once('value', (snapshot) => {
+                const data = snapshot.val();
+                if(!data) {
+                    container.innerHTML = `<p style="color:var(--text-muted);">Aún no hay evaluaciones de la página web registradas en esta clase.</p>`;
+                    switchView('view-teacher-web-evaluations');
+                    return;
+                }
+
+                let html = '';
+                let index = 1;
+                for(let key in data) {
+                    const ev = data[key];
+                    html += `
+                        <div style="background:var(--panel-alt); border:1px solid var(--border-soft); border-radius:10px; padding:1rem; margin-bottom:1rem;">
+                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.3rem;">#${index++} - Alumno: ${ev.estudiante || 'Anónimo'}</div>
+                            <div style="font-size:0.88rem; color:var(--accent-student); font-weight:700;">Promedio Evaluado: ${ev.promedioAlumno || '0.0'} / 6.0</div>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+                switchView('view-teacher-web-evaluations');
+            });
+        }
+
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -1149,8 +1194,7 @@
             const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
             
             // Cálculo del promedio general de las 4 métricas
-            const normalizedStars = (studentEvalData.stars / 6) * 5;
-            const promedioAlumnoEval = ((normalizedStars + studentEvalData.q2 + studentEvalData.q3 + studentEvalData.q4) / 4).toFixed(1);
+            const promedioAlumnoEval = ((studentEvalData.stars + studentEvalData.q2 + studentEvalData.q3 + studentEvalData.q4) / 4).toFixed(1);
 
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
@@ -1158,7 +1202,7 @@
                 db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
-                    grupo: currentStudent.grupo,
+                    grupo: currentStudent.group,
                     notaFinal: notaFinal,
                     aciertos: aciertos,
                     errores: errores
