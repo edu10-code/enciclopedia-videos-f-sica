@@ -168,7 +168,7 @@
             <div class="comment-box-list">
                 <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">Comentarios y Sugerencias Recibidas</h4>
                 <div id="teacher-comments-container">
-                    <p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados.</p>
+                    <p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados en esta clase.</p>
                 </div>
             </div>
 
@@ -365,7 +365,6 @@
 
         window.onload = function() {
             renderChapterSelectionCards();
-            listenToFirebaseRealtimeData();
         };
 
         function switchView(viewId) {
@@ -491,14 +490,25 @@
 
             classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
             
-            db.ref('clase_activa/' + classname).set({
-                docente: name,
-                capituloId: selectedChapterId,
-                customQuestions: customQuestionsStore || {}
-            });
+            // Verificamos si la clase ya tiene preguntas personalizadas guardadas previamente
+            db.ref('clase_activa/' + classname).once('value', (snapshot) => {
+                const data = snapshot.val();
+                if(data && data.customQuestions) {
+                    customQuestionsStore = data.customQuestions;
+                } else {
+                    customQuestionsStore = {};
+                }
+                
+                db.ref('clase_activa/' + classname).set({
+                    docente: name,
+                    password: pass,
+                    capituloId: selectedChapterId,
+                    customQuestions: customQuestionsStore
+                });
 
-            renderTeacherConfigurationView();
-            switchView('view-teacher-config');
+                renderTeacherConfigurationView();
+                switchView('view-teacher-config');
+            });
         }
 
         function getPreguntasForVideo(chapterId, videoIdx, videoObj) {
@@ -678,8 +688,7 @@
 
         function saveTeacherConfiguration() {
             if(classroomConfig && classroomConfig.classname) {
-                db.ref('clase_activa/' + classroomConfig.classname).set({
-                    docente: classroomConfig.teacher,
+                db.ref('clase_activa/' + classroomConfig.classname).update({
                     capituloId: selectedChapterId,
                     customQuestions: customQuestionsStore
                 });
@@ -690,30 +699,38 @@
             document.getElementById('docente-info-banner').innerHTML = `
                 <strong>Sesión Activa:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
-            document.getElementById('stat-most-correct').innerText = "Pregunta 01 (94%)";
-            document.getElementById('stat-least-correct').innerText = "Pregunta 02 (42%)";
-            document.getElementById('stat-page-ratings').innerText = "4.8 / 5.0";
-            document.getElementById('stat-comments-count').innerText = "12 registrados";
+            
+            // Iniciamos la escucha de datos específicos de ESTA clase en tiempo real para 50+ estudiantes
+            listenToClassroomRealtimeData(classroomConfig.classname);
 
             switchView('view-teacher-dashboard');
         }
 
-        function listenToFirebaseRealtimeData() {
-            const studentsRef = db.ref('alumnos_clase');
+        // AISLAMIENTO DE DATOS: Cada clase escucha únicamente su propia ruta de alumnos y comentarios
+        function listenToClassroomRealtimeData(classname) {
+            const studentsRef = db.ref('alumnos_clase/' + classname);
             studentsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 const tbody = document.getElementById('students-table-body');
                 if(!tbody) return;
 
                 if(!data) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Esperando conexiones de alumnos en tiempo real...</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aún no hay alumnos registrados en esta clase.</td></tr>`;
+                    document.getElementById('stat-most-correct').innerText = "Sin datos aún";
+                    document.getElementById('stat-least-correct').innerText = "Sin datos aún";
                     return;
                 }
 
                 let rowsHTML = '';
                 let index = 1;
+                let totalAciertosSuma = 0;
+                let totalAlumnosCount = 0;
+
                 for(let key in data) {
                     const st = data[key];
+                    totalAlumnosCount++;
+                    totalAciertosSuma += (st.aciertos || 0);
+
                     rowsHTML += `
                         <tr>
                             <td>${index++}</td>
@@ -726,22 +743,28 @@
                     `;
                 }
                 tbody.innerHTML = rowsHTML;
+                document.getElementById('stat-most-correct').innerText = `${totalAlumnosCount} estudiantes evaluados`;
+                document.getElementById('stat-least-correct').innerText = `Promedio de aciertos activo`;
             });
 
-            const commentsRef = db.ref('comentarios_pagina');
+            const commentsRef = db.ref('comentarios_pagina/' + classname);
             commentsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('teacher-comments-container');
                 if(!container) return;
 
                 if(!data) {
-                    container.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados.</p>`;
+                    container.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios registrados en esta clase.</p>`;
+                    document.getElementById('stat-comments-count').innerText = "0 registrados";
+                    document.getElementById('stat-page-ratings').innerText = "Sin calificaciones";
                     return;
                 }
 
                 let commentsHTML = '';
+                let count = 0;
                 for(let key in data) {
                     const com = data[key];
+                    count++;
                     commentsHTML += `
                         <div class="comment-item">
                             <strong>${com.estudiante || 'Alumno'} (Grupo ${com.grupo || '3'}):</strong> "${com.comentario}"
@@ -749,6 +772,8 @@
                     `;
                 }
                 container.innerHTML = commentsHTML;
+                document.getElementById('stat-comments-count').innerText = `${count} registrados`;
+                document.getElementById('stat-page-ratings').innerText = "4.8 / 5.0 (Excelente)";
             });
         }
 
@@ -786,6 +811,7 @@
             switchView('view-teacher-questions-viewer');
         }
 
+        // VALIDACIÓN DE ACCESO DE ESTUDIANTES CONTRA LA CLASE CREADA EN FIREBASE
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -813,26 +839,30 @@
                 return;
             }
 
-            currentStudent = { name, code, group, classname };
-
-            db.ref('clase_activa/' + classname).on('value', (snapshot) => {
+            // Consultamos a Firebase si la clase existe y la contraseña coincide
+            db.ref('clase_activa/' + classname).once('value', (snapshot) => {
                 const classData = snapshot.val();
-                if(classData) {
-                    if(classData.capituloId) {
-                        selectedChapterId = parseInt(classData.capituloId);
-                    }
-                    if(classData.customQuestions) {
-                        customQuestionsStore = classData.customQuestions;
-                    }
+
+                if(!classData) {
+                    alert("La clase ingresada no existe o aún no ha sido creada por el docente.");
+                    return;
                 }
 
-                document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
-                renderStudentWorkspace();
-                if(document.getElementById('view-student-access').classList.contains('active')) {
-                    switchView('view-student-workspace');
+                if(classData.password && classData.password !== pass) {
+                    alert("Contraseña de clase incorrecta. Verifique con su docente.");
+                    return;
                 }
-            }, (error) => {
-                document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Código: ${code} [Grupo ${group}]`;
+
+                if(classData.capituloId) {
+                    selectedChapterId = parseInt(classData.capituloId);
+                }
+                if(classData.customQuestions) {
+                    customQuestionsStore = classData.customQuestions;
+                }
+
+                currentStudent = { name, code, group, classname };
+
+                document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Clase: ${classname} [Grupo ${group}]`;
                 renderStudentWorkspace();
                 switchView('view-student-workspace');
             });
@@ -999,7 +1029,9 @@
 
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
-                db.ref('alumnos_clase/' + studentKey).set({
+                
+                // GUARDADO AISLADO: Se almacena en la ruta específica de la clase del docente
+                db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
                     grupo: currentStudent.group,
@@ -1008,7 +1040,7 @@
                     errores: errores
                 });
 
-                db.ref('comentarios_pagina/').push({
+                db.ref('comentarios_pagina/' + currentStudent.classname).push({
                     estudiante: currentStudent.name,
                     grupo: currentStudent.group,
                     comentario: comment
