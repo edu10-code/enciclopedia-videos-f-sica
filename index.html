@@ -78,17 +78,17 @@
         <div id="view-teacher-register" class="view">
             <div class="form-card">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
-                <h3>Registro de Clase y Selección de Capítulo</h3>
+                <h3>Registro o Acceso a Clase</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Cree una nueva clase ingresando un nombre único, o ingrese con los datos de su aula ya creada.</p>
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Nombre del Docente <span class="req">*</span></label>
                         <input type="text" id="t-teachername" placeholder="Ej: Dr. Juan Pérez">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Debe coincidir exactamente con el registrado en la clase.</small>
                     </div>
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
-                        <input type="text" id="t-classname" placeholder="Ej: Newton">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Ej: Newton (sin espacios).</small>
+                        <input type="text" id="t-classname" placeholder="Ej: Sol">
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Nombre único para su aula (ej: Sol, Sal).</small>
                     </div>
                     <div class="form-field">
                         <label>Contraseña de la Clase <span class="req">*</span></label>
@@ -101,7 +101,7 @@
                         <div class="chapters-selection-list" id="chapters-cards-container"></div>
                     </div>
                 </div>
-                <button class="btn-action-teacher" onclick="goToTeacherConfig()">VALIDAR E INGRESAR AL PANEL ➔</button>
+                <button class="btn-action-teacher" onclick="goToTeacherConfig()">CONTINUAR A CONFIGURACIÓN ➔</button>
             </div>
         </div>
 
@@ -111,7 +111,7 @@
                 <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 0.8rem;">← Volver</button>
                 <div id="teacher-config-header-info"></div>
                 <div id="teacher-config-videos-container" style="margin-top: 1.2rem;"></div>
-                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">GUARDAR E INICIAR CLASE ➔</button>
+                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">CREAR O ENTRAR A MI CLASE ➔</button>
             </div>
         </div>
 
@@ -126,7 +126,7 @@
                 </div>
                 <div class="stat-card danger">
                     <div class="stat-card-title">⚠️ Estado de la Clase</div>
-                    <div class="stat-card-body" id="stat-least-correct">Verificado (3 factores coincidentes)</div>
+                    <div class="stat-card-body" id="stat-least-correct">AULA ACTIVA</div>
                 </div>
             </div>
 
@@ -201,12 +201,10 @@
                     <div class="form-field full">
                         <label>Apellidos y Nombres <span class="req">*</span></label>
                         <input type="text" id="s-name" placeholder="Ej: Quispe Mendoza, Carlos Alberto">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Mínimo un apellido y un nombre.</small>
                     </div>
                     <div class="form-field">
                         <label>Código de Matrícula <span class="req">*</span></label>
                         <input type="text" id="s-code" placeholder="Ej: 20130026" maxlength="8">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 8 dígitos.</small>
                     </div>
                     <div class="form-field">
                         <label>Grupo / Sección <span class="req">*</span></label>
@@ -220,13 +218,11 @@
                     </div>
                     <div class="form-field">
                         <label>Nombre de la Clase <span class="req">*</span></label>
-                        <input type="text" id="s-classname" placeholder="Ej: Newton">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">Debe coincidir con la clase.</small>
+                        <input type="text" id="s-classname" placeholder="Ej: Sol">
                     </div>
                     <div class="form-field">
                         <label>Contraseña <span class="req">*</span></label>
                         <input type="password" id="s-pass" placeholder="6 dígitos" maxlength="6">
-                        <small style="color:var(--text-muted); font-size:0.75rem;">6 dígitos numéricos.</small>
                     </div>
                 </div>
                 <button class="btn-action-student" onclick="studentEnter()">INGRESAR A LA CLASE ➔</button>
@@ -368,7 +364,6 @@
             }
         })();
 
-        // AL ACTUALIZAR LA PÁGINA, SE LIMPIA LA SESIÓN AUTOMÁTICA PARA EXIGIR LOS 3 FACTORES DE NUEVO
         window.onload = function() {
             renderChapterSelectionCards();
             localStorage.removeItem('activeTeacherClass');
@@ -470,7 +465,7 @@
             renderChapterSelectionCards();
         }
 
-        // VALIDACIÓN ESTRICTA DE LOS 3 FACTORES (Nombre Docente + Nombre Clase + Contraseña)
+        // PERMITE CREAR INFINITAS CLASES: Si la clase ya existe, valida la contraseña. Si no existe, la crea como nueva.
         function goToTeacherConfig() {
             const name = document.getElementById('t-teachername').value.trim();
             const classname = document.getElementById('t-classname').value.trim();
@@ -500,15 +495,15 @@
                 const data = snapshot.val();
                 
                 if (data) {
-                    // Si la clase ya existe, verificamos estrictamente que COINCIDAN LOS 3 ASPECTOS
-                    if (data.docente !== name || data.password !== pass) {
-                        alert("Acceso denegado: El nombre del docente, el nombre de la clase o la contraseña no coinciden con los registros originales de este aula.");
+                    // La clase ya existe: validamos que la contraseña sea correcta para ingresar a verla
+                    if (data.password !== pass) {
+                        alert("La clase '" + classname + "' ya existe con otra contraseña. Ingrese la contraseña correcta para acceder.");
                         return;
                     }
                     selectedChapterId = parseInt(data.capituloId || 1);
                     customQuestionsStore = data.customQuestions || {};
                 } else {
-                    // Si es clase nueva, se crea con los datos actuales
+                    // La clase NO existe: se crea una nueva clase independiente en el sistema
                     customQuestionsStore = {};
                     db.ref('clase_activa/' + classname).set({
                         docente: name,
@@ -582,7 +577,7 @@
             if(headerInfo && chapterData) {
                 headerInfo.innerHTML = `
                     <div style="background: var(--panel-alt); border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1rem; border-radius: 8px; margin-bottom: 1.2rem;">
-                        <h4 style="margin:0 0 0.4rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">Configurando: ${chapterData.title}</h4>
+                        <h4 style="margin:0 0 0.4rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">Configurando Clase: ${classroomConfig.classname} (${chapterData.title})</h4>
                         <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">${chapterData.introLab || chapterData.objGeneral}</p>
                     </div>
                 `;
@@ -702,15 +697,16 @@
         function saveTeacherConfiguration() {
             if(classroomConfig && classroomConfig.classname) {
                 db.ref('clase_activa/' + classroomConfig.classname).update({
+                    docente: classroomConfig.teacher,
                     capituloId: selectedChapterId,
                     customQuestions: customQuestionsStore
                 });
             }
 
-            alert("¡Clase verificada y panel activado correctamente!");
+            alert("¡Clase ingresada al panel con éxito!");
             
             document.getElementById('docente-info-banner').innerHTML = `
-                <strong>Sesión Activa:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
+                <strong>Clase:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
             
             listenToClassroomRealtimeData(classroomConfig.classname);
@@ -751,7 +747,7 @@
                 if(!data) {
                     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aún no hay alumnos registrados en esta clase.</td></tr>`;
                     document.getElementById('stat-most-correct').innerText = "0 alumnos";
-                    document.getElementById('stat-least-correct').innerText = "Verificado (3 factores coincidentes)";
+                    document.getElementById('stat-least-correct').innerText = "AULA ACTIVA";
                     return;
                 }
 
@@ -776,7 +772,7 @@
                 }
                 tbody.innerHTML = rowsHTML;
                 document.getElementById('stat-most-correct').innerText = `${totalAlumnosCount} estudiantes registrados`;
-                document.getElementById('stat-least-correct').innerText = "Verificado (3 factores coincidentes)";
+                document.getElementById('stat-least-correct').innerText = "AULA ACTIVA";
             });
 
             activeCommentsListener = db.ref('comentarios_pagina/' + classname);
