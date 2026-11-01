@@ -337,15 +337,15 @@
     <script src="pregunta.js"></script>
 
     <script>
-        // Configuración de Firebase
+        // Configuración de Firebase (proyecto: cuestionario-fisica)
         const firebaseConfig = {
-            apiKey: "AIzaSyDGh2mQiNkVyv5E15v7LqK8bQ39c5mZ8v4",
+            apiKey: "AIzaSyApqBY-578PAqvxUhgjq_Q5VXbvOAKb7Is",
             authDomain: "cuestionario-fisica.firebaseapp.com",
             databaseURL: "https://cuestionario-fisica-default-rtdb.firebaseio.com",
             projectId: "cuestionario-fisica",
-            storageBucket: "cuestionario-fisica.appspot.com",
-            messagingSenderId: "658717387773",
-            appId: "1:658717387773:web:3f16395e3ac000c8e28794"
+            storageBucket: "cuestionario-fisica.firebasestorage.app",
+            messagingSenderId: "71766642331",
+            appId: "1:71766642331:web:6436ce94084449b840003e"
         };
 
         if (!firebase.apps.length) {
@@ -372,6 +372,24 @@
         let activeStudentsListener = null;
         let activeCommentsListener = null;
         let activeEvaluationsListener = null;
+
+        // Dirección base de los videos en Cloudinary (se puede sobrescribir con CLOUDINARY_BASE_URL en videos.js)
+        const CLOUDINARY_DEFAULT_BASE = "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/";
+
+        function getVideoUrl(vid) {
+            const base = (typeof CLOUDINARY_BASE_URL !== 'undefined' && CLOUDINARY_BASE_URL) ? CLOUDINARY_BASE_URL : CLOUDINARY_DEFAULT_BASE;
+            return base + encodeURI(vid.archivo || `${vid.id}.mp4`);
+        }
+
+        // Evita que textos escritos por alumnos o docentes se interpreten como código HTML
+        function escapeHTML(value) {
+            return String(value === undefined || value === null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
 
         // MODO CLARO / OSCURO
         function toggleTheme() {
@@ -526,11 +544,11 @@
             }
 
             if(!/^[a-zA-Z0-9_-]{3,20}$/.test(classname)) {
-                alert("El nombre de la clase debe ser adecuado y sin espacios.");
+                alert("El nombre de la clase debe tener entre 3 y 20 caracteres, sin espacios ni símbolos (solo letras, números, guion y guion bajo).");
                 return;
             }
 
-            db.ref('clase_activa/' + classname).once('value', (snapshot) => {
+            db.ref('clase_activa/' + classname).once('value').then((snapshot) => {
                 const data = snapshot.val();
                 
                 if (data) {
@@ -547,12 +565,16 @@
                         password: pass,
                         capituloId: selectedChapterId,
                         customQuestions: customQuestionsStore
+                    }).catch((err) => {
+                        alert("No se pudo crear la clase en Firebase: " + err.message);
                     });
                 }
 
                 classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
                 renderTeacherConfigurationView();
                 switchView('view-teacher-config');
+            }).catch((err) => {
+                alert("No se pudo conectar con Firebase: " + err.message);
             });
         }
 
@@ -614,7 +636,7 @@
             if(headerInfo && chapterData) {
                 headerInfo.innerHTML = `
                     <div style="background: var(--panel-alt); border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1rem; border-radius: 8px; margin-bottom: 1.2rem;">
-                        <h4 style="margin:0 0 0.4rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">Configurando Clase: ${classroomConfig.classname} (${chapterData.title})</h4>
+                        <h4 style="margin:0 0 0.4rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">Configurando Clase: ${escapeHTML(classroomConfig.classname)} (${chapterData.title})</h4>
                         <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">${chapterData.introLab || chapterData.objGeneral}</p>
                     </div>
                 `;
@@ -625,7 +647,7 @@
                     const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
                     const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
                     const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
-                    const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + (vid.archivo || `${vid.id}.mp4`);
+                    const videoCloudinaryUrl = getVideoUrl(vid);
 
                     return `
                         <div class="teacher-config-video-card" id="config-card-${idx}">
@@ -719,6 +741,8 @@
 
             if(!customQuestionsStore[chapterId]) customQuestionsStore[chapterId] = {};
             if(!customQuestionsStore[chapterId][videoIdx]) customQuestionsStore[chapterId][videoIdx] = { adicionales: [], reemplazos: {} };
+            if(!customQuestionsStore[chapterId][videoIdx].adicionales) customQuestionsStore[chapterId][videoIdx].adicionales = [];
+            if(!customQuestionsStore[chapterId][videoIdx].reemplazos) customQuestionsStore[chapterId][videoIdx].reemplazos = {};
 
             const newQObj = { pregunta: qText, opciones: opts, correcta: correcta, explicacion: "Pregunta sugerida y personalizada por el docente." };
 
@@ -734,6 +758,8 @@
             if(classroomConfig && classroomConfig.classname) {
                 db.ref('clase_activa/' + classroomConfig.classname).update({
                     customQuestions: customQuestionsStore
+                }).catch((err) => {
+                    alert("No se pudo guardar la pregunta en Firebase: " + err.message);
                 });
             }
 
@@ -746,11 +772,13 @@
                     docente: classroomConfig.teacher,
                     capituloId: selectedChapterId,
                     customQuestions: customQuestionsStore
+                }).catch((err) => {
+                    alert("No se pudo guardar la configuración en Firebase: " + err.message);
                 });
             }
 
             document.getElementById('docente-info-banner').innerHTML = `
-                <strong>Clase:</strong> ${classroomConfig.classname} | <strong>Docente:</strong> ${classroomConfig.teacher} | <strong>Capítulo:</strong> ${selectedChapterId}
+                <strong>Clase:</strong> ${escapeHTML(classroomConfig.classname)} | <strong>Docente:</strong> ${escapeHTML(classroomConfig.teacher)} | <strong>Capítulo:</strong> ${selectedChapterId}
             `;
             
             listenToClassroomRealtimeData(classroomConfig.classname);
@@ -766,10 +794,20 @@
             switchView('view-role-selection');
         }
 
+        // Limpia el formulario de evaluación de la página para el siguiente alumno
+        function resetWebEvaluationForm() {
+            studentEvalData = { stars: 0, q2: 0, q3: 0, q4: 0 };
+            document.querySelectorAll('#star-rating-group .star-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.eval-option-chip').forEach(c => c.classList.remove('selected'));
+            const commentField = document.getElementById('eval-comment');
+            if (commentField) commentField.value = '';
+        }
+
         function logoutStudent() {
             localStorage.removeItem('activeStudentData');
             currentStudent = null;
             studentAnswersMap = {};
+            resetWebEvaluationForm();
             switchView('view-role-selection');
         }
 
@@ -798,28 +836,28 @@
                     return;
                 }
 
+                // Ordena por nota (de mayor a menor) para que el "Puesto" sea real
+                const lista = Object.keys(data).map(k => data[k]);
+                lista.sort((a, b) => (parseFloat(b.notaFinal) || 0) - (parseFloat(a.notaFinal) || 0));
+
                 let rowsHTML = '';
-                let index = 1;
-                let totalAlumnosCount = 0;
-
-                for(let key in data) {
-                    const st = data[key];
-                    totalAlumnosCount++;
-
+                lista.forEach((st, i) => {
                     rowsHTML += `
                         <tr>
-                            <td>${index++}</td>
-                            <td>${st.nombre || 'Sin nombre'}</td>
-                            <td>${st.codigo || '---'}</td>
-                            <td>Grupo ${st.grupo || '1'}</td>
-                            <td><strong>${st.notaFinal || '0.0'}</strong></td>
-                            <td>${st.aciertos || 0} aciertos / ${st.errores || 0} errores</td>
+                            <td>${i + 1}</td>
+                            <td>${escapeHTML(st.nombre || 'Sin nombre')}</td>
+                            <td>${escapeHTML(st.codigo || '---')}</td>
+                            <td>Grupo ${escapeHTML(st.grupo || '1')}</td>
+                            <td><strong>${escapeHTML(st.notaFinal || '0.0')}</strong></td>
+                            <td>${escapeHTML(st.aciertos || 0)} aciertos / ${escapeHTML(st.errores || 0)} errores</td>
                         </tr>
                     `;
-                }
+                });
                 tbody.innerHTML = rowsHTML;
-                document.getElementById('stat-most-correct').innerText = `${totalAlumnosCount} estudiantes registrados`;
+                document.getElementById('stat-most-correct').innerText = `${lista.length} estudiantes registrados`;
                 document.getElementById('stat-least-correct').innerText = "AULA ACTIVA";
+            }, (err) => {
+                if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">No se pudo leer la base de datos: ${escapeHTML(err.message)}</td></tr>`;
             });
 
             activeCommentsListener = db.ref('comentarios_pagina/' + classname);
@@ -840,7 +878,7 @@
                     count++;
                     commentsHTML += `
                         <div class="comment-item">
-                            <strong>${com.estudiante || 'Alumno'} (Grupo ${com.grupo || '3'}):</strong> "${com.comentario}"
+                            <strong>${escapeHTML(com.estudiante || 'Alumno')} (Grupo ${escapeHTML(com.grupo || '3')}):</strong> "${escapeHTML(com.comentario)}"
                         </div>
                     `;
                 }
@@ -892,7 +930,7 @@
                     const labelsQ3 = { 1: "Mala", 2: "Baja calidad", 3: "Aceptable", 4: "Buena", 5: "Excelente" };
                     const labelsQ4 = { 1: "Deficiente", 2: "Bajo", 3: "Regulares", 4: "Buenos", 5: "Muy didácticos" };
 
-                    function renderQuestionBlock(title, countsObj, labelMap, isStars = false) {
+                    const renderQuestionBlock = function(title, countsObj, labelMap, isStars) {
                         let html = `
                             <div style="background:var(--panel-alt); border:1px solid var(--border-soft); border-radius:10px; padding:1rem; margin-bottom:1rem;">
                                 <h5 style="margin:0 0 0.8rem 0; color:var(--accent-teacher); font-size:0.92rem;">${title}</h5>
@@ -916,13 +954,13 @@
                         }
                         html += `</div>`;
                         return html;
-                    }
+                    };
 
                     let evalSummaryHTML = `<p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Total de evaluaciones web procesadas: <strong>${totalAlumnos} estudiante(s)</strong></p>`;
                     evalSummaryHTML += renderQuestionBlock("1. Impresión General de la Página Web (Estrellas 1 a 6)", starsCount, {}, true);
-                    evalSummaryHTML += renderQuestionBlock("2. ¿Qué tan útil y clara fue la interfaz para su aprendizaje?", q2Count, labelsQ2);
-                    evalSummaryHTML += renderQuestionBlock("3. ¿Cómo califica la calidad y nitidez de los videos demostrativos?", q3Count, labelsQ3);
-                    evalSummaryHTML += renderQuestionBlock("4. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación?", q4Count, labelsQ4);
+                    evalSummaryHTML += renderQuestionBlock("2. ¿Qué tan útil y clara fue la interfaz para su aprendizaje?", q2Count, labelsQ2, false);
+                    evalSummaryHTML += renderQuestionBlock("3. ¿Cómo califica la calidad y nitidez de los videos demostrativos?", q3Count, labelsQ3, false);
+                    evalSummaryHTML += renderQuestionBlock("4. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación?", q4Count, labelsQ4, false);
 
                     webEvalsContainer.innerHTML = evalSummaryHTML;
                 }
@@ -990,7 +1028,12 @@
                 return;
             }
 
-            db.ref('clase_activa/' + classname).once('value', (snapshot) => {
+            if(!/^[a-zA-Z0-9_-]{3,20}$/.test(classname)) {
+                alert("El nombre de la clase no es válido. Use solo letras, números, guion o guion bajo, sin espacios.");
+                return;
+            }
+
+            db.ref('clase_activa/' + classname).once('value').then((snapshot) => {
                 const classData = snapshot.val();
 
                 if(!classData) {
@@ -1021,11 +1064,15 @@
                     notaFinal: "0.0 (En progreso)",
                     aciertos: 0,
                     errores: 0
+                }).catch((err) => {
+                    console.error("No se pudo registrar al alumno en Firebase:", err);
                 });
 
                 document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Clase: ${classname} [Grupo ${group}]`;
                 renderStudentWorkspace();
                 switchView('view-student-workspace');
+            }).catch((err) => {
+                alert("No se pudo conectar con Firebase: " + err.message);
             });
         }
 
@@ -1057,12 +1104,12 @@
                 container.innerHTML = chapterVideos.map((vid, vIdx) => {
                     const preguntasList = getPreguntasForVideo(selectedChapterId, vIdx, vid);
                     const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
-                    const cleanVideoTitle = `Video ${vIdx + 1}: ${cleanTitle}`;
+                    const tituloVideo = `Video ${vIdx + 1}: ${cleanTitle}`;
 
                     preguntasList.forEach((p, pIdx) => {
                         activeQuestionsRendered.push({
                             videoIndex: vIdx,
-                            videoTitle: cleanVideoTitle,
+                            videoTitle: tituloVideo,
                             localPreguntaIndex: pIdx,
                             correcta: parseInt(p.correcta),
                             opciones: p.opciones || [],
@@ -1071,11 +1118,11 @@
                         });
                     });
 
-                    const videoCloudinaryUrl = (typeof CLOUDINARY_BASE_URL !== 'undefined' ? CLOUDINARY_BASE_URL : "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/") + (vid.archivo || `${vid.id}.mp4`);
+                    const videoCloudinaryUrl = getVideoUrl(vid);
 
                     return `
                         <div class="video-card">
-                            <div class="video-title-bar">${cleanVideoTitle}</div>
+                            <div class="video-title-bar">${tituloVideo}</div>
                             <div class="video-theme-bar">Demostración oficial UNMSM</div>
                             
                             <div class="video-responsive">
@@ -1130,6 +1177,14 @@
                     btn.classList.remove('selected');
                 }
             });
+        }
+
+        // Muestra en la pantalla de notas si la nota quedó guardada o no
+        function setSaveStatus(ok, message) {
+            const statusEl = document.getElementById('save-status');
+            if (!statusEl) return;
+            statusEl.textContent = message;
+            statusEl.style.color = ok ? '#10b981' : '#f43f5e';
         }
 
         // EVALUACIÓN ROBUSTA Y MUESTRA DIRECTA DE RESULTADOS / NOTAS
@@ -1207,26 +1262,14 @@
             const totalPreguntas = activeQuestionsRendered.length || 1;
             const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
 
-            if(currentStudent) {
-                const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
-                
-                // Conexión directa a Firebase para actualizar la nota del alumno en la lista del docente
-                db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).update({
-                    nombre: currentStudent.name,
-                    codigo: currentStudent.code,
-                    grupo: currentStudent.grupo,
-                    notaFinal: notaFinal,
-                    aciertos: aciertos,
-                    errores: errores
-                });
-            }
-
+            // 1) PRIMERO se muestra la nota y la retroalimentación (nada puede bloquear esto)
             const feedbackHeaderElem = document.getElementById('feedback-header-box');
             if(feedbackHeaderElem) {
                 feedbackHeaderElem.innerHTML = `
-                    <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.3rem;">¡Cuestionario Completado, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
+                    <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.3rem;">¡Cuestionario Completado, ${escapeHTML(currentStudent ? currentStudent.name : 'alumno')}!</h2>
                     <div style="font-size:1.35rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
                     <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
+                    <div id="save-status" style="font-size:0.8rem; margin-top:0.6rem; color:var(--text-muted);">Guardando tu nota...</div>
                 `;
             }
 
@@ -1238,8 +1281,30 @@
                 `;
             }
 
-            // Muestra inmediatamente la pantalla de Feedback
             switchView('view-student-feedback');
+
+            // 2) DESPUÉS se guarda la nota en Firebase para que la vea el docente
+            if(currentStudent) {
+                try {
+                    const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
+                    db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).update({
+                        nombre: currentStudent.name,
+                        codigo: currentStudent.code,
+                        grupo: currentStudent.group,
+                        notaFinal: notaFinal,
+                        aciertos: aciertos,
+                        errores: errores
+                    }).then(() => {
+                        setSaveStatus(true, '✓ Tu nota fue guardada y ya la puede ver tu docente.');
+                    }).catch((err) => {
+                        console.error("No se pudo guardar la nota en Firebase:", err);
+                        setSaveStatus(false, '⚠ No se pudo guardar tu nota: ' + err.message);
+                    });
+                } catch (err) {
+                    console.error("No se pudo guardar la nota en Firebase:", err);
+                    setSaveStatus(false, '⚠ No se pudo guardar tu nota: ' + err.message);
+                }
+            }
         }
 
         function selectStarRating(rating) {
@@ -1284,20 +1349,26 @@
             const promedioAlumnoEval = ((studentEvalData.stars + studentEvalData.q2 + studentEvalData.q3 + studentEvalData.q4) / 4).toFixed(1);
 
             if(currentStudent) {
-                db.ref('comentarios_pagina/' + currentStudent.classname).push({
-                    estudiante: currentStudent.name,
-                    grupo: currentStudent.group,
-                    comentario: comment
-                });
+                try {
+                    db.ref('comentarios_pagina/' + currentStudent.classname).push({
+                        estudiante: currentStudent.name,
+                        grupo: currentStudent.group,
+                        comentario: comment
+                    });
 
-                db.ref('evaluaciones_pagina/' + currentStudent.classname).push({
-                    estudiante: currentStudent.name,
-                    stars: studentEvalData.stars,
-                    q2: studentEvalData.q2,
-                    q3: studentEvalData.q3,
-                    q4: studentEvalData.q4,
-                    promedioAlumno: promedioAlumnoEval
-                });
+                    db.ref('evaluaciones_pagina/' + currentStudent.classname).push({
+                        estudiante: currentStudent.name,
+                        stars: studentEvalData.stars,
+                        q2: studentEvalData.q2,
+                        q3: studentEvalData.q3,
+                        q4: studentEvalData.q4,
+                        promedioAlumno: promedioAlumnoEval
+                    });
+                } catch (err) {
+                    console.error("No se pudo enviar la evaluación:", err);
+                    alert("No se pudo enviar la evaluación: " + err.message);
+                    return;
+                }
             }
 
             alert("¡Evaluación de la página web enviada con éxito! Gracias por su participación.");
