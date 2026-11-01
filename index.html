@@ -17,8 +17,8 @@
         <div class="header-content">
             <div class="header-left-group">
                 <!-- LOGOTIPO DE PERROVACA -->
-                <div class="header-logo-placeholder" style="overflow: hidden; padding: 0; border-radius: 10px;">
-                    <img src="perrovaca.jpg" alt="Logo Perrovaca" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="header-logo-placeholder">
+                    <img src="perrovaca.jpg" alt="Logo Perrovaca">
                 </div>
                 <div class="header-text">
                     <div class="header-instituciones">UNMSM · Facultad de Ciencias Físicas</div>
@@ -130,11 +130,11 @@
             </div>
 
             <div class="teacher-stats-grid" style="margin-bottom: 1.2rem;">
-                <div class="stat-card" style="border-left-color: #f59e0b;">
+                <div class="stat-card" style="border-left-color: #fbbf24;">
                     <div class="stat-card-title">📊 Calificación Promedio de la Página</div>
                     <div class="stat-card-body" id="stat-page-ratings">Sin valoraciones aún</div>
                 </div>
-                <div class="stat-card" style="border-left-color: #059669;">
+                <div class="stat-card" style="border-left-color: #10b981;">
                     <div class="stat-card-title">💬 Comentarios de esta Clase</div>
                     <div class="stat-card-body" id="stat-comments-count">0 comentarios</div>
                 </div>
@@ -143,9 +143,9 @@
             <div class="dashboard-header">
                 <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif; font-size:1.15rem;">Registro y Calificación de Alumnos de esta Aula</h3>
                 <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
-                    <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#1e3a8a; color:#fff; border:none;">📋 Ver Preguntas</button>
+                    <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#6366f1; color:#fff; border:none;">📋 Ver Preguntas</button>
                     <button class="btn-secondary" onclick="openTeacherWebEvaluations()" style="background:#d97706; color:#fff; border:none;">📊 Ver Evaluaciones Web</button>
-                    <button class="btn-secondary" onclick="window.print()" style="background:#059669; color:#fff; border:none;">🖨️ Imprimir PDF</button>
+                    <button class="btn-secondary" onclick="window.print()" style="background:#10b981; color:#fff; border:none;">🖨️ Imprimir PDF</button>
                 </div>
             </div>
 
@@ -603,7 +603,6 @@
             return preguntasList;
         }
 
-        // VISTA DE CONFIGURACIÓN DEL DOCENTE (CON VIDEO VISIBLE Y SIN TEXTO DE ARCHIVO TÉCNICO)
         function renderTeacherConfigurationView() {
             const headerInfo = document.getElementById('teacher-config-header-info');
             const videosContainer = document.getElementById('teacher-config-videos-container');
@@ -633,7 +632,6 @@
                             <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem; font-size:1.05rem;">${displayVideoTitle}</div>
                             <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;"><strong>Objetivo:</strong> ${vid.objetivo || 'Análisis físico de laboratorio'}</div>
                             
-                            <!-- REPRODUCTOR DE VIDEO PARA EL DOCENTE -->
                             <div class="video-responsive" style="margin-bottom: 1rem;">
                                 <video controls preload="metadata">
                                     <source src="${videoCloudinaryUrl}" type="video/mp4">
@@ -653,7 +651,7 @@
                             </div>
 
                             <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:8px; padding:1rem; margin-top:0.8rem;">
-                                <div style="font-weight:700; font-size:0.82rem; text-transform:uppercase; color:#f59e0b; margin-bottom:0.6rem;">✏️ Proponer o Reemplazar Pregunta</div>
+                                <div style="font-weight:700; font-size:0.82rem; text-transform:uppercase; color:#fbbf24; margin-bottom:0.6rem;">✏️ Proponer o Reemplazar Pregunta</div>
                                 
                                 <div class="form-grid" style="margin-top:0;">
                                     <div class="form-field">
@@ -687,7 +685,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <button class="btn-secondary" onclick="submitInlineQuestion(${selectedChapterId}, ${idx})" style="border-color:#f59e0b; color:#f59e0b; margin-top:0.8rem; width:100%; justify-content:center;">
+                                <button class="btn-secondary" onclick="submitInlineQuestion(${selectedChapterId}, ${idx})" style="border-color:#fbbf24; color:#fbbf24; margin-top:0.8rem; width:100%; justify-content:center;">
                                     ➕ Guardar y Aplicar en este Video
                                 </button>
                             </div>
@@ -907,7 +905,6 @@
             switchView('view-teacher-questions-viewer');
         }
 
-        // VISTA ESTADÍSTICA DE LAS 4 PREGUNTAS DE EVALUACIÓN WEB PARA EL DOCENTE
         function openTeacherWebEvaluations() {
             const container = document.getElementById('teacher-web-evals-container');
             if (!container || !classroomConfig) return;
@@ -1138,10 +1135,8 @@
             buttons.forEach((btn, idx) => {
                 if(idx === oIdx) {
                     btn.classList.add('selected');
-                    btn.setAttribute('data-selected', 'true');
                 } else {
                     btn.classList.remove('selected');
-                    btn.removeAttribute('data-selected');
                 }
             });
         }
@@ -1150,7 +1145,7 @@
             for (let i = 0; i < activeQuestionsRendered.length; i++) {
                 let item = activeQuestionsRendered[i];
                 let container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
-                if (!container || !container.querySelector('.quiz-option-btn[data-selected="true"]')) {
+                if (!container || !container.querySelector('.quiz-option-btn.selected')) {
                     alert(`Falta responder una pregunta obligatoria en el Video ${item.videoIndex + 1} (Pregunta ${item.localPreguntaIndex + 1}). Debe responder todas para continuar.`);
                     return;
                 }
@@ -1164,10 +1159,8 @@
             buttons.forEach((btn, idx) => {
                 if (idx < rating) {
                     btn.classList.add('active');
-                    btn.textContent = '★';
                 } else {
                     btn.classList.remove('active');
-                    btn.textContent = '★';
                 }
             });
         }
@@ -1207,16 +1200,21 @@
 
                 const container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
                 let matchChoice = -1;
+                
                 if(container) {
-                    const selectedBtn = container.querySelector('.quiz-option-btn[data-selected="true"]');
+                    const selectedBtn = container.querySelector('.quiz-option-btn.selected');
                     if(selectedBtn) {
                         const buttonsArray = Array.from(container.querySelectorAll('.quiz-option-btn'));
                         matchChoice = buttonsArray.indexOf(selectedBtn);
                     }
                 }
 
-                const isCorrect = matchChoice === item.correcta;
-                if(isCorrect) aciertos++; else errores++;
+                const isCorrect = (matchChoice !== -1 && matchChoice === parseInt(item.correcta));
+                if(isCorrect) {
+                    aciertos++;
+                } else {
+                    errores++;
+                }
 
                 videosMap[item.videoTitle].push({
                     localNum: item.localPreguntaIndex + 1,
@@ -1229,15 +1227,15 @@
             let feedbackHTML = '';
             for(let vTitle in videosMap) {
                 feedbackHTML += `
-                    <div style="background:var(--panel-alt); border:1.5px solid var(--border-soft); border-radius:10px; padding:1.2rem; margin-bottom:1.2rem;">
-                        <h4 style="margin:0 0 0.8rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.4rem;">${vTitle}</h4>
+                    <div style="background:var(--panel-alt); border:1.5px solid var(--border-soft); border-radius:12px; padding:1.4rem; margin-bottom:1.5rem;">
+                        <h4 style="margin:0 0 1rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1.05rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.5rem;">${vTitle}</h4>
                 `;
                 videosMap[vTitle].forEach(q => {
                     feedbackHTML += `
-                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? 'var(--accent-student)' : '#ef4444'}; padding:1rem; border-radius:8px; margin-bottom:0.8rem;">
-                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.3rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
-                            <div style="font-size:0.85rem; margin-bottom:0.3rem;">Estado: <strong>${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
-                            <div style="font-size:0.82rem; color:var(--text-muted);">Explicación didáctica: ${q.explicacion}</div>
+                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? '#10b981' : '#f43f5e'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem; font-size:0.92rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
+                            <div style="font-size:0.88rem; margin-bottom:0.4rem;">Estado: <strong style="color: ${q.isCorrect ? '#10b981' : '#f43f5e'};">${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">Explicación didáctica: ${q.explicacion}</div>
                         </div>
                     `;
                 });
@@ -1278,13 +1276,13 @@
             }
 
             document.getElementById('feedback-header-box').innerHTML = `
-                <h2 style="margin:0 0 0.4rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.25rem;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
-                <div style="font-size:1.25rem; font-weight:800; color:var(--accent-student); margin:0.4rem 0;">Calificación Final: ${notaFinal} / 20</div>
-                <div style="font-size:0.88rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
+                <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.3rem;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
+                <div style="font-size:1.35rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
+                <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
             `;
 
             document.getElementById('feedback-details-container').innerHTML = `
-                <h4 style="margin:0 0 0.8rem 0; font-family:Georgia,serif; color:var(--text-main); font-size:1rem;">Retroalimentación y Explicaciones Detalladas por Video:</h4>
+                <h4 style="margin:0 0 1rem 0; font-family:Georgia,serif; color:var(--text-main); font-size:1.05rem;">Retroalimentación y Explicaciones Detalladas por Video:</h4>
                 ${feedbackHTML}
             `;
 
