@@ -412,7 +412,10 @@
 
         function switchView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+            const targetView = document.getElementById(viewId);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1130,6 +1133,7 @@
 
         function selectQuizOption(vIdx, qIdx, oIdx) {
             const container = document.getElementById(`q_group_${vIdx}_${qIdx}`);
+            if(!container) return;
             const buttons = container.querySelectorAll('.quiz-option-btn');
             
             buttons.forEach((btn, idx) => {
@@ -1168,13 +1172,16 @@
         function selectEvalOption(questionKey, value, element) {
             studentEvalData[questionKey] = value;
             const container = document.getElementById(`eval-${questionKey}-group`);
+            if(!container) return;
             const chips = container.querySelectorAll('.eval-option-chip');
             chips.forEach(chip => chip.classList.remove('selected'));
             element.classList.add('selected');
         }
 
+        // FUNCIÓN CORREGIDA Y OPTIMIZADA PARA GARANTIZAR EL SALTO AL FEEDBACK
         function submitEvaluationAndGetResults() {
-            const comment = document.getElementById('eval-comment').value.trim();
+            const commentField = document.getElementById('eval-comment');
+            const comment = commentField ? commentField.value.trim() : "";
 
             if (studentEvalData.stars === 0) {
                 alert("Por favor, califique la página web seleccionando las estrellas (Pregunta 1).");
@@ -1275,17 +1282,24 @@
                 });
             }
 
-            document.getElementById('feedback-header-box').innerHTML = `
-                <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.3rem;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
-                <div style="font-size:1.35rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
-                <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
-            `;
+            const feedbackHeaderElem = document.getElementById('feedback-header-box');
+            if(feedbackHeaderElem) {
+                feedbackHeaderElem.innerHTML = `
+                    <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.3rem;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
+                    <div style="font-size:1.35rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
+                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
+                `;
+            }
 
-            document.getElementById('feedback-details-container').innerHTML = `
-                <h4 style="margin:0 0 1rem 0; font-family:Georgia,serif; color:var(--text-main); font-size:1.05rem;">Retroalimentación y Explicaciones Detalladas por Video:</h4>
-                ${feedbackHTML}
-            `;
+            const feedbackDetailsElem = document.getElementById('feedback-details-container');
+            if(feedbackDetailsElem) {
+                feedbackDetailsElem.innerHTML = `
+                    <h4 style="margin:0 0 1rem 0; font-family:Georgia,serif; color:var(--text-main); font-size:1.05rem;">Retroalimentación y Explicaciones Detalladas por Video:</h4>
+                    ${feedbackHTML}
+                `;
+            }
 
+            // Transición inmediata a la vista de retroalimentación
             switchView('view-student-feedback');
         }
     </script>
