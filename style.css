@@ -841,4 +841,12 @@ body.dark-theme .eval-option-chip.selected {
         flex-direction: column;
         padding: 1.2rem;
     }
+    /* REGLAS OBLIGATORIAS PARA CONTROLAR EL CAMBIO DE VISTAS */
+.view {
+    display: none !important;
+}
+
+.view.active {
+    display: block !important;
+}
 }
