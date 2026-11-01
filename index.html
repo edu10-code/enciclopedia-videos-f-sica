@@ -144,7 +144,6 @@
                 <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif; font-size:1.15rem;">Registro y Calificación de Alumnos de esta Aula</h3>
                 <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
                     <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#6366f1; color:#fff; border:none;">📋 Ver Preguntas</button>
-                    <button class="btn-secondary" onclick="openTeacherWebEvaluations()" style="background:#d97706; color:#fff; border:none;">📊 Ver Evaluaciones Web</button>
                     <button class="btn-secondary" onclick="window.print()" style="background:#10b981; color:#fff; border:none;">🖨️ Imprimir PDF</button>
                 </div>
             </div>
@@ -167,8 +166,16 @@
                 </table>
             </div>
 
+            <!-- SECCIÓN INTEGRADA DE EVALUACIONES DETALLADAS DE LA PÁGINA WEB -->
+            <div class="comment-box-list" style="margin-bottom: 1.5rem;">
+                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">📊 Evaluaciones y Estadísticas Detalladas de la Página Web (Alumnos)</h4>
+                <div id="teacher-web-evals-container">
+                    <p style="color:var(--text-muted); font-size:0.88rem;">Cargando valoraciones de la plataforma...</p>
+                </div>
+            </div>
+
             <div class="comment-box-list">
-                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">Comentarios y Sugerencias Exclusivas de esta Clase</h4>
+                <h4 style="margin:0 0 0.8rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1rem;">💬 Comentarios y Sugerencias Exclusivas de esta Clase</h4>
                 <div id="teacher-comments-container">
                     <p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay comentarios en esta clase.</p>
                 </div>
@@ -185,21 +192,6 @@
                 <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Consulte aquí el detalle de las preguntas asignadas a los videos de la clase.</p>
                 
                 <div id="teacher-viewer-content-container"></div>
-
-                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
-            </div>
-        </div>
-
-        <!-- VISTA DETALLADA DE EVALUACIONES WEB PARA EL DOCENTE -->
-        <div id="view-teacher-web-evaluations" class="view">
-            <div class="form-card" style="max-width: 850px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 0.8rem;">← Volver al Panel</button>
-                <h3 style="color: var(--accent-teacher); font-family: Georgia, serif;">Evaluaciones Detalladas de la Página Web (Alumnos)</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">Estadísticas de conteo y porcentaje por cada una de las 4 preguntas respondidas por los estudiantes.</p>
-                
-                <div id="teacher-web-evals-container">
-                    <p style="color: var(--text-muted);">Cargando valoraciones de la plataforma...</p>
-                </div>
 
                 <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
             </div>
@@ -782,9 +774,11 @@
 
             const tbody = document.getElementById('students-table-body');
             const commentsContainer = document.getElementById('teacher-comments-container');
+            const webEvalsContainer = document.getElementById('teacher-web-evals-container');
             
             if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>`;
             if (commentsContainer) commentsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando comentarios...</p>`;
+            if (webEvalsContainer) webEvalsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando valoraciones de la plataforma...</p>`;
 
             activeStudentsListener = db.ref('alumnos_clase/' + classname);
             activeStudentsListener.on('value', (snapshot) => {
@@ -853,23 +847,78 @@
                 const data = snapshot.val();
                 if(!data) {
                     document.getElementById('stat-page-ratings').innerText = "Sin valoraciones aún";
+                    if (webEvalsContainer) {
+                        webEvalsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Aún no hay evaluaciones de la página web registradas en esta clase.</p>`;
+                    }
                     return;
                 }
 
                 let suma = 0;
                 let total = 0;
-                for(let key in data) {
-                    const evalObj = data[key];
-                    if(evalObj.promedioAlumno) {
-                        suma += parseFloat(evalObj.promedioAlumno);
+                const list = Object.values(data);
+                const totalAlumnos = list.length;
+
+                const starsCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+                const q2Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                const q3Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                const q4Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+                list.forEach(ev => {
+                    if (ev.promedioAlumno) {
+                        suma += parseFloat(ev.promedioAlumno);
                         total++;
                     }
-                }
+                    if (ev.stars) starsCount[ev.stars] = (starsCount[ev.stars] || 0) + 1;
+                    if (ev.q2) q2Count[ev.q2] = (q2Count[ev.q2] || 0) + 1;
+                    if (ev.q3) q3Count[ev.q3] = (q3Count[ev.q3] || 0) + 1;
+                    if (ev.q4) q4Count[ev.q4] = (q4Count[ev.q4] || 0) + 1;
+                });
+
                 if(total > 0) {
                     const promFinal = (suma / total).toFixed(1);
                     document.getElementById('stat-page-ratings').innerText = `${promFinal} / 6.0 (${total} valoraciones)`;
                 } else {
                     document.getElementById('stat-page-ratings').innerText = "Sin valoraciones aún";
+                }
+
+                if (webEvalsContainer) {
+                    const labelsQ2 = { 1: "Deficiente", 2: "Poco útil", 3: "Regular", 4: "Buena", 5: "Excelente" };
+                    const labelsQ3 = { 1: "Mala", 2: "Baja calidad", 3: "Aceptable", 4: "Buena", 5: "Excelente" };
+                    const labelsQ4 = { 1: "Deficiente", 2: "Bajo", 3: "Regulares", 4: "Buenos", 5: "Muy didácticos" };
+
+                    function renderQuestionBlock(title, countsObj, labelMap, isStars = false) {
+                        let html = `
+                            <div style="background:var(--panel-alt); border:1px solid var(--border-soft); border-radius:10px; padding:1rem; margin-bottom:1rem;">
+                                <h5 style="margin:0 0 0.8rem 0; color:var(--accent-teacher); font-size:0.92rem;">${title}</h5>
+                        `;
+                        for (let key in countsObj) {
+                            const count = countsObj[key];
+                            const pct = totalAlumnos > 0 ? ((count / totalAlumnos) * 100).toFixed(1) : 0;
+                            const optionLabel = isStars ? `${key} Estrella${key > 1 ? 's' : ''} ★` : labelMap[key];
+
+                            html += `
+                                <div style="margin-bottom: 0.6rem;">
+                                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:0.2rem;">
+                                        <span><strong>${optionLabel}</strong></span>
+                                        <span>${count} alumno${count !== 1 ? 's' : ''} (${pct}%)</span>
+                                    </div>
+                                    <div style="background:var(--panel-bg); height:8px; border-radius:4px; overflow:hidden; border:1px solid var(--border-soft);">
+                                        <div style="background:var(--accent-student); width:${pct}%; height:100%; border-radius:4px;"></div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        html += `</div>`;
+                        return html;
+                    }
+
+                    let evalSummaryHTML = `<p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Total de evaluaciones web procesadas: <strong>${totalAlumnos} estudiante(s)</strong></p>`;
+                    evalSummaryHTML += renderQuestionBlock("1. Impresión General de la Página Web (Estrellas 1 a 6)", starsCount, {}, true);
+                    evalSummaryHTML += renderQuestionBlock("2. ¿Qué tan útil y clara fue la interfaz para su aprendizaje?", q2Count, labelsQ2);
+                    evalSummaryHTML += renderQuestionBlock("3. ¿Cómo califica la calidad y nitidez de los videos demostrativos?", q3Count, labelsQ3);
+                    evalSummaryHTML += renderQuestionBlock("4. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación?", q4Count, labelsQ4);
+
+                    webEvalsContainer.innerHTML = evalSummaryHTML;
                 }
             });
         }
@@ -906,81 +955,6 @@
             }).join('');
 
             switchView('view-teacher-questions-viewer');
-        }
-
-        function openTeacherWebEvaluations() {
-            const container = document.getElementById('teacher-web-evals-container');
-            if (!container || !classroomConfig) return;
-
-            db.ref('evaluaciones_pagina/' + classroomConfig.classname).once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data) {
-                    container.innerHTML = `<p style="color:var(--text-muted);">Aún no hay evaluaciones de la página web registradas en esta clase.</p>`;
-                    switchView('view-teacher-web-evaluations');
-                    return;
-                }
-
-                const list = Object.values(data);
-                const totalAlumnos = list.length;
-
-                const starsCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-                const q2Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                const q3Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                const q4Count = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-                list.forEach(ev => {
-                    if (ev.stars) starsCount[ev.stars] = (starsCount[ev.stars] || 0) + 1;
-                    if (ev.q2) q2Count[ev.q2] = (q2Count[ev.q2] || 0) + 1;
-                    if (ev.q3) q3Count[ev.q3] = (q3Count[ev.q3] || 0) + 1;
-                    if (ev.q4) q4Count[ev.q4] = (q4Count[ev.q4] || 0) + 1;
-                });
-
-                const labelsQ2 = { 1: "Deficiente", 2: "Poco útil", 3: "Regular", 4: "Buena", 5: "Excelente" };
-                const labelsQ3 = { 1: "Mala", 2: "Baja calidad", 3: "Aceptable", 4: "Buena", 5: "Excelente" };
-                const labelsQ4 = { 1: "Deficiente", 2: "Bajo", 3: "Regulares", 4: "Buenos", 5: "Muy didácticos" };
-
-                function renderQuestionBlock(title, countsObj, labelMap, isStars = false) {
-                    let html = `
-                        <div style="background:var(--panel-alt); border:1px solid var(--border-soft); border-radius:12px; padding:1.2rem; margin-bottom:1.5rem;">
-                            <h4 style="margin:0 0 1rem 0; color:var(--accent-teacher); font-family:Georgia,serif;">${title}</h4>
-                    `;
-
-                    for (let key in countsObj) {
-                        const count = countsObj[key];
-                        const pct = totalAlumnos > 0 ? ((count / totalAlumnos) * 100).toFixed(1) : 0;
-                        const optionLabel = isStars ? `${key} Estrella${key > 1 ? 's' : ''} ★` : labelMap[key];
-
-                        html += `
-                            <div style="margin-bottom: 0.8rem;">
-                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;">
-                                    <span><strong>${optionLabel}</strong></span>
-                                    <span>${count} alumno${count !== 1 ? 's' : ''} (${pct}%)</span>
-                                </div>
-                                <div style="background:var(--panel-bg); height:10px; border-radius:5px; overflow:hidden; border:1px solid var(--border-soft);">
-                                    <div style="background:var(--accent-student); width:${pct}%; height:100%; border-radius:5px; transition:width 0.4s ease;"></div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    html += `</div>`;
-                    return html;
-                }
-
-                let summaryHTML = `
-                    <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:12px; padding:1rem; margin-bottom:1.2rem; text-align:center;">
-                        <h4 style="margin:0; color:var(--accent-student);">Resumen Consolidado de la Clase</h4>
-                        <p style="margin:0.2rem 0 0 0; font-size:0.9rem; color:var(--text-muted);">Total de respuestas procesadas: <strong>${totalAlumnos} estudiante(s)</strong></p>
-                    </div>
-                `;
-
-                summaryHTML += renderQuestionBlock("1. Impresión General de la Página Web (Estrellas 1 a 6)", starsCount, {}, true);
-                summaryHTML += renderQuestionBlock("2. ¿Qué tan útil y clara fue la interfaz para su aprendizaje?", q2Count, labelsQ2);
-                summaryHTML += renderQuestionBlock("3. ¿Cómo califica la calidad y nitidez de los videos demostrativos?", q3Count, labelsQ3);
-                summaryHTML += renderQuestionBlock("4. ¿Qué tan didácticos fueron los cuestionarios y la retroalimentación?", q4Count, labelsQ4);
-
-                container.innerHTML = summaryHTML;
-                switchView('view-teacher-web-evaluations');
-            });
         }
 
         function studentEnter() {
@@ -1178,7 +1152,7 @@
             element.classList.add('selected');
         }
 
-        // FUNCIÓN CORREGIDA Y OPTIMIZADA PARA GARANTIZAR EL SALTO AL FEEDBACK
+        // FUNCIÓN CORREGIDA Y ROBUSTA PARA EL ENVÍO Y VISUALIZACIÓN DE FEEDBACK
         function submitEvaluationAndGetResults() {
             const commentField = document.getElementById('eval-comment');
             const comment = commentField ? commentField.value.trim() : "";
@@ -1239,7 +1213,7 @@
                 `;
                 videosMap[vTitle].forEach(q => {
                     feedbackHTML += `
-                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? '#10b981' : '#f43f5e'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? '#10b981' : '#f43f5e'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                             <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem; font-size:0.92rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
                             <div style="font-size:0.88rem; margin-bottom:0.4rem;">Estado: <strong style="color: ${q.isCorrect ? '#10b981' : '#f43f5e'};">${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
                             <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">Explicación didáctica: ${q.explicacion}</div>
@@ -1299,7 +1273,7 @@
                 `;
             }
 
-            // Transición inmediata a la vista de retroalimentación
+            // Redirección inmediata y garantizada a la vista de feedback
             switchView('view-student-feedback');
         }
     </script>
