@@ -259,7 +259,7 @@
                 <div id="feedback-details-container"></div>
                 
                 <div style="text-align: center; margin-top: 1.8rem;">
-                    <button class="btn-action-student" onclick="switchView('view-page-evaluation')" style="max-width: 380px; font-size: 0.95rem;">CALIFICAR PÁGINA WEB (OPCIONAL) ➔</button>
+                    <button class="btn-action-student" onclick="switchView('view-page-evaluation')" style="max-width: 380px; font-size: 0.95rem;">EVALUAR PÁGINA WEB Y OPINAR ➔</button>
                 </div>
             </div>
         </div>
@@ -337,7 +337,7 @@
     <script src="pregunta.js"></script>
 
     <script>
-        // Configuración de Firebase conectada a tu proyecto real `cuestionario-fisica`
+        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDGh2mQiNkVyv5E15v7LqK8bQ39c5mZ8v4",
             authDomain: "cuestionario-fisica.firebaseapp.com",
@@ -358,6 +358,9 @@
         let selectedChapterId = 1;
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
+        
+        // DICCIONARIO DE SELECCIONES EN MEMORIA PARA EVITAR FALLOS DE LECTURA
+        let studentAnswersMap = {};
 
         let studentEvalData = {
             stars: 0,
@@ -766,6 +769,7 @@
         function logoutStudent() {
             localStorage.removeItem('activeStudentData');
             currentStudent = null;
+            studentAnswersMap = {};
             switchView('view-role-selection');
         }
 
@@ -1033,6 +1037,8 @@
             const chapterData = catalog.find(c => c.id === selectedChapterId) || catalog[0];
             const chapterVideos = getVideosForChapter(selectedChapterId);
 
+            studentAnswersMap = {}; // Reiniciar respuestas
+
             if(banner && chapterData) {
                 banner.innerHTML = `
                     <div class="chapter-header-box">
@@ -1058,7 +1064,7 @@
                             videoIndex: vIdx,
                             videoTitle: cleanVideoTitle,
                             localPreguntaIndex: pIdx,
-                            correcta: p.correcta,
+                            correcta: parseInt(p.correcta),
                             opciones: p.opciones || [],
                             enunciado: p.pregunta,
                             explicacion: p.explicacion || "Respuesta basada en principios físicos experimentales."
@@ -1108,11 +1114,15 @@
             }
         }
 
+        // GUARDA DIRECTAMENTE EN MEMORIA LA OPCIÓN SELECCIONADA
         function selectQuizOption(vIdx, qIdx, oIdx) {
+            const key = `${vIdx}_${qIdx}`;
+            studentAnswersMap[key] = oIdx;
+
             const container = document.getElementById(`q_group_${vIdx}_${qIdx}`);
             if(!container) return;
-            const buttons = container.querySelectorAll('.quiz-option-btn');
             
+            const buttons = container.querySelectorAll('.quiz-option-btn');
             buttons.forEach((btn, idx) => {
                 if(idx === oIdx) {
                     btn.classList.add('selected');
@@ -1122,12 +1132,14 @@
             });
         }
 
-        // EVALUACIÓN DE CUESTIONARIO Y CONEXIÓN INMEDIATA CON FIREBASE PARA GUARDAR NOTAS
+        // EVALUACIÓN ROBUSTA Y MUESTRA DIRECTA DE RESULTADOS / NOTAS
         function submitStudentQuizAndGetResults() {
+            // Verificar que todas las preguntas visibles hayan sido respondidas
             for (let i = 0; i < activeQuestionsRendered.length; i++) {
                 let item = activeQuestionsRendered[i];
-                let container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
-                if (!container || !container.querySelector('.quiz-option-btn.selected')) {
+                let key = `${item.videoIndex}_${item.localPreguntaIndex}`;
+                
+                if (studentAnswersMap[key] === undefined) {
                     alert(`Falta responder una pregunta obligatoria en el Video ${item.videoIndex + 1} (Pregunta ${item.localPreguntaIndex + 1}). Debe responder todas para continuar.`);
                     return;
                 }
@@ -1142,19 +1154,11 @@
                     videosMap[item.videoTitle] = [];
                 }
 
-                const container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
-                let matchChoice = -1;
+                let key = `${item.videoIndex}_${item.localPreguntaIndex}`;
+                let matchChoice = studentAnswersMap[key];
 
-                if(container) {
-                    const selectedBtn = container.querySelector('.quiz-option-btn.selected');
-                    if(selectedBtn) {
-                        const buttonsArray = Array.from(container.querySelectorAll('.quiz-option-btn'));
-                        matchChoice = buttonsArray.indexOf(selectedBtn);
-                    }
-                }
-
-                const correctIdx = parseInt(item.correcta);
-                const isCorrect = (matchChoice !== -1 && matchChoice === correctIdx);
+                const correctIdx = item.correcta;
+                const isCorrect = (matchChoice !== undefined && matchChoice === correctIdx);
                 
                 if(isCorrect) {
                     aciertos++;
@@ -1166,9 +1170,9 @@
                     ? `Opción ${String.fromCharCode(65 + correctIdx)}: ${item.opciones[correctIdx]}` 
                     : `Opción ${String.fromCharCode(65 + correctIdx)}`;
 
-                const userText = (matchChoice !== -1 && item.opciones && item.opciones[matchChoice])
+                const userText = (matchChoice !== undefined && item.opciones && item.opciones[matchChoice])
                     ? `Opción ${String.fromCharCode(65 + matchChoice)}: ${item.opciones[matchChoice]}`
-                    : (matchChoice !== -1 ? `Opción ${String.fromCharCode(65 + matchChoice)}` : "Sin responder");
+                    : "Sin responder";
 
                 videosMap[item.videoTitle].push({
                     localNum: item.localPreguntaIndex + 1,
@@ -1206,7 +1210,7 @@
             if(currentStudent) {
                 const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
                 
-                // Conexión directa a Firebase para que el docente visualice la nota y los aciertos al instante
+                // Conexión directa a Firebase para actualizar la nota del alumno en la lista del docente
                 db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).update({
                     nombre: currentStudent.name,
                     codigo: currentStudent.code,
@@ -1234,7 +1238,7 @@
                 `;
             }
 
-            // Cambio inmediato de vista gracias a las reglas CSS con !important
+            // Muestra inmediatamente la pantalla de Feedback
             switchView('view-student-feedback');
         }
 
