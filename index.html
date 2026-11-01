@@ -247,16 +247,29 @@
             <div id="workspace-videos-container"></div>
 
             <div style="text-align: center; margin: 1.8rem 0;">
-                <button class="btn-action-student" onclick="proceedToPageEvaluation()" style="max-width: 380px; font-size: 0.95rem;">EVALUAR (CALIFICAR PÁGINA WEB) ➔</button>
+                <button class="btn-action-student" onclick="submitStudentQuizAndGetResults()" style="max-width: 380px; font-size: 0.95rem;">TERMINAR CUESTIONARIO Y VER MI NOTA ➔</button>
             </div>
         </div>
 
-        <!-- 7. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
+        <!-- 7. RETROALIMENTACIÓN (FEEDBACK Y NOTAS) PARA EL ALUMNO -->
+        <div id="view-student-feedback" class="view">
+            <div class="form-card" style="max-width: 850px;">
+                <button class="btn-secondary" onclick="logoutStudent()" style="margin-bottom: 0.8rem;">← Salir al Inicio</button>
+                <div id="feedback-header-box" style="text-align: center; margin-bottom: 1.5rem; padding: 1.2rem; background: var(--panel-alt); border-radius: 12px; border: 1.5px solid var(--accent-student);"></div>
+                <div id="feedback-details-container"></div>
+                
+                <div style="text-align: center; margin-top: 1.8rem;">
+                    <button class="btn-action-student" onclick="switchView('view-page-evaluation')" style="max-width: 380px; font-size: 0.95rem;">CALIFICAR PÁGINA WEB (OPCIONAL) ➔</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. EVALUACIÓN DE LA PÁGINA WEB Y COMENTARIOS -->
         <div id="view-page-evaluation" class="view">
             <div class="form-card" style="max-width: 750px;">
-                <button class="btn-secondary" onclick="switchView('view-student-workspace')" style="margin-bottom: 0.8rem;">← Volver al Cuestionario</button>
+                <button class="btn-secondary" onclick="switchView('view-student-feedback')" style="margin-bottom: 0.8rem;">← Volver a Mis Notas</button>
                 <h3 style="color: var(--accent-student); font-family: Georgia, serif;">Evaluación de la Página Web</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Para poder visualizar su nota final, aciertos, errores y explicaciones detalladas, es requisito obligatorio calificar la plataforma y dejar su comentario.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Ayúdanos calificando la plataforma y dejando tus comentarios para seguir mejorando.</p>
                 
                 <!-- PREGUNTA 1: CALIFICACIÓN CON 6 ESTRELLAS -->
                 <div class="form-field" style="margin-bottom: 1.5rem;">
@@ -313,17 +326,7 @@
                     <textarea id="eval-comment" rows="3" placeholder="Escriba aquí sus sugerencias u opiniones detalladas..."></textarea>
                 </div>
 
-                <button class="btn-action-student" onclick="submitEvaluationAndGetResults()">ENVIAR EVALUACIÓN Y VER MI NOTA ➔</button>
-            </div>
-        </div>
-
-        <!-- 8. RETROALIMENTACIÓN (FEEDBACK) PARA EL ALUMNO -->
-        <div id="view-student-feedback" class="view">
-            <div class="form-card" style="max-width: 850px;">
-                <button class="btn-secondary" onclick="logoutStudent()" style="margin-bottom: 0.8rem;">← Salir al Inicio</button>
-                <div id="feedback-header-box" style="text-align: center; margin-bottom: 1.5rem; padding: 1.2rem; background: var(--panel-alt); border-radius: 12px; border: 1.5px solid var(--accent-student);"></div>
-                <div id="feedback-details-container"></div>
-                <button class="btn-action-student" onclick="logoutStudent()" style="margin-top: 1.5rem;">FINALIZAR Y SALIR</button>
+                <button class="btn-action-student" onclick="submitWebEvaluation()">ENVIAR EVALUACIÓN DE LA PÁGINA ➔</button>
             </div>
         </div>
 
@@ -334,7 +337,7 @@
     <script src="pregunta.js"></script>
 
     <script>
-        // Configuración actualizada con tu base de datos Realtime Database de Firebase (`cuestionario-fisica`)
+        // Configuración de Firebase conectada a tu proyecto real `cuestionario-fisica`
         const firebaseConfig = {
             apiKey: "AIzaSyDGh2mQiNkVyv5E15v7LqK8bQ39c5mZ8v4",
             authDomain: "cuestionario-fisica.firebaseapp.com",
@@ -356,7 +359,6 @@
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
 
-        // Variables para almacenar las respuestas seleccionadas en la evaluación moderna
         let studentEvalData = {
             stars: 0,
             q2: 0,
@@ -368,7 +370,7 @@
         let activeCommentsListener = null;
         let activeEvaluationsListener = null;
 
-        // LÓGICA DE MODO CLARO Y OSCURO
+        // MODO CLARO / OSCURO
         function toggleTheme() {
             const isDark = document.body.classList.toggle('dark-theme');
             const themeIcon = document.getElementById('theme-icon');
@@ -1057,6 +1059,7 @@
                             videoTitle: cleanVideoTitle,
                             localPreguntaIndex: pIdx,
                             correcta: p.correcta,
+                            opciones: p.opciones || [],
                             enunciado: p.pregunta,
                             explicacion: p.explicacion || "Respuesta basada en principios físicos experimentales."
                         });
@@ -1119,7 +1122,8 @@
             });
         }
 
-        function proceedToPageEvaluation() {
+        // EVALUACIÓN DE CUESTIONARIO Y CONEXIÓN INMEDIATA CON FIREBASE PARA GUARDAR NOTAS
+        function submitStudentQuizAndGetResults() {
             for (let i = 0; i < activeQuestionsRendered.length; i++) {
                 let item = activeQuestionsRendered[i];
                 let container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
@@ -1128,7 +1132,110 @@
                     return;
                 }
             }
-            switchView('view-page-evaluation');
+
+            let aciertos = 0;
+            let errores = 0;
+            let videosMap = {};
+
+            activeQuestionsRendered.forEach((item) => {
+                if(!videosMap[item.videoTitle]) {
+                    videosMap[item.videoTitle] = [];
+                }
+
+                const container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
+                let matchChoice = -1;
+
+                if(container) {
+                    const selectedBtn = container.querySelector('.quiz-option-btn.selected');
+                    if(selectedBtn) {
+                        const buttonsArray = Array.from(container.querySelectorAll('.quiz-option-btn'));
+                        matchChoice = buttonsArray.indexOf(selectedBtn);
+                    }
+                }
+
+                const correctIdx = parseInt(item.correcta);
+                const isCorrect = (matchChoice !== -1 && matchChoice === correctIdx);
+                
+                if(isCorrect) {
+                    aciertos++;
+                } else {
+                    errores++;
+                }
+
+                const correctText = item.opciones && item.opciones[correctIdx] 
+                    ? `Opción ${String.fromCharCode(65 + correctIdx)}: ${item.opciones[correctIdx]}` 
+                    : `Opción ${String.fromCharCode(65 + correctIdx)}`;
+
+                const userText = (matchChoice !== -1 && item.opciones && item.opciones[matchChoice])
+                    ? `Opción ${String.fromCharCode(65 + matchChoice)}: ${item.opciones[matchChoice]}`
+                    : (matchChoice !== -1 ? `Opción ${String.fromCharCode(65 + matchChoice)}` : "Sin responder");
+
+                videosMap[item.videoTitle].push({
+                    localNum: item.localPreguntaIndex + 1,
+                    enunciado: item.enunciado,
+                    isCorrect: isCorrect,
+                    userChoiceText: userText,
+                    correctChoiceText: correctText,
+                    explicacion: item.explicacion
+                });
+            });
+
+            let feedbackHTML = '';
+            for(let vTitle in videosMap) {
+                feedbackHTML += `
+                    <div style="background:var(--panel-alt); border:1.5px solid var(--border-soft); border-radius:12px; padding:1.4rem; margin-bottom:1.5rem;">
+                        <h4 style="margin:0 0 1rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1.05rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.5rem;">${vTitle}</h4>
+                `;
+                videosMap[vTitle].forEach(q => {
+                    feedbackHTML += `
+                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? '#10b981' : '#f43f5e'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem; font-size:0.92rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
+                            <div style="font-size:0.88rem; margin-bottom:0.3rem;">Estado: <strong style="color: ${q.isCorrect ? '#10b981' : '#f43f5e'};">${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
+                            <div style="font-size:0.85rem; color:var(--text-main); margin-bottom:0.2rem;"><strong>Tu respuesta:</strong> ${q.userChoiceText}</div>
+                            ${!q.isCorrect ? `<div style="font-size:0.85rem; color:var(--accent-student); margin-bottom:0.4rem; font-weight:600;">✓ Respuesta correcta esperada: ${q.correctChoiceText}</div>` : ''}
+                            <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4; margin-top:0.4rem; background:rgba(0,0,0,0.03); padding:0.6rem; border-radius:6px;">💡 <strong>Explicación:</strong> ${q.explicacion}</div>
+                        </div>
+                    `;
+                });
+                feedbackHTML += `</div>`;
+            }
+
+            const totalPreguntas = activeQuestionsRendered.length || 1;
+            const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
+
+            if(currentStudent) {
+                const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
+                
+                // Conexión directa a Firebase para que el docente visualice la nota y los aciertos al instante
+                db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).update({
+                    nombre: currentStudent.name,
+                    codigo: currentStudent.code,
+                    grupo: currentStudent.grupo,
+                    notaFinal: notaFinal,
+                    aciertos: aciertos,
+                    errores: errores
+                });
+            }
+
+            const feedbackHeaderElem = document.getElementById('feedback-header-box');
+            if(feedbackHeaderElem) {
+                feedbackHeaderElem.innerHTML = `
+                    <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.3rem;">¡Cuestionario Completado, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
+                    <div style="font-size:1.35rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
+                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
+                `;
+            }
+
+            const feedbackDetailsElem = document.getElementById('feedback-details-container');
+            if(feedbackDetailsElem) {
+                feedbackDetailsElem.innerHTML = `
+                    <h4 style="margin:0 0 1rem 0; font-family:Georgia,serif; color:var(--text-main); font-size:1.05rem;">Retroalimentación y Explicaciones Detalladas por Video:</h4>
+                    ${feedbackHTML}
+                `;
+            }
+
+            // Cambio inmediato de vista gracias a las reglas CSS con !important
+            switchView('view-student-feedback');
         }
 
         function selectStarRating(rating) {
@@ -1152,8 +1259,8 @@
             element.classList.add('selected');
         }
 
-        // FUNCIÓN CORREGIDA Y ROBUSTA PARA EL ENVÍO Y VISUALIZACIÓN DE FEEDBACK
-        function submitEvaluationAndGetResults() {
+        // ENVÍO DE LA EVALUACIÓN DE LA PÁGINA WEB HACIA FIREBASE
+        function submitWebEvaluation() {
             const commentField = document.getElementById('eval-comment');
             const comment = commentField ? commentField.value.trim() : "";
 
@@ -1170,76 +1277,9 @@
                 return;
             }
 
-            let aciertos = 0;
-            let errores = 0;
-            let videosMap = {};
-
-            activeQuestionsRendered.forEach((item) => {
-                if(!videosMap[item.videoTitle]) {
-                    videosMap[item.videoTitle] = [];
-                }
-
-                const container = document.getElementById(`q_group_${item.videoIndex}_${item.localPreguntaIndex}`);
-                let matchChoice = -1;
-                
-                if(container) {
-                    const selectedBtn = container.querySelector('.quiz-option-btn.selected');
-                    if(selectedBtn) {
-                        const buttonsArray = Array.from(container.querySelectorAll('.quiz-option-btn'));
-                        matchChoice = buttonsArray.indexOf(selectedBtn);
-                    }
-                }
-
-                const isCorrect = (matchChoice !== -1 && matchChoice === parseInt(item.correcta));
-                if(isCorrect) {
-                    aciertos++;
-                } else {
-                    errores++;
-                }
-
-                videosMap[item.videoTitle].push({
-                    localNum: item.localPreguntaIndex + 1,
-                    enunciado: item.enunciado,
-                    isCorrect: isCorrect,
-                    explicacion: item.explicacion
-                });
-            });
-
-            let feedbackHTML = '';
-            for(let vTitle in videosMap) {
-                feedbackHTML += `
-                    <div style="background:var(--panel-alt); border:1.5px solid var(--border-soft); border-radius:12px; padding:1.4rem; margin-bottom:1.5rem;">
-                        <h4 style="margin:0 0 1rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1.05rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.5rem;">${vTitle}</h4>
-                `;
-                videosMap[vTitle].forEach(q => {
-                    feedbackHTML += `
-                        <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${q.isCorrect ? '#10b981' : '#f43f5e'}; padding:1.2rem; border-radius:10px; margin-bottom:1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                            <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem; font-size:0.92rem;">Pregunta ${q.localNum}: ${q.enunciado}</div>
-                            <div style="font-size:0.88rem; margin-bottom:0.4rem;">Estado: <strong style="color: ${q.isCorrect ? '#10b981' : '#f43f5e'};">${q.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
-                            <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">Explicación didáctica: ${q.explicacion}</div>
-                        </div>
-                    `;
-                });
-                feedbackHTML += `</div>`;
-            }
-
-            const totalPreguntas = activeQuestionsRendered.length || 1;
-            const notaFinal = ((aciertos / totalPreguntas) * 20).toFixed(1);
-            
             const promedioAlumnoEval = ((studentEvalData.stars + studentEvalData.q2 + studentEvalData.q3 + studentEvalData.q4) / 4).toFixed(1);
 
             if(currentStudent) {
-                const studentKey = currentStudent.code.replace(/[.#$\/\[\]]/g, '_');
-                
-                db.ref('alumnos_clase/' + currentStudent.classname + '/' + studentKey).set({
-                    nombre: currentStudent.name,
-                    codigo: currentStudent.code,
-                    grupo: currentStudent.grupo,
-                    notaFinal: notaFinal,
-                    aciertos: aciertos,
-                    errores: errores
-                });
-
                 db.ref('comentarios_pagina/' + currentStudent.classname).push({
                     estudiante: currentStudent.name,
                     grupo: currentStudent.group,
@@ -1256,25 +1296,8 @@
                 });
             }
 
-            const feedbackHeaderElem = document.getElementById('feedback-header-box');
-            if(feedbackHeaderElem) {
-                feedbackHeaderElem.innerHTML = `
-                    <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.3rem;">¡Evaluación Completada, ${currentStudent ? currentStudent.name : 'alumno'}!</h2>
-                    <div style="font-size:1.35rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
-                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
-                `;
-            }
-
-            const feedbackDetailsElem = document.getElementById('feedback-details-container');
-            if(feedbackDetailsElem) {
-                feedbackDetailsElem.innerHTML = `
-                    <h4 style="margin:0 0 1rem 0; font-family:Georgia,serif; color:var(--text-main); font-size:1.05rem;">Retroalimentación y Explicaciones Detalladas por Video:</h4>
-                    ${feedbackHTML}
-                `;
-            }
-
-            // Redirección inmediata y garantizada a la vista de feedback
-            switchView('view-student-feedback');
+            alert("¡Evaluación de la página web enviada con éxito! Gracias por su participación.");
+            logoutStudent();
         }
     </script>
 </body>
