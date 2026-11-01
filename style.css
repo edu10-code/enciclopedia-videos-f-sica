@@ -74,10 +74,10 @@ header {
 
 /* CONTENEDOR DEL LOGOTIPO DE PERROVACA */
 .header-logo-placeholder {
-    width: 52px;
-    height: 52px;
-    min-width: 52px;
-    min-height: 52px;
+    width: 61px;
+    height: 61px;
+    min-width: 61px;
+    min-height: 61px;
     border-radius: 12px;
     overflow: hidden;
     display: flex;
