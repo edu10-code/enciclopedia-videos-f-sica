@@ -18,7 +18,7 @@
             <div class="header-left-group">
                 <!-- LOGOTIPO DE PERROVACA -->
                 <div class="header-logo-placeholder">
-                    <img src="logounmsm.jpg" alt="Logo Perrovaca">
+                    <img src="mariaaguilar.jpg" alt="Logo Perrovaca">
                 </div>
                 <div class="header-text">
                     <div class="header-instituciones">UNMSM · Facultad de Ciencias Físicas</div>
@@ -78,7 +78,7 @@
             <div class="form-card">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
                 <h3>Registro y Validación de Clase Independiente</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese el nombre del docente, un nombre de clase único y una contraseña de 6 dígitos. Cada aula maneja sus propios alumnos, notas y comentarios independientes.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese el nombre del docente, un nombre de clase único y una contraseña de 6 dígitos. La contraseña es exclusiva del docente: los alumnos entran solamente con el nombre de la clase. Cada aula maneja sus propios alumnos, notas y comentarios independientes.</p>
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Nombre del Docente <span class="req">*</span></label>
@@ -90,14 +90,19 @@
                         <small style="color:var(--text-muted); font-size:0.75rem;">Sin espacios ni caracteres especiales.</small>
                     </div>
                     <div class="form-field">
-                        <label>Contraseña de la Clase <span class="req">*</span></label>
+                        <label>Contraseña de la Clase (solo docente) <span class="req">*</span></label>
                         <input type="password" id="t-pass" placeholder="6 dígitos" maxlength="6">
                         <small style="color:var(--text-muted); font-size:0.75rem;">Exactamente 6 dígitos numéricos.</small>
                     </div>
                     
                     <div class="form-field full">
-                        <label>Seleccionar Capítulo Asignado <span class="req">*</span></label>
+                        <label>Seleccionar Capítulos Asignados (uno o varios) <span class="req">*</span></label>
+                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+                            <button type="button" class="btn-secondary" onclick="selectAllChapters()">Seleccionar todos</button>
+                            <button type="button" class="btn-secondary" onclick="clearChapterSelection()">Limpiar selección</button>
+                        </div>
                         <div class="chapters-selection-list" id="chapters-cards-container"></div>
+                        <small id="selected-chapters-summary" style="color:var(--text-muted); font-size:0.8rem; font-weight:600;"></small>
                     </div>
                 </div>
                 <button class="btn-action-teacher" onclick="goToTeacherConfig()">VALIDAR E INGRESAR AL PANEL ➔</button>
@@ -197,12 +202,12 @@
             </div>
         </div>
 
-        <!-- 5. ACCESO DEL ESTUDIANTE -->
+        <!-- 5. ACCESO DEL ESTUDIANTE (SIN CONTRASEÑA) -->
         <div id="view-student-access" class="view">
             <div class="form-card">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
                 <h3>Acceso del Estudiante</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese con el nombre de la clase y contraseña asignados por su docente.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese sus datos y el nombre de la clase asignado por su docente.</p>
                 
                 <div class="form-grid">
                     <div class="form-field full">
@@ -223,13 +228,9 @@
                             <option value="5">Grupo 5</option>
                         </select>
                     </div>
-                    <div class="form-field">
+                    <div class="form-field full">
                         <label>Nombre de la Clase <span class="req">*</span></label>
                         <input type="text" id="s-classname" placeholder="Ej: Sol">
-                    </div>
-                    <div class="form-field">
-                        <label>Contraseña <span class="req">*</span></label>
-                        <input type="password" id="s-pass" placeholder="6 dígitos" maxlength="6">
                     </div>
                 </div>
                 <button class="btn-action-student" onclick="studentEnter()">INGRESAR A LA CLASE ➔</button>
@@ -355,7 +356,11 @@
 
         let currentStudent = null;
         let classroomConfig = null;
-        let selectedChapterId = 1;
+
+        // CAPÍTULOS: el docente puede asignar uno o varios a una misma aula
+        let selectedChapterIds = [];     // capítulos elegidos por el docente
+        let activeChapterIds = [];       // capítulos que resuelve el alumno en su aula
+
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
         
@@ -391,6 +396,25 @@
                 .replace(/'/g, '&#39;');
         }
 
+        // Convierte lo que devuelve Firebase (lista, objeto o número) en una lista ordenada de capítulos
+        function normalizeChapterIds(raw) {
+            let arr = [];
+            if (Array.isArray(raw)) {
+                arr = raw;
+            } else if (raw && typeof raw === 'object') {
+                arr = Object.values(raw);
+            } else if (raw !== undefined && raw !== null) {
+                arr = [raw];
+            }
+            const out = [];
+            arr.forEach(v => {
+                const n = parseInt(v);
+                if (!isNaN(n) && !out.includes(n)) out.push(n);
+            });
+            out.sort((a, b) => a - b);
+            return out;
+        }
+
         // MODO CLARO / OSCURO
         function toggleTheme() {
             const isDark = document.body.classList.toggle('dark-theme');
@@ -420,6 +444,10 @@
         })();
 
         window.onload = function() {
+            const catalog = getCatalog();
+            if (selectedChapterIds.length === 0 && catalog.length > 0) {
+                selectedChapterIds = [catalog[0].id];
+            }
             renderChapterSelectionCards();
             localStorage.removeItem('activeTeacherClass');
             localStorage.removeItem('activeStudentData');
@@ -470,6 +498,18 @@
             return catalog;
         }
 
+        // Datos de un capítulo (si no está en el catálogo se arma uno básico)
+        function getChapterData(chapterId) {
+            const catalog = getCatalog();
+            return catalog.find(c => c.id === chapterId) || {
+                id: chapterId,
+                title: `Capítulo ${chapterId}`,
+                introLab: '',
+                objGeneral: '',
+                color: '#1e3a8a'
+            };
+        }
+
         function getVideosForChapter(chapterId) {
             if (typeof videosPorCapitulo !== 'undefined' && videosPorCapitulo[chapterId]) {
                 return videosPorCapitulo[chapterId].map(v => ({
@@ -498,28 +538,50 @@
             return [];
         }
 
+        // ---------- SELECCIÓN DE CAPÍTULOS (DOCENTE) ----------
         function renderChapterSelectionCards() {
             const container = document.getElementById('chapters-cards-container');
             if(!container) return;
             const catalog = getCatalog();
 
-            if (catalog.length > 0 && !catalog.some(c => c.id === selectedChapterId)) {
-                selectedChapterId = catalog[0].id;
-            }
-
-            container.innerHTML = catalog.map(ch => `
-                <div class="chapter-select-card ${ch.id === selectedChapterId ? 'selected' : ''}" onclick="selectChapter(${ch.id})">
+            container.innerHTML = catalog.map(ch => {
+                const isSelected = selectedChapterIds.includes(ch.id);
+                return `
+                <div class="chapter-select-card ${isSelected ? 'selected' : ''}" onclick="toggleChapter(${ch.id})">
                     <div class="chapter-icon-badge" style="background: ${ch.color || '#1e3a8a'};">${ch.icon || ch.id}</div>
                     <div class="chapter-card-info">
                         <div class="chapter-card-title">${ch.title}</div>
                     </div>
-                    <div class="chapter-arrow">➔</div>
+                    <div class="chapter-arrow" style="font-weight:800; color:${isSelected ? 'var(--accent-teacher)' : 'var(--text-muted)'};">${isSelected ? '✔ Seleccionado' : '＋ Agregar'}</div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
+
+            const summary = document.getElementById('selected-chapters-summary');
+            if (summary) {
+                summary.textContent = selectedChapterIds.length > 0
+                    ? `Capítulos seleccionados (${selectedChapterIds.length}): ${selectedChapterIds.join(', ')}`
+                    : 'Aún no ha seleccionado ningún capítulo.';
+            }
         }
 
-        function selectChapter(id) {
-            selectedChapterId = id;
+        function toggleChapter(id) {
+            if (selectedChapterIds.includes(id)) {
+                selectedChapterIds = selectedChapterIds.filter(c => c !== id);
+            } else {
+                selectedChapterIds.push(id);
+                selectedChapterIds.sort((a, b) => a - b);
+            }
+            renderChapterSelectionCards();
+        }
+
+        function selectAllChapters() {
+            selectedChapterIds = getCatalog().map(c => c.id);
+            renderChapterSelectionCards();
+        }
+
+        function clearChapterSelection() {
+            selectedChapterIds = [];
             renderChapterSelectionCards();
         }
 
@@ -552,25 +614,35 @@
                 const data = snapshot.val();
                 
                 if (data) {
+                    // Aula existente: solo entra el docente que conoce la contraseña
                     if (data.password !== pass) {
                         alert("La clase '" + classname + "' ya existe con otra contraseña. Ingrese la contraseña correcta para acceder.");
                         return;
                     }
-                    selectedChapterId = parseInt(data.capituloId || 1);
+                    let saved = normalizeChapterIds(data.capituloIds);
+                    if (saved.length === 0) saved = normalizeChapterIds(data.capituloId);
+                    if (saved.length > 0) selectedChapterIds = saved;
                     customQuestionsStore = data.customQuestions || {};
+                    renderChapterSelectionCards();
                 } else {
+                    // Aula nueva: se necesita al menos un capítulo
+                    if (selectedChapterIds.length === 0) {
+                        alert("Seleccione al menos un capítulo para esta clase.");
+                        return;
+                    }
                     customQuestionsStore = {};
                     db.ref('clase_activa/' + classname).set({
                         docente: name,
                         password: pass,
-                        capituloId: selectedChapterId,
+                        capituloIds: selectedChapterIds.slice(),
+                        capituloId: selectedChapterIds[0],
                         customQuestions: customQuestionsStore
                     }).catch((err) => {
                         alert("No se pudo crear la clase en Firebase: " + err.message);
                     });
                 }
 
-                classroomConfig = { teacher: name, classname: classname, chapterId: selectedChapterId };
+                classroomConfig = { teacher: name, classname: classname, chapterIds: selectedChapterIds.slice() };
                 renderTeacherConfigurationView();
                 switchView('view-teacher-config');
             }).catch((err) => {
@@ -629,110 +701,126 @@
             const headerInfo = document.getElementById('teacher-config-header-info');
             const videosContainer = document.getElementById('teacher-config-videos-container');
             
-            const catalog = getCatalog();
-            const chapterData = catalog.find(c => c.id === selectedChapterId) || catalog[0];
-            const chapterVideos = getVideosForChapter(selectedChapterId);
+            const chapterIds = selectedChapterIds.slice();
 
-            if(headerInfo && chapterData) {
+            if(headerInfo) {
                 headerInfo.innerHTML = `
-                    <div style="background: var(--panel-alt); border-left: 5px solid ${chapterData.color || '#1e3a8a'}; padding: 1rem; border-radius: 8px; margin-bottom: 1.2rem;">
-                        <h4 style="margin:0 0 0.4rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">Configurando Clase: ${escapeHTML(classroomConfig.classname)} (${chapterData.title})</h4>
-                        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">${chapterData.introLab || chapterData.objGeneral}</p>
+                    <div style="background: var(--panel-alt); border-left: 5px solid var(--accent-teacher); padding: 1rem; border-radius: 8px; margin-bottom: 1.2rem;">
+                        <h4 style="margin:0 0 0.4rem 0; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">Configurando Clase: ${escapeHTML(classroomConfig.classname)}</h4>
+                        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);"><strong>Capítulos asignados (${chapterIds.length}):</strong> ${chapterIds.map(id => escapeHTML(getChapterData(id).title)).join(' · ')}</p>
                     </div>
                 `;
             }
 
             if(videosContainer) {
-                videosContainer.innerHTML = chapterVideos.map((vid, idx) => {
-                    const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
-                    const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
-                    const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
-                    const videoCloudinaryUrl = getVideoUrl(vid);
+                videosContainer.innerHTML = chapterIds.map(cid => {
+                    const chapterData = getChapterData(cid);
+                    const chapterVideos = getVideosForChapter(cid);
 
-                    return `
-                        <div class="teacher-config-video-card" id="config-card-${idx}">
-                            <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem; font-size:1.05rem;">${displayVideoTitle}</div>
-                            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;"><strong>Objetivo:</strong> ${vid.objetivo || 'Análisis físico de laboratorio'}</div>
-                            
-                            <div class="video-responsive" style="margin-bottom: 1rem;">
-                                <video controls preload="metadata">
-                                    <source src="${videoCloudinaryUrl}" type="video/mp4">
-                                    Su navegador no soporta la reproducción de video HTML5.
-                                </video>
-                            </div>
-
-                            <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.5rem;">Preguntas configuradas (${preguntasList.length}):</div>
-                            
-                            <div id="q-list-container-${idx}">
-                                ${preguntasList.map((p, pIdx) => `
-                                    <div class="teacher-suggested-q">
-                                        <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
-                                        <div style="margin-top:0.3rem; color:var(--accent-student); font-size:0.82rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:8px; padding:1rem; margin-top:0.8rem;">
-                                <div style="font-weight:700; font-size:0.82rem; text-transform:uppercase; color:#fbbf24; margin-bottom:0.6rem;">✏️ Proponer o Reemplazar Pregunta</div>
-                                
-                                <div class="form-grid" style="margin-top:0;">
-                                    <div class="form-field">
-                                        <label>Acción</label>
-                                        <select id="action-type-${idx}" onchange="toggleInlineReplaceSelector(${idx})">
-                                            <option value="proponer">Agregar Pregunta</option>
-                                            <option value="reemplazar">Reemplazar Existente</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-field" id="replace-select-wrapper-${idx}" style="display:none;">
-                                        <label>Elegir cuál reemplazar</label>
-                                        <select id="replace-target-${idx}">
-                                            ${preguntasList.map((p, pIdx) => `<option value="${pIdx}">Pregunta ${pIdx+1}: ${p.pregunta.substring(0,30)}...</option>`).join('')}
-                                        </select>
-                                    </div>
-                                    <div class="form-field full">
-                                        <label>Enunciado</label>
-                                        <textarea id="inline-q-text-${idx}" rows="2" placeholder="Escriba el enunciado..."></textarea>
-                                    </div>
-                                    <div class="form-field"><label>Alt A</label><input type="text" id="inline-opt-${idx}-0" placeholder="Opción A"></div>
-                                    <div class="form-field"><label>Alt B</label><input type="text" id="inline-opt-${idx}-1" placeholder="Opción B"></div>
-                                    <div class="form-field"><label>Alt C</label><input type="text" id="inline-opt-${idx}-2" placeholder="Opción C"></div>
-                                    <div class="form-field"><label>Alt D</label><input type="text" id="inline-opt-${idx}-3" placeholder="Opción D"></div>
-                                    <div class="form-field full">
-                                        <label>Correcta</label>
-                                        <select id="inline-correct-${idx}">
-                                            <option value="0">Opción A</option>
-                                            <option value="1">Opción B</option>
-                                            <option value="2">Opción C</option>
-                                            <option value="3">Opción D</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <button class="btn-secondary" onclick="submitInlineQuestion(${selectedChapterId}, ${idx})" style="border-color:#fbbf24; color:#fbbf24; margin-top:0.8rem; width:100%; justify-content:center;">
-                                    ➕ Guardar y Aplicar en este Video
-                                </button>
-                            </div>
+                    const chapterHeader = `
+                        <div style="margin:1.6rem 0 1rem 0; padding:0.8rem 1rem; border-left:5px solid ${chapterData.color || '#1e3a8a'}; background:var(--panel-alt); border-radius:8px;">
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--accent-teacher); text-transform:uppercase; letter-spacing:1px;">Capítulo ${chapterData.id}</div>
+                            <div style="font-weight:800; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">${chapterData.title}</div>
                         </div>
                     `;
+
+                    if (chapterVideos.length === 0) {
+                        return chapterHeader + `<p style="color:var(--text-muted); font-size:0.88rem;">Este capítulo no tiene videos registrados.</p>`;
+                    }
+
+                    return chapterHeader + chapterVideos.map((vid, idx) => {
+                        const uid = `${cid}_${idx}`;
+                        const preguntasList = getPreguntasForVideo(cid, idx, vid);
+                        const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
+                        const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
+                        const videoCloudinaryUrl = getVideoUrl(vid);
+
+                        return `
+                            <div class="teacher-config-video-card" id="config-card-${uid}">
+                                <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem; font-size:1.05rem;">${displayVideoTitle}</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;"><strong>Objetivo:</strong> ${vid.objetivo || 'Análisis físico de laboratorio'}</div>
+                                
+                                <div class="video-responsive" style="margin-bottom: 1rem;">
+                                    <video controls preload="metadata">
+                                        <source src="${videoCloudinaryUrl}" type="video/mp4">
+                                        Su navegador no soporta la reproducción de video HTML5.
+                                    </video>
+                                </div>
+
+                                <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.5rem;">Preguntas configuradas (${preguntasList.length}):</div>
+                                
+                                <div id="q-list-container-${uid}">
+                                    ${preguntasList.map((p, pIdx) => `
+                                        <div class="teacher-suggested-q">
+                                            <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
+                                            <div style="margin-top:0.3rem; color:var(--accent-student); font-size:0.82rem;">✓ Correcta: Opción ${String.fromCharCode(65 + p.correcta)}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+
+                                <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:8px; padding:1rem; margin-top:0.8rem;">
+                                    <div style="font-weight:700; font-size:0.82rem; text-transform:uppercase; color:#fbbf24; margin-bottom:0.6rem;">✏️ Proponer o Reemplazar Pregunta</div>
+                                    
+                                    <div class="form-grid" style="margin-top:0;">
+                                        <div class="form-field">
+                                            <label>Acción</label>
+                                            <select id="action-type-${uid}" onchange="toggleInlineReplaceSelector('${uid}')">
+                                                <option value="proponer">Agregar Pregunta</option>
+                                                <option value="reemplazar">Reemplazar Existente</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field" id="replace-select-wrapper-${uid}" style="display:none;">
+                                            <label>Elegir cuál reemplazar</label>
+                                            <select id="replace-target-${uid}">
+                                                ${preguntasList.map((p, pIdx) => `<option value="${pIdx}">Pregunta ${pIdx+1}: ${p.pregunta.substring(0,30)}...</option>`).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="form-field full">
+                                            <label>Enunciado</label>
+                                            <textarea id="inline-q-text-${uid}" rows="2" placeholder="Escriba el enunciado..."></textarea>
+                                        </div>
+                                        <div class="form-field"><label>Alt A</label><input type="text" id="inline-opt-${uid}-0" placeholder="Opción A"></div>
+                                        <div class="form-field"><label>Alt B</label><input type="text" id="inline-opt-${uid}-1" placeholder="Opción B"></div>
+                                        <div class="form-field"><label>Alt C</label><input type="text" id="inline-opt-${uid}-2" placeholder="Opción C"></div>
+                                        <div class="form-field"><label>Alt D</label><input type="text" id="inline-opt-${uid}-3" placeholder="Opción D"></div>
+                                        <div class="form-field full">
+                                            <label>Correcta</label>
+                                            <select id="inline-correct-${uid}">
+                                                <option value="0">Opción A</option>
+                                                <option value="1">Opción B</option>
+                                                <option value="2">Opción C</option>
+                                                <option value="3">Opción D</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button class="btn-secondary" onclick="submitInlineQuestion(${cid}, ${idx})" style="border-color:#fbbf24; color:#fbbf24; margin-top:0.8rem; width:100%; justify-content:center;">
+                                        ➕ Guardar y Aplicar en este Video
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
                 }).join('');
             }
         }
 
-        function toggleInlineReplaceSelector(idx) {
-            const action = document.getElementById(`action-type-${idx}`).value;
-            const wrapper = document.getElementById(`replace-select-wrapper-${idx}`);
+        function toggleInlineReplaceSelector(uid) {
+            const action = document.getElementById(`action-type-${uid}`).value;
+            const wrapper = document.getElementById(`replace-select-wrapper-${uid}`);
             wrapper.style.display = (action === 'reemplazar') ? 'block' : 'none';
         }
 
         function submitInlineQuestion(chapterId, videoIdx) {
-            const action = document.getElementById(`action-type-${videoIdx}`).value;
-            const qText = document.getElementById(`inline-q-text-${videoIdx}`).value.trim();
+            const uid = `${chapterId}_${videoIdx}`;
+            const action = document.getElementById(`action-type-${uid}`).value;
+            const qText = document.getElementById(`inline-q-text-${uid}`).value.trim();
             const opts = [
-                document.getElementById(`inline-opt-${videoIdx}-0`).value.trim(),
-                document.getElementById(`inline-opt-${videoIdx}-1`).value.trim(),
-                document.getElementById(`inline-opt-${videoIdx}-2`).value.trim(),
-                document.getElementById(`inline-opt-${videoIdx}-3`).value.trim()
+                document.getElementById(`inline-opt-${uid}-0`).value.trim(),
+                document.getElementById(`inline-opt-${uid}-1`).value.trim(),
+                document.getElementById(`inline-opt-${uid}-2`).value.trim(),
+                document.getElementById(`inline-opt-${uid}-3`).value.trim()
             ];
-            const correcta = parseInt(document.getElementById(`inline-correct-${videoIdx}`).value);
+            const correcta = parseInt(document.getElementById(`inline-correct-${uid}`).value);
 
             if(!qText || opts.some(o => !o)) {
                 alert("Por favor, complete el enunciado de la pregunta y todas las alternativas.");
@@ -750,7 +838,7 @@
                 customQuestionsStore[chapterId][videoIdx].adicionales.push(newQObj);
                 alert("¡Pregunta adicional agregada con éxito!");
             } else {
-                const targetIdx = parseInt(document.getElementById(`replace-target-${videoIdx}`).value);
+                const targetIdx = parseInt(document.getElementById(`replace-target-${uid}`).value);
                 customQuestionsStore[chapterId][videoIdx].reemplazos[targetIdx] = newQObj;
                 alert("¡Pregunta reemplazada con éxito!");
             }
@@ -763,14 +851,18 @@
                 });
             }
 
+            // Vuelve a dibujar la lista conservando la posición de la pantalla
+            const scrollY = window.scrollY || 0;
             renderTeacherConfigurationView();
+            window.scrollTo(0, scrollY);
         }
 
         function saveTeacherConfiguration() {
             if(classroomConfig && classroomConfig.classname) {
                 db.ref('clase_activa/' + classroomConfig.classname).update({
                     docente: classroomConfig.teacher,
-                    capituloId: selectedChapterId,
+                    capituloIds: selectedChapterIds.slice(),
+                    capituloId: selectedChapterIds[0],
                     customQuestions: customQuestionsStore
                 }).catch((err) => {
                     alert("No se pudo guardar la configuración en Firebase: " + err.message);
@@ -778,7 +870,7 @@
             }
 
             document.getElementById('docente-info-banner').innerHTML = `
-                <strong>Clase:</strong> ${escapeHTML(classroomConfig.classname)} | <strong>Docente:</strong> ${escapeHTML(classroomConfig.teacher)} | <strong>Capítulo:</strong> ${selectedChapterId}
+                <strong>Clase:</strong> ${escapeHTML(classroomConfig.classname)} | <strong>Docente:</strong> ${escapeHTML(classroomConfig.teacher)} | <strong>Capítulos:</strong> ${selectedChapterIds.join(', ')}
             `;
             
             listenToClassroomRealtimeData(classroomConfig.classname);
@@ -806,6 +898,7 @@
         function logoutStudent() {
             localStorage.removeItem('activeStudentData');
             currentStudent = null;
+            activeChapterIds = [];
             studentAnswersMap = {};
             resetWebEvaluationForm();
             switchView('view-role-selection');
@@ -969,47 +1062,57 @@
 
         function openTeacherQuestionsViewer() {
             const viewerContainer = document.getElementById('teacher-viewer-content-container');
-            const chapterVideos = getVideosForChapter(selectedChapterId);
-
             if(!viewerContainer) return;
 
-            viewerContainer.innerHTML = chapterVideos.map((vid, idx) => {
-                const preguntasList = getPreguntasForVideo(selectedChapterId, idx, vid);
-                const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
-                const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
+            viewerContainer.innerHTML = selectedChapterIds.map(cid => {
+                const chapterData = getChapterData(cid);
+                const chapterVideos = getVideosForChapter(cid);
 
-                return `
-                    <div class="teacher-config-video-card" style="margin-bottom:1.2rem;">
-                        <div style="font-weight:800; color:var(--accent-teacher); font-size:1rem; margin-bottom:0.2rem;">${displayVideoTitle}</div>
-                        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.8rem;">Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
-                        ${preguntasList.map((p, pIdx) => `
-                            <div class="teacher-suggested-q">
-                                <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
-                                <ul style="margin: 0.4rem 0 0 1rem; padding:0; font-size:0.82rem; list-style-type:none;">
-                                    ${p.opciones.map((opt, oIdx) => `
-                                        <li style="color:${oIdx === p.correcta ? 'var(--accent-student)' : 'var(--text-main)'}; font-weight:${oIdx === p.correcta ? '700' : '400'};">
-                                            ${String.fromCharCode(65 + oIdx)}. ${opt} ${oIdx === p.correcta ? ' ✓ (Correcta)' : ''}
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                            </div>
-                        `).join('')}
+                const chapterHeader = `
+                    <div style="margin:1.4rem 0 1rem 0; padding:0.8rem 1rem; border-left:5px solid ${chapterData.color || '#1e3a8a'}; background:var(--panel-alt); border-radius:8px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--accent-teacher); text-transform:uppercase; letter-spacing:1px;">Capítulo ${chapterData.id}</div>
+                        <div style="font-weight:800; color:var(--text-main); font-family:Georgia, serif;">${chapterData.title}</div>
                     </div>
                 `;
+
+                return chapterHeader + chapterVideos.map((vid, idx) => {
+                    const preguntasList = getPreguntasForVideo(cid, idx, vid);
+                    const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
+                    const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
+
+                    return `
+                        <div class="teacher-config-video-card" style="margin-bottom:1.2rem;">
+                            <div style="font-weight:800; color:var(--accent-teacher); font-size:1rem; margin-bottom:0.2rem;">${displayVideoTitle}</div>
+                            <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.8rem;">Objetivo: ${vid.objetivo || 'Análisis físico'}</div>
+                            ${preguntasList.map((p, pIdx) => `
+                                <div class="teacher-suggested-q">
+                                    <strong>Pregunta ${pIdx+1}:</strong> ${p.pregunta}
+                                    <ul style="margin: 0.4rem 0 0 1rem; padding:0; font-size:0.82rem; list-style-type:none;">
+                                        ${p.opciones.map((opt, oIdx) => `
+                                            <li style="color:${oIdx === p.correcta ? 'var(--accent-student)' : 'var(--text-main)'}; font-weight:${oIdx === p.correcta ? '700' : '400'};">
+                                                ${String.fromCharCode(65 + oIdx)}. ${opt} ${oIdx === p.correcta ? ' ✓ (Correcta)' : ''}
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }).join('');
             }).join('');
 
             switchView('view-teacher-questions-viewer');
         }
 
+        // ---------- INGRESO DEL ESTUDIANTE (SIN CONTRASEÑA) ----------
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
             const group = document.getElementById('s-group').value;
             const classname = document.getElementById('s-classname').value.trim();
-            const pass = document.getElementById('s-pass').value.trim();
 
-            if(!name || !code || !classname || !pass) {
-                alert("Por favor, complete todos sus datos de acceso y credenciales de clase.");
+            if(!name || !code || !classname) {
+                alert("Por favor, complete su nombre, código, grupo y el nombre de la clase.");
                 return;
             }
 
@@ -1023,35 +1126,28 @@
                 return;
             }
 
-            if(!/^\d{6}$/.test(pass)) {
-                alert("La contraseña debe tener exactamente 6 dígitos numéricos.");
-                return;
-            }
-
             if(!/^[a-zA-Z0-9_-]{3,20}$/.test(classname)) {
                 alert("El nombre de la clase no es válido. Use solo letras, números, guion o guion bajo, sin espacios.");
                 return;
             }
 
-            db.ref('clase_activa/' + classname).once('value').then((snapshot) => {
-                const classData = snapshot.val();
+            // El alumno solo lee los capítulos y las preguntas del aula. NO se descarga la contraseña del docente.
+            const classRef = db.ref('clase_activa/' + classname);
+            Promise.all([
+                classRef.child('capituloIds').once('value'),
+                classRef.child('capituloId').once('value'),
+                classRef.child('customQuestions').once('value')
+            ]).then(([idsSnap, legacySnap, questionsSnap]) => {
+                let chapterIds = normalizeChapterIds(idsSnap.val());
+                if(chapterIds.length === 0) chapterIds = normalizeChapterIds(legacySnap.val());
 
-                if(!classData) {
+                if(chapterIds.length === 0) {
                     alert("La clase ingresada no existe o aún no ha sido creada por el docente.");
                     return;
                 }
 
-                if(classData.password && classData.password !== pass) {
-                    alert("Contraseña de clase incorrecta. Verifique con su docente.");
-                    return;
-                }
-
-                if(classData.capituloId) {
-                    selectedChapterId = parseInt(classData.capituloId);
-                }
-                if(classData.customQuestions) {
-                    customQuestionsStore = classData.customQuestions;
-                }
+                activeChapterIds = chapterIds;
+                customQuestionsStore = questionsSnap.val() || {};
 
                 currentStudent = { name, code, group, classname };
                 localStorage.setItem('activeStudentData', JSON.stringify(currentStudent));
@@ -1068,7 +1164,7 @@
                     console.error("No se pudo registrar al alumno en Firebase:", err);
                 });
 
-                document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Clase: ${classname} [Grupo ${group}]`;
+                document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Clase: ${classname} [Grupo ${group}] | Capítulos: ${activeChapterIds.join(', ')}`;
                 renderStudentWorkspace();
                 switchView('view-student-workspace');
             }).catch((err) => {
@@ -1080,93 +1176,110 @@
             const banner = document.getElementById('workspace-chapter-banner');
             const container = document.getElementById('workspace-videos-container');
 
-            const catalog = getCatalog();
-            const chapterData = catalog.find(c => c.id === selectedChapterId) || catalog[0];
-            const chapterVideos = getVideosForChapter(selectedChapterId);
-
             studentAnswersMap = {}; // Reiniciar respuestas
+            activeQuestionsRendered = [];
 
-            if(banner && chapterData) {
-                banner.innerHTML = `
-                    <div class="chapter-header-box">
-                        <div style="flex:1; min-width:0;">
-                            <div style="font-size:0.75rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.2rem;">Capítulo ${chapterData.id}</div>
-                            <h3 style="margin:0 0 0.3rem 0; font-family:Georgia,serif; font-size:1.25rem; color:var(--text-main);">${chapterData.title}</h3>
-                            <p style="margin:0 0 0.5rem 0; font-size:0.88rem; color:var(--text-muted);"><strong>${chapterData.objGeneral || ''}</strong></p>
-                            <div class="lab-info-card">${chapterData.introLab || ''}</div>
+            // Resumen del aula cuando tiene más de un capítulo
+            if(banner) {
+                if (activeChapterIds.length > 1) {
+                    banner.innerHTML = `
+                        <div class="chapter-header-box" style="border-left:5px solid var(--accent-student);">
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.4rem;">Aula con ${activeChapterIds.length} capítulos</div>
+                            ${activeChapterIds.map(id => `<div style="font-size:0.9rem; color:var(--text-main);">• Capítulo ${id}: ${getChapterData(id).title}</div>`).join('')}
+                            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.5rem;">Responda los cuestionarios de todos los videos de cada capítulo y presione «Terminar cuestionario» al final para ver su nota.</div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    banner.innerHTML = '';
+                }
             }
 
             if(container) {
-                activeQuestionsRendered = [];
-                container.innerHTML = chapterVideos.map((vid, vIdx) => {
-                    const preguntasList = getPreguntasForVideo(selectedChapterId, vIdx, vid);
-                    const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
-                    const tituloVideo = `Video ${vIdx + 1}: ${cleanTitle}`;
+                container.innerHTML = activeChapterIds.map(cid => {
+                    const chapterData = getChapterData(cid);
+                    const chapterVideos = getVideosForChapter(cid);
 
-                    preguntasList.forEach((p, pIdx) => {
-                        activeQuestionsRendered.push({
-                            videoIndex: vIdx,
-                            videoTitle: tituloVideo,
-                            localPreguntaIndex: pIdx,
-                            correcta: parseInt(p.correcta),
-                            opciones: p.opciones || [],
-                            enunciado: p.pregunta,
-                            explicacion: p.explicacion || "Respuesta basada en principios físicos experimentales."
-                        });
-                    });
-
-                    const videoCloudinaryUrl = getVideoUrl(vid);
-
-                    return `
-                        <div class="video-card">
-                            <div class="video-title-bar">${tituloVideo}</div>
-                            <div class="video-theme-bar">Demostración oficial UNMSM</div>
-                            
-                            <div class="video-responsive">
-                                <video controls preload="metadata">
-                                    <source src="${videoCloudinaryUrl}" type="video/mp4">
-                                    Su navegador no soporta la reproducción de video HTML5.
-                                </video>
-                            </div>
-
-                            <div class="video-objective-box">
-                                <strong>Objetivo del Video:</strong> ${vid.objetivo || 'Analizar el comportamiento físico.'}
-                            </div>
-
-                            <div class="quiz-container-box">
-                                <div class="quiz-title">📝 Cuestionario de Evaluación del Video</div>
-                                ${preguntasList.map((q, qIdx) => `
-                                    <div class="quiz-question-item">
-                                        <div class="quiz-question-title">Pregunta ${qIdx+1}: ${q.pregunta}</div>
-                                        <div class="quiz-options-grid" id="q_group_${vIdx}_${qIdx}">
-                                            ${q.opciones.map((opt, oIdx) => {
-                                                const letter = String.fromCharCode(65 + oIdx);
-                                                return `
-                                                    <button type="button" class="quiz-option-btn" onclick="selectQuizOption(${vIdx}, ${qIdx}, ${oIdx})">
-                                                        <span class="option-letter-badge">${letter}</span>
-                                                        <span>${opt}</span>
-                                                    </button>
-                                                `;
-                                            }).join('')}
-                                        </div>
-                                    </div>
-                                `).join('')}
+                    const chapterBanner = `
+                        <div class="chapter-header-box">
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:0.75rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.2rem;">Capítulo ${chapterData.id}</div>
+                                <h3 style="margin:0 0 0.3rem 0; font-family:Georgia,serif; font-size:1.25rem; color:var(--text-main);">${chapterData.title}</h3>
+                                <p style="margin:0 0 0.5rem 0; font-size:0.88rem; color:var(--text-muted);"><strong>${chapterData.objGeneral || ''}</strong></p>
+                                <div class="lab-info-card">${chapterData.introLab || ''}</div>
                             </div>
                         </div>
                     `;
+
+                    const videosHTML = chapterVideos.map((vid, vIdx) => {
+                        const preguntasList = getPreguntasForVideo(cid, vIdx, vid);
+                        const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
+                        const tituloVideo = `Video ${vIdx + 1}: ${cleanTitle}`;
+
+                        preguntasList.forEach((p, pIdx) => {
+                            activeQuestionsRendered.push({
+                                chapterId: cid,
+                                videoIndex: vIdx,
+                                videoTitle: `Capítulo ${cid} · ${tituloVideo}`,
+                                localPreguntaIndex: pIdx,
+                                correcta: parseInt(p.correcta),
+                                opciones: p.opciones || [],
+                                enunciado: p.pregunta,
+                                explicacion: p.explicacion || "Respuesta basada en principios físicos experimentales."
+                            });
+                        });
+
+                        const videoCloudinaryUrl = getVideoUrl(vid);
+
+                        return `
+                            <div class="video-card">
+                                <div class="video-title-bar">${tituloVideo}</div>
+                                <div class="video-theme-bar">Demostración oficial UNMSM</div>
+                                
+                                <div class="video-responsive">
+                                    <video controls preload="metadata">
+                                        <source src="${videoCloudinaryUrl}" type="video/mp4">
+                                        Su navegador no soporta la reproducción de video HTML5.
+                                    </video>
+                                </div>
+
+                                <div class="video-objective-box">
+                                    <strong>Objetivo del Video:</strong> ${vid.objetivo || 'Analizar el comportamiento físico.'}
+                                </div>
+
+                                <div class="quiz-container-box">
+                                    <div class="quiz-title">📝 Cuestionario de Evaluación del Video</div>
+                                    ${preguntasList.map((q, qIdx) => `
+                                        <div class="quiz-question-item">
+                                            <div class="quiz-question-title">Pregunta ${qIdx+1}: ${q.pregunta}</div>
+                                            <div class="quiz-options-grid" id="q_group_${cid}_${vIdx}_${qIdx}">
+                                                ${q.opciones.map((opt, oIdx) => {
+                                                    const letter = String.fromCharCode(65 + oIdx);
+                                                    return `
+                                                        <button type="button" class="quiz-option-btn" onclick="selectQuizOption(${cid}, ${vIdx}, ${qIdx}, ${oIdx})">
+                                                            <span class="option-letter-badge">${letter}</span>
+                                                            <span>${opt}</span>
+                                                        </button>
+                                                    `;
+                                                }).join('')}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    return chapterBanner + (videosHTML || `<p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:1.5rem;">Este capítulo no tiene videos registrados.</p>`);
                 }).join('');
             }
         }
 
         // GUARDA DIRECTAMENTE EN MEMORIA LA OPCIÓN SELECCIONADA
-        function selectQuizOption(vIdx, qIdx, oIdx) {
-            const key = `${vIdx}_${qIdx}`;
+        function selectQuizOption(chapterId, vIdx, qIdx, oIdx) {
+            const key = `${chapterId}_${vIdx}_${qIdx}`;
             studentAnswersMap[key] = oIdx;
 
-            const container = document.getElementById(`q_group_${vIdx}_${qIdx}`);
+            const container = document.getElementById(`q_group_${chapterId}_${vIdx}_${qIdx}`);
             if(!container) return;
             
             const buttons = container.querySelectorAll('.quiz-option-btn');
@@ -1187,15 +1300,19 @@
             statusEl.style.color = ok ? '#10b981' : '#f43f5e';
         }
 
-        // EVALUACIÓN ROBUSTA Y MUESTRA DIRECTA DE RESULTADOS / NOTAS
+        // EVALUACIÓN ROBUSTA Y MUESTRA DIRECTA DE RESULTADOS / NOTAS (TODOS LOS CAPÍTULOS DEL AULA)
         function submitStudentQuizAndGetResults() {
-            // Verificar que todas las preguntas visibles hayan sido respondidas
+            // Verificar que todas las preguntas de todos los capítulos hayan sido respondidas
             for (let i = 0; i < activeQuestionsRendered.length; i++) {
                 let item = activeQuestionsRendered[i];
-                let key = `${item.videoIndex}_${item.localPreguntaIndex}`;
+                let key = `${item.chapterId}_${item.videoIndex}_${item.localPreguntaIndex}`;
                 
                 if (studentAnswersMap[key] === undefined) {
-                    alert(`Falta responder una pregunta obligatoria en el Video ${item.videoIndex + 1} (Pregunta ${item.localPreguntaIndex + 1}). Debe responder todas para continuar.`);
+                    const pendiente = document.getElementById(`q_group_${item.chapterId}_${item.videoIndex}_${item.localPreguntaIndex}`);
+                    if (pendiente && pendiente.scrollIntoView) {
+                        pendiente.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    alert(`Falta responder una pregunta obligatoria en el Capítulo ${item.chapterId}, Video ${item.videoIndex + 1} (Pregunta ${item.localPreguntaIndex + 1}). Debe responder todas para continuar.`);
                     return;
                 }
             }
@@ -1209,7 +1326,7 @@
                     videosMap[item.videoTitle] = [];
                 }
 
-                let key = `${item.videoIndex}_${item.localPreguntaIndex}`;
+                let key = `${item.chapterId}_${item.videoIndex}_${item.localPreguntaIndex}`;
                 let matchChoice = studentAnswersMap[key];
 
                 const correctIdx = item.correcta;
@@ -1269,6 +1386,7 @@
                     <h2 style="margin:0 0 0.5rem 0; color:var(--accent-student); font-family:Georgia,serif; font-size:1.3rem;">¡Cuestionario Completado, ${escapeHTML(currentStudent ? currentStudent.name : 'alumno')}!</h2>
                     <div style="font-size:1.35rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
                     <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
+                    <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.4rem;">Capítulos evaluados: ${activeChapterIds.join(', ')}</div>
                     <div id="save-status" style="font-size:0.8rem; margin-top:0.6rem; color:var(--text-muted);">Guardando tu nota...</div>
                 `;
             }
