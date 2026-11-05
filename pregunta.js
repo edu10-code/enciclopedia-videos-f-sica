@@ -1392,4 +1392,296 @@ const bancoPreguntas = {
             }
         ]
     }
+    10: {
+        titulo: "Capítulo 10: Estática",
+        introduccion: "Esta sesión de laboratorio se dedica al análisis riguroso de las dos condiciones de equilibrio de los cuerpos rígidos: el equilibrio traslacional (suma de fuerzas igual a cero) y el equilibrio rotacional (suma de torques igual a cero). A través de tableros de fuerzas, máquinas simples, palancas y sistemas articulados, se comprobarán experimentalmente las ecuaciones vectoriales de la estática.",
+        objetivoGeneral: "Analizar experimentalmente las condiciones fundamentales del equilibrio estático de partículas y cuerpos rígidos mediante montajes prácticos de fuerzas concurrentes, torques y máquinas simples.",
+        videos: [
+            {
+                id: "10-01",
+                titulo: "10-01 Tablero de fuerzas",
+                tema: "Equilibrio traslacional de fuerzas coplanares concurrentes.",
+                objetivoVideo: "Demostrar experimentalmente la condición de equilibrio estático mediante la anulación vectorial de las tensiones concurrentes sobre un anillo central.",
+                preguntas: [
+                    {
+                        pregunta: "¿Qué condición vectorial y matemática debe satisfacer la suma de tensiones para que el anillo central permanezca en reposo absoluto?",
+                        opciones: [
+                            "Todas las tensiones aplicadas deben ser de magnitud exactamente idéntica y mantener una separación angular simétrica perfecta.",
+                            "La suma vectorial de todas las fuerzas o tensiones coplanares aplicadas sobre el anillo debe ser estrictamente igual al vector nulo.",
+                            "El producto cruz de las componentes espaciales de la fuerza resultante debe igualar al peso absoluto total del anillo metálico central.",
+                            "La sumatoria aritmética o escalar de los valores numéricos de cada hilo debe resultar cero para satisfacer el estado estático inercial plano."
+                        ],
+                        correcta: 1,
+                        explicacion: "La primera condición de equilibrio estático establece que la resultante de todas las fuerzas concurrentes aplicadas sobre un cuerpo debe ser cero."
+                    },
+                    {
+                        pregunta: "¿Cómo se redistribuyen las componentes ortogonales de tensión si se altera la posición angular de una de las poleas en el tablero?",
+                        opciones: [
+                            "Se modifican las proyecciones ortogonales (seno y coseno) de esa tensión en los ejes, lo que rompe el equilibrio y obliga a reajustar las demás fuerzas o ángulos para volver a sumar cero.",
+                            "Las componentes se mantienen constantes siempre que la masa colgada no varíe, ya que la tensión de la cuerda es inmune a las modificaciones de su orientación direccional.",
+                            "La componente ortogonal de mayor magnitud absorbe todo el peso, anulando instantáneamente a las poleas restantes de acuerdo al principio rotacional de superposición.",
+                            "El cambio de ángulo invierte los signos de todas las proyecciones trasladando el baricentro asimétrico del anillo hasta que impacta los bordes metálicos de contención."
+                        ],
+                        correcta: 0,
+                        explicacion: "Al cambiar el ángulo, las componentes rectangulares cambian de valor, alterando el equilibrio vectorial y requiriendo un nuevo ajuste para restablecer la nulidad de la fuerza neta."
+                    }
+                ]
+            },
+            {
+                id: "10-02",
+                titulo: "10-02 Tendedero",
+                tema: "Tensión en cuerdas y componentes de fuerza",
+                objetivoVideo: "Analizar la distribución de fuerzas y tensiones en un sistema de cuerda inclinada.",
+                preguntas: []
+            },
+            {
+                id: "10-03",
+                titulo: "10-03 Carro en un plano inclinado removible",
+                tema: "Componentes del peso en plano inclinado",
+                objetivoVideo: "Estudiar el equilibrio de fuerzas en cuerpos sobre superficies inclinadas.",
+                preguntas: []
+            },
+            {
+                id: "10-04",
+                titulo: "10-04 Ventaja de una polea",
+                tema: "Ventaja mecánica y distribución de cargas en sistemas de poleas fijas y móviles.",
+                objetivoVideo: "Medir cuantitativamente la reducción en la fuerza de tracción requerida para sostener una carga pesada mediante arreglos de poleas.",
+                preguntas: [
+                    {
+                        pregunta: "¿Cuál es la ventaja mecánica ideal de una polea móvil individual en comparación con una polea fija de soporte?",
+                        opciones: [
+                            "Ambas poleas exhiben la misma ventaja mecánica, ya que operan bajo tensiones idénticas sin alterar perfiles de fuerza en reposo estático prolongado.",
+                            "La polea móvil ideal divide a la mitad la fuerza de tracción necesaria para sostener la carga (ventaja mecánica de 2), mientras que la polea fija únicamente invierte la dirección de la fuerza aplicada (ventaja mecánica de 1).",
+                            "La polea móvil elimina la aceleración de la gravedad, reduciendo el esfuerzo a un valor infinitesimal no disipativo sobre los rodajes de tracción.",
+                            "La polea fija multiplica la fuerza de entrada por el cuadrado del espesor del hilo, superando contundentemente a la móvil en capacidades elevadoras."
+                        ],
+                        correcta: 1,
+                        explicacion: "La polea fija solo cambia la dirección de la fuerza (VM = 1), mientras que la polea móvil distribuye el peso en dos segmentos de cuerda, reduciendo la fuerza a la mitad (VM = 2)."
+                    },
+                    {
+                        pregunta: "¿Cómo se relaciona la disminución en la fuerza aplicada con el aumento en la longitud de cuerda que debe ser recogida para elevar la carga?",
+                        opciones: [
+                            "Actúan de forma totalmente aleatoria, ya que en el mundo de las poleas reales se transgrede frecuentemente el teorema unificado inercial del movimiento.",
+                            "Muestran una proporcionalidad de origen térmico donde la cuerda cede y se alarga asintóticamente absorbiendo el estrés mecánico traccional aplicado longitudinalmente.",
+                            "Según el principio de conservación del trabajo y la energía mecánica, al reducir a la mitad la fuerza necesaria para elevar una carga, el operario debe recoger forzosamente el doble de distancia de cuerda.",
+                            "Al exigir menos tracción manual a lo largo de las poleas, la cuerda se contrae y reduce consecuentemente el metraje recogido debido a las holguras en la línea elástica."
+                        ],
+                        correcta: 2,
+                        explicacion: "Por conservación de la energía, el trabajo se mantiene constante. Si la fuerza se reduce a la mitad, la distancia de tracción debe duplicarse."
+                    }
+                ]
+            },
+            {
+                id: "10-05",
+                titulo: "10-05 Polea y dinamómetro",
+                tema: "Medición de tensión en sistemas de poleas",
+                objetivoVideo: "Determinar el valor de las fuerzas de tracción mediante instrumentos de medición directa.",
+                preguntas: []
+            },
+            {
+                id: "10-06",
+                titulo: "10-06 Máquinas simples",
+                tema: "Principio de conservación del trabajo en máquinas simples",
+                objetivoVideo: "Evaluar el comportamiento mecánico de dispositivos de transmisión de fuerza.",
+                preguntas: []
+            },
+            {
+                id: "10-07",
+                titulo: "10-07 Palancas",
+                tema: "Ley de la palanca y equilibrio de torques respecto a un punto de apoyo.",
+                objetivoVideo: "Comprobar la condición de equilibrio rotacional variando la posición del fulcro y los brazos de palanca de la fuerza aplicada y la resistencia.",
+                preguntas: [
+                    {
+                        pregunta: "¿Cómo define el producto de la fuerza por su brazo de momento la condición de balance rotacional en una palanca de primer género?",
+                        opciones: [
+                            "Exige que el brazo de palanca mantenga vibraciones asimétricas armónicas para cancelar la rigidez estructural originada por cuerpos densos.",
+                            "Establece que, para lograr el equilibrio perfecto, el torque generado en sentido horario debe ser exactamente equivalente y opuesto al torque de sentido antihorario.",
+                            "Impone que las masas a los lados guarden obligatoria y estricta correspondencia simétrica de longitud anulando cualquier cálculo derivado del momento.",
+                            "Indica que la adición vectorial de todas las cotas métricas debe ofrecer por resultado exacto un escalar puro desprovisto de masa gravitacional."
+                        ],
+                        correcta: 1,
+                        explicacion: "El equilibrio rotacional requiere que la sumatoria de torques sea cero, es decir, que el torque horario iguale al antihorario."
+                    },
+                    {
+                        pregunta: "¿Qué ventaja o desventaja mecánica caracteriza a las palancas de tercer género donde la fuerza motriz se aplica entre el fulcro y la resistencia?",
+                        opciones: [
+                            "Poseen una descomunal ventaja mecánica capaz de multiplicar a gran escala la fuerza de entrada, consolidándolas para mover masas monumentales.",
+                            "Ostentan propiedades neutras, operando como sólidos de agarre puro que ignoran longitudes o distancias respecto del tornillo pivote.",
+                            "Tienen la desventaja evidente de exigir una fuerza motriz muy superior al valor de la carga final (ventaja mecánica menor a 1), pero ofrecen la ganancia y ventaja innegable de incrementar la amplitud, la distancia y la velocidad de desplazamiento del extremo libre y operativo.",
+                            "Condensan la energía potencial albergada en sus centros baricéntricos extirpando la fricción y operando en equilibrios ingrávidos indiferentes."
+                        ],
+                        correcta: 2,
+                        explicacion: "En las palancas de tercer género el esfuerzo es mayor que la carga, pero se gana velocidad y mayor amplitud de movimiento."
+                    }
+                ]
+            },
+            {
+                id: "10-08",
+                titulo: "10-08 Barra horizontal",
+                tema: "Equilibrio de fuerzas paralelas en barras",
+                objetivoVideo: "Analizar las condiciones de equilibrio estático en una viga horizontal.",
+                preguntas: []
+            },
+            {
+                id: "10-09",
+                titulo: "10-09 Modelo de un brazo",
+                tema: "Sistemas biomecánicos y palancas óseas",
+                objetivoVideo: "Aplicar los conceptos de torque al funcionamiento mecánico del brazo humano.",
+                preguntas: []
+            },
+            {
+                id: "10-10",
+                titulo: "10-10 Barra de torques",
+                tema: "Equilibrio rotacional con múltiples fuerzas no perpendiculares.",
+                objetivoVideo: "Calcular y medir los momentos de fuerza ejercidos por pesos suspendidos a lo largo de una barra rígida horizontal articulada.",
+                preguntas: [
+                    {
+                        pregunta: "¿Por qué es imprescindible considerar la componente perpendicular de la fuerza al calcular el torque efectivo sobre la barra?",
+                        opciones: [
+                            "Porque el empuje en diagonal introduce fracturas de corte por pandeo excesivo invalidando la solidez de las tablas.",
+                            "Porque las fuerzas de compresión lateral repelen de facto toda proyección tridimensional incrementando perimetralmente la rotación del centroide.",
+                            "Porque las leyes inerciales básicas solo aplican en ángulos ortogonales mayores a ochenta grados sobre perfiles geométricos sólidos regulares.",
+                            "Porque las componentes orientadas paralelamente a la barra se limitan a empujar o jalar directamente contra el eje sin generar brazo de palanca ni tendencia rotacional alguna, mientras que solo la porción verdaderamente perpendicular al radio puede provocar giro."
+                        ],
+                        correcta: 3,
+                        explicacion: "El torque se define multiplicando la fuerza por su componente perpendicular al radio de giro; las fuerzas paralelas no producen rotación."
+                    },
+                    {
+                        pregunta: "¿Cómo influye la elección del punto de referencia (eje de momentos) al formular la ecuación de equilibrio de la barra?",
+                        opciones: [
+                            "Elegir el baricentro es un requisito sine qua non sin el cual se incorporan ruidos sísmicos y torques erráticos incontrolables.",
+                            "Seleccionar astutamente el eje de momentos directamente encima del punto de aplicación de una fuerza problemática o desconocida permite que su brazo sea cero y quede algebraicamente anulada, simplificando así de forma notable la solución matemática.",
+                            "Condena la ecuación a resultados imaginarios al ignorar la refracción gravitatoria ejercida sobre pivotes.",
+                            "Determina de forma exponencial el margen de torques elásticos cruzados provocando lecturas desequilibradas."
+                        ],
+                        correcta: 1,
+                        explicacion: "Ubicar el eje de rotación en el punto de aplicación de una fuerza desconocida hace que su distancia sea cero, anulando su término en la ecuación."
+                    }
+                ]
+            },
+            {
+                id: "10-11",
+                titulo: "10-11 Tabla con bisagras",
+                tema: "Torques y reacciones en sistemas articulados",
+                objetivoVideo: "Estudiar el equilibrio rotacional de placas sujetas por bisagras.",
+                preguntas: []
+            },
+            {
+                id: "10-12",
+                titulo: "10-12 Llave de torques",
+                tema: "Momento de torsión y brazo de palanca",
+                objetivoVideo: "Comprender la relación entre la fuerza aplicada, el radio de giro y el torque resultante.",
+                preguntas: []
+            },
+            {
+                id: "10-13",
+                titulo: "10-13 Rueda de torques",
+                tema: "Cancelación de torques en poleas concéntricas de radios escalonados.",
+                objetivoVideo: "Validar matemáticamente la suma nula de momentos emparejando fuerzas desiguales aplicadas a distintos radios de una misma polea escalonada.",
+                preguntas: [
+                    {
+                        pregunta: "¿Por qué una pesa de 500 g colocada a un radio de 20 cm equilibra perfectamente a una pesa de 1000 g situada a un radio de 10 cm?",
+                        opciones: [
+                            "Porque la gravedad disminuye simétricamente conforme nos distanciamos del cubo central.",
+                            "Porque bajo la ley universal del momento de una fuerza para sostener balance rotacional, basta con que los torques concéntricos a ambos flancos se igualen; aquí 500 multiplicados por 20 resultan la idéntica magnitud que 1000 por 10.",
+                            "Porque actúan poleas de doble compensación estática frenando la masa de mayor volumen.",
+                            "Porque el momento centrípeto angular presiona el peso masivo fuertemente reduciendo a la mitad su impacto."
+                        ],
+                        correcta: 1,
+                        explicacion: "El torque se calcula como producto de la fuerza por su radio. Ambos lados dan un momento de 10000 g·cm, contrarrestándose."
+                    },
+                    {
+                        pregunta: "¿Qué ocurriría con el estado de rotación del disco si ambas cargas se desplazan simultáneamente a radios mayores en una proporción no simétrica?",
+                        opciones: [
+                            "El equipo asimilará las diferencias relocalizando la tensión inercial.",
+                            "El soporte perderá la simetría multiplicando a infinito los errores inerciales.",
+                            "Al carecer de proporcionalidad equilibrada, la condición estática inercial se rompería inevitablemente causando que el disco comience a rotar acelerando con fuerza a favor de aquel vector que haya acumulado un torque neto de mayor supremacía y dominancia.",
+                            "Permanecerá mudo y estable siempre y cuando los hilos soporten los jalones."
+                        ],
+                        correcta: 2,
+                        explicacion: "Si se altera la proporción de los radios, los torques ya no suman cero y se genera un torque neto desequilibrado que produce rotación acelerada."
+                    }
+                ]
+            },
+            {
+                id: "10-14",
+                titulo: "10-14 Balanceo de una regla de un metro",
+                tema: "Centro de gravedad y torques equilibrados",
+                objetivoVideo: "Determinar el punto de apoyo óptimo para lograr el balance estático de una regla.",
+                preguntas: []
+            },
+            {
+                id: "10-15",
+                titulo: "10-15 Regla de un metro sobre dos dedos",
+                tema: "Fuerzas normales y fricción en puntos de apoyo móviles",
+                objetivoVideo: "Observar el desplazamiento del punto de equilibrio al deslizar los soportes.",
+                preguntas: []
+            },
+            {
+                id: "10-16",
+                titulo: "10-16 Puente y caminón",
+                tema: "Distribución de cargas en estructuras de puentes",
+                objetivoVideo: "Analizar las reacciones estáticas en los apoyos de una estructura ante cargas móviles.",
+                preguntas: []
+            },
+            {
+                id: "10-17",
+                titulo: "10-17 Balanza de Roberval",
+                tema: "Equilibrio en balanzas de doble plato",
+                objetivoVideo: "Comprobar el principio de palancas simétricas en el diseño de balanzas.",
+                preguntas: []
+            },
+            {
+                id: "10-18",
+                titulo: "10-18 Fuerzas en una escalera",
+                tema: "Equilibrio estático completo de un cuerpo rígido apoyado con fricción.",
+                objetivoVideo: "Analizar la interacción entre las fuerzas normales, de gravedad y de fricción en la base y la pared para evitar el deslizamiento de una escalera inclinada.",
+                preguntas: [
+                    {
+                        pregunta: "¿Por qué el riesgo de deslizamiento de la escalera se incrementa a medida que una persona asciende hacia los peldaños superiores?",
+                        opciones: [
+                            "Porque al avanzar la masa humana hacia arriba, también asciende el centro gravitacional extendiendo considerablemente el brazo de palanca del peso, el cual genera un torque que empuja cada vez con más brutalidad la pared, requiriendo un incremento idéntico de fricción estática a nivel de suelo para evitar que sus bases patinen sin remedio.",
+                            "Porque al subir, la inercia angular disipa los encajes y reduce drásticamente el peso directo.",
+                            "Porque transgrede los ángulos geométricos enclavados provocando descargas elásticas.",
+                            "Porque las paredes lisas no devuelven normales vectoriales estáticas."
+                        ],
+                        correcta: 0,
+                        explicacion: "A medida que la persona sube, aumenta el torque generado por su peso respecto a la base, exigiendo una mayor fuerza de fricción en el piso para evitar deslizamientos."
+                    },
+                    {
+                        pregunta: "¿Qué papel desempeña la fuerza de fricción estática en el suelo para contrarrestar la fuerza normal horizontal ejercida por la pared lisa?",
+                        opciones: [
+                            "Solo funciona absorbiendo impactos de compresión paralela.",
+                            "Refleja como resorte térmico a la normal inferior propulsando al armazón de regreso.",
+                            "Cumple una función secundaria al carecer de vectores aplicados perpendiculares.",
+                            "Juega el papel más vital del montaje al presentarse como la única e insustituible fuerza orientada de manera horizontal (en la base) con la capacidad de confrontar y equilibrar milimétricamente el empuje lateral opuesto de rechazo expedido desde el muro liso sin agarres."
+                        ],
+                        correcta: 3,
+                        explicacion: "En el eje horizontal, la única fuerza que se opone y equilibra el empuje de la pared lisa es la fricción estática en el suelo."
+                    }
+                ]
+            },
+            {
+                id: "10-19",
+                titulo: "10-19 Escoba parada",
+                tema: "Centro de gravedad y estabilidad de objetos verticales",
+                objetivoVideo: "Explicar las condiciones geométricas para mantener un objeto en equilibrio precario.",
+                preguntas: []
+            },
+            {
+                id: "10-20",
+                titulo: "10-20 Cama de clavos",
+                tema: "Presión y distribución de fuerzas sobre superficies",
+                objetivoVideo: "Comprender cómo la magnitud de la presión disminuye al aumentar el área de contacto.",
+                preguntas: []
+            },
+            {
+                id: "10-21",
+                titulo: "10-21 Aplasta huevos",
+                tema: "Resistencia estructural y geometría de arcos",
+                objetivoVideo: "Demostrar la alta capacidad de soporte de cargas en estructuras con formas curvas naturales.",
+                preguntas: []
+            }
+        ]
+    }
 };
