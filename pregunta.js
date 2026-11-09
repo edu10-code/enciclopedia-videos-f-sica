@@ -1,401 +1,779 @@
 const bancoPreguntas = {
     1: {
-        introLab: "Esta sesión introduce las unidades básicas del Sistema Internacional, la estimación de incertidumbres y el manejo de instrumentos de medición en el laboratorio de física.",
-        objGeneral: "Comprender y aplicar el sistema de unidades y la propagación de errores en mediciones físicas directas e indirectas.",
+        titulo: "Capítulo 1: Unidades y vectores",
+        introduccion: "Esta sesión introduce los fundamentos metrológicos y el cálculo vectorial aplicados a la física experimental. Se trabajará con patrones de medida, magnitudes fundamentales y operaciones vectoriales gráficas y analíticas para la resolución cuantitativa de sistemas mecánicos en el laboratorio.",
+        objetivoGeneral: "Comprender y aplicar los conceptos de sistemas de unidades y álgebra vectorial mediante montajes experimentales para modelar magnitudes físicas orientadas en dos y tres dimensiones.",
         videos: [
             {
                 id: "01-01",
                 titulo: "01-01 Unidades básicas",
-                tema: "Sistema Internacional de Unidades y mediciones fundamentales.",
-                objetivoVideo: "Identificar las magnitudes fundamentales y el uso correcto de instrumentos de medida.",
+                tema: "Sistemas de unidades y magnitudes fundamentales.",
+                objetivoVideo: "Identificar las unidades fundamentales y comprender la importancia de los patrones universales de medida.",
                 preguntas: [
                     {
-                        pregunta: "¿Cuál es la unidad fundamental de longitud en el Sistema Internacional (SI)?",
-                        opciones: ["El centímetro", "El metro", "El kilómetro", "El milímetro"],
+                        pregunta: "¿Cuál es la principal finalidad de establecer patrones universales de medida?",
+                        opciones: [
+                            "Permitir que cada laboratorio utilice unidades diferentes según sus necesidades.",
+                            "Garantizar la reproducibilidad, consistencia y comparación de las mediciones.",
+                            "Eliminar la necesidad de utilizar instrumentos de medición.",
+                            "Reemplazar las magnitudes fundamentales por magnitudes derivadas."
+                        ],
                         correcta: 1,
-                        explicacion: "En el Sistema Internacional de Unidades (SI), la unidad básica de longitud es el metro (m)."
+                        explicacion: "Los patrones universales permiten que las mediciones sean reproducibles, consistentes y comparables entre distintos laboratorios."
                     },
                     {
-                        pregunta: "¿Qué instrumento ofrece mayor precisión para medir diámetros internos pequeños en el laboratorio?",
-                        opciones: ["La regla graduada convencional", "El calibrador vernier (pie de rey)", "La cinta métrica flexible", "El micrómetro de costura"],
-                        correcta: 1,
-                        explicacion: "El calibrador vernier permite mediciones de alta precisión al milímetro y fracción (décimas o centésimas)."
+                        pregunta: "¿Cómo se obtienen las unidades derivadas dentro de un sistema de unidades?",
+                        opciones: [
+                            "Mediante la combinación arbitraria de símbolos y valores numéricos.",
+                            "A partir de unidades que no tienen relación con las magnitudes fundamentales.",
+                            "Mediante combinaciones algebraicas de las unidades fundamentales.",
+                            "Únicamente mediante la conversión de unidades de temperatura."
+                        ],
+                        correcta: 2,
+                        explicacion: "Las unidades derivadas se forman mediante operaciones algebraicas con las unidades fundamentales, como ocurre con la velocidad y la aceleración."
                     }
                 ]
+            },
+            {
+                id: "01-02",
+                titulo: "01-02 Suma de vectores (paralelogramo)",
+                tema: "Suma gráfica de vectores mediante el método del paralelogramo.",
+                objetivoVideo: "Determinar gráficamente la magnitud y dirección de la resultante de dos vectores.",
+                preguntas: [
+                    {
+                        pregunta: "¿Qué sucede con la magnitud de la resultante de dos vectores cuando el ángulo entre ellos aumenta de 0° a 180°, manteniendo sus magnitudes constantes?",
+                        opciones: [
+                            "La resultante aumenta continuamente.",
+                            "La resultante disminuye progresivamente.",
+                            "La resultante permanece constante.",
+                            "La resultante siempre es igual a cero."
+                        ],
+                        correcta: 1,
+                        explicacion: "Cuando el ángulo aumenta de 0° a 180°, la magnitud de la resultante disminuye desde la suma de ambos vectores hasta la diferencia de sus magnitudes."
+                    },
+                    {
+                        pregunta: "¿Qué sucede cuando dos vectores tienen la misma dirección y el mismo sentido?",
+                        opciones: [
+                            "La resultante es siempre cero.",
+                            "La resultante es igual a la diferencia de sus magnitudes.",
+                            "La resultante es perpendicular a ambos vectores.",
+                            "La magnitud de la resultante es igual a la suma de las magnitudes de ambos vectores."
+                        ],
+                        correcta: 3,
+                        explicacion: "Cuando dos vectores tienen la misma dirección y sentido, sus magnitudes se suman directamente."
+                    }
+                ]
+            },
+            {
+                id: "01-03",
+                titulo: "01-03 Suma de vectores (puntas con colas)",
+                tema: "Suma gráfica de vectores mediante el método punta-cola.",
+                objetivoVideo: "Aplicar el método punta-cola para obtener la resultante de varios vectores.",
+                preguntas: [
+                    {
+                        pregunta: "¿Qué sucede con el vector resultante cuando se cambia el orden de los vectores en el método punta-cola?",
+                        opciones: [
+                            "La resultante cambia completamente de dirección.",
+                            "La resultante permanece igual porque representa el mismo desplazamiento total.",
+                            "La resultante se convierte en un vector nulo.",
+                            "La resultante aumenta proporcionalmente al número de vectores."
+                        ],
+                        correcta: 1,
+                        explicacion: "La suma vectorial es conmutativa, por lo que cambiar el orden de los vectores no modifica la resultante."
+                    },
+                    {
+                        pregunta: "¿Qué significa que un polígono vectorial esté completamente cerrado?",
+                        opciones: [
+                            "Que todos los vectores tienen la misma magnitud.",
+                            "Que todos los vectores son paralelos.",
+                            "Que la resultante vectorial es cero.",
+                            "Que todos los vectores tienen dirección vertical."
+                        ],
+                        correcta: 2,
+                        explicacion: "Cuando el polígono vectorial se cierra, el desplazamiento total es nulo y, por tanto, la suma de los vectores es cero."
+                    }
+                ]
+            },
+            {
+                id: "01-04",
+                titulo: "01-04 Componentes de un vector",
+                tema: "Descomposición de vectores en componentes rectangulares.",
+                objetivoVideo: "Calcular las componentes horizontal y vertical de un vector mediante funciones trigonométricas.",
+                preguntas: [
+                    {
+                        pregunta: "¿Cómo se calculan las componentes de un vector de magnitud A que forma un ángulo θ con el eje horizontal positivo?",
+                        opciones: [
+                            "Ax = A sen θ; Ay = A cos θ.",
+                            "Ax = A cos θ; Ay = A sen θ.",
+                            "Ax = A tan θ; Ay = A cot θ.",
+                            "Ax = A + cos θ; Ay = A + sen θ."
+                        ],
+                        correcta: 1,
+                        explicacion: "La componente horizontal se obtiene con el coseno y la componente vertical con el seno del ángulo medido desde el eje horizontal positivo."
+                    },
+                    {
+                        pregunta: "¿En qué cuadrante se encuentra un vector cuando sus componentes horizontal y vertical son negativas?",
+                        opciones: [
+                            "Primer cuadrante.",
+                            "Segundo cuadrante.",
+                            "Tercer cuadrante.",
+                            "Cuarto cuadrante."
+                        ],
+                        correcta: 2,
+                        explicacion: "Cuando ambas componentes son negativas, el vector se encuentra en el tercer cuadrante."
+                    }
+                ]
+            },
+            {
+                id: "01-05",
+                titulo: "01-05 Producto punto de vectores",
+                tema: "Producto escalar entre vectores y su interpretación geométrica.",
+                objetivoVideo: "Comprender y calcular el producto punto de dos vectores mediante sus magnitudes y el ángulo entre ellos.",
+                preguntas: [
+                    {
+                        pregunta: "¿Cuál es el resultado del producto punto entre dos vectores perpendiculares?",
+                        opciones: [
+                            "Es igual al producto de sus magnitudes.",
+                            "Es siempre positivo.",
+                            "Es siempre negativo.",
+                            "Es igual a cero."
+                        ],
+                        correcta: 3,
+                        explicacion: "El producto punto se calcula como A·B = |A||B| cos θ. Si los vectores son perpendiculares, el coseno de 90° es cero."
+                    },
+                    {
+                        pregunta: "¿Cómo se calcula el ángulo entre dos vectores cuando se conoce su producto punto?",
+                        opciones: [
+                            "θ = sen⁻¹[(A·B)/(|A||B|)].",
+                            "θ = cos⁻¹[(A·B)/(|A||B|)].",
+                            "θ = tan⁻¹[(A·B)/(|A||B|)].",
+                            "θ = (A·B)(|A||B|)."
+                        ],
+                        correcta: 1,
+                        explicacion: "El ángulo se obtiene despejando la expresión del producto punto: θ = cos⁻¹[(A·B)/(|A||B|)]."
+                    }
+                ]
+            },
+            {
+                id: "01-06",
+                titulo: "01-06 Producto cruz de vectores",
+                tema: "Producto vectorial y su interpretación geométrica.",
+                objetivoVideo: "Calcular el producto cruz de dos vectores y reconocer su dirección y magnitud.",
+                preguntas: [
+                    {
+                        pregunta: "¿Qué propiedad cumple el producto cruz cuando se invierte el orden de los vectores?",
+                        opciones: [
+                            "A × B = −(B × A).",
+                            "A × B = B × A.",
+                            "A × B = A + B.",
+                            "A × B = 0 en todos los casos."
+                        ],
+                        correcta: 0,
+                        explicacion: "El producto cruz es anticonmutativo: al invertir el orden de los vectores, el resultado cambia de sentido."
+                    },
+                    {
+                        pregunta: "¿Qué representa geométricamente la magnitud del producto cruz de dos vectores?",
+                        opciones: [
+                            "El volumen de un cubo.",
+                            "La longitud de la diagonal de un rectángulo.",
+                            "La distancia entre los extremos de los vectores.",
+                            "El área del paralelogramo formado por ambos vectores."
+                        ],
+                        correcta: 3,
+                        explicacion: "La magnitud del producto cruz es |A||B| sen θ, que representa el área del paralelogramo formado por los dos vectores."
+                    }
+                ]
+            },
+            {
+                id: "01-07",
+                titulo: "01-07 Componentes de vectores en 3 dimensiones",
+                tema: "Descomposición de vectores en tres dimensiones.",
+                objetivoVideo: "Identificar y analizar las componentes de un vector en los ejes coordenados X, Y y Z.",
+                preguntas: []
             }
         ]
     },
+
     2: {
-        introLab: "Estudio del movimiento rectilíneo uniforme y uniformemente acelerado, analizando las gráficas de posición, velocidad y aceleración en función del tiempo.",
-        objGeneral: "Analizar la cinemática de cuerpos en una dimensión mediante rieles de aire y sensores de posición.",
+        titulo: "Capítulo 2: Cinemática lineal",
+        introduccion: "El estudio del movimiento en una dimensión constituye la base de la mecánica clásica. En esta sesión de laboratorio analizaremos el movimiento rectilíneo uniforme (MRU) y el movimiento rectilíneo uniformemente acelerado (MRUA), contrastando el desplazamiento ideal con la caída libre de cuerpos bajo la acción de la aceleración gravitatoria.",
+        objetivoGeneral: "Determinar experimentalmente las relaciones cinemáticas entre posición, velocidad y aceleración en movimientos unidimensionales para caracterizar el MRU y la aceleración uniforme producida por la gravedad.",
         videos: [
             {
                 id: "02-01",
-                titulo: "02-01 Movimiento rectilíneo uniforme",
-                tema: "Cinemática en una dimensión con velocidad constante.",
-                objetivoVideo: "Determinar la velocidad constante de un móvil mediante registros de posición y tiempo.",
+                titulo: "02-01 Velocidad constante",
+                tema: "Movimiento rectilíneo uniforme y velocidad constante.",
+                objetivoVideo: "Analizar la relación entre posición, tiempo y velocidad en un movimiento rectilíneo uniforme.",
                 preguntas: [
                     {
-                        pregunta: "En una gráfica de posición en función del tiempo para un MRU, ¿qué representa geométricamente la pendiente de la recta?",
-                        opciones: ["La aceleración instantánea", "La velocidad constante del móvil", "La distancia total recorrida", "El tiempo de vuelo"],
-                        correcta: 1,
-                        explicacion: "La pendiente de la recta en la gráfica x vs. t corresponde analíticamente a la velocidad constante del movimiento."
+                        pregunta: "¿Qué representa la pendiente de una gráfica posición-tiempo en un movimiento con velocidad constante?",
+                        opciones: [
+                            "La aceleración del objeto.",
+                            "La distancia total recorrida.",
+                            "La velocidad del objeto.",
+                            "La fuerza neta aplicada."
+                        ],
+                        correcta: 2,
+                        explicacion: "La pendiente de la gráfica posición-tiempo representa la velocidad del objeto."
                     },
                     {
-                        pregunta: "¿Cómo es la aceleración de un móvil que experimenta un movimiento rectilíneo uniforme (MRU)?",
-                        opciones: ["Constante y distinta de cero", "Nula (cero)", "Proporcional al tiempo transcurrido", "Inversamente proporcional a la posición"],
+                        pregunta: "¿Qué condición dinámica permite que un objeto mantenga una velocidad constante en línea recta?",
+                        opciones: [
+                            "Que exista una fuerza neta creciente.",
+                            "Que la fuerza de gravedad sea siempre cero.",
+                            "Que la fuerza aplicada sea mayor que la fricción.",
+                            "Que la fuerza neta externa sea cero."
+                        ],
+                        correcta: 3,
+                        explicacion: "De acuerdo con la primera ley de Newton, un objeto mantiene su velocidad constante cuando la fuerza neta que actúa sobre él es cero."
+                    }
+                ]
+            },
+            {
+                id: "02-02",
+                titulo: "02-02 Buldócer sobre una hoja en movimiento",
+                tema: "Movimiento relativo y composición de velocidades.",
+                objetivoVideo: "Comprender cómo se combinan las velocidades de distintos cuerpos según el sistema de referencia.",
+                preguntas: [
+                    {
+                        pregunta: "¿Cómo se calcula la velocidad relativa entre dos objetos que se desplazan en la misma línea recta y en el mismo sentido?",
+                        opciones: [
+                            "Mediante la suma algebraica de sus velocidades, considerando sus sentidos.",
+                            "Mediante la multiplicación de ambas velocidades.",
+                            "Mediante la división de la velocidad mayor entre la menor.",
+                            "Mediante la suma de sus masas."
+                        ],
+                        correcta: 0,
+                        explicacion: "Las velocidades relativas se combinan algebraicamente, considerando el sentido de cada movimiento."
+                    },
+                    {
+                        pregunta: "¿Qué velocidad relativa observa un observador cuando dos objetos se desplazan con velocidades iguales en magnitud y opuestas en sentido?",
+                        opciones: [
+                            "El doble de la velocidad de cualquiera de los objetos.",
+                            "Una velocidad infinita.",
+                            "Una velocidad relativa igual a cero.",
+                            "Una velocidad igual a la mitad de la velocidad inicial."
+                        ],
+                        correcta: 2,
+                        explicacion: "Cuando las velocidades tienen igual magnitud y sentidos opuestos, la velocidad relativa entre los objetos puede ser cero según el sistema de referencia considerado."
+                    }
+                ]
+            },
+            {
+                id: "02-03",
+                titulo: "02-03 Plano inclinado con pelota que rueda",
+                tema: "Movimiento acelerado sobre un plano inclinado.",
+                objetivoVideo: "Analizar la influencia de la inclinación de una superficie sobre la aceleración de una pelota que rueda.",
+                preguntas: [
+                    {
+                        pregunta: "¿Por qué una pelota rueda hacia abajo por un plano inclinado?",
+                        opciones: [
+                            "Porque la fuerza normal aumenta la gravedad.",
+                            "Porque una componente del peso paralela al plano impulsa el movimiento.",
+                            "Porque la fuerza de gravedad desaparece.",
+                            "Porque la pelota no tiene inercia."
+                        ],
                         correcta: 1,
-                        explicacion: "Al mantenerse la velocidad constante, la tasa de cambio de la velocidad es nula, por lo que la aceleración es igual a cero."
+                        explicacion: "El peso tiene una componente paralela al plano inclinado que impulsa el movimiento. La componente perpendicular es contrarrestada por la fuerza normal."
+                    },
+                    {
+                        pregunta: "¿Qué sucede con la aceleración de una pelota sobre un plano inclinado cuando aumenta el ángulo de inclinación?",
+                        opciones: [
+                            "La aceleración siempre disminuye.",
+                            "La aceleración permanece constante para cualquier ángulo.",
+                            "La aceleración se vuelve cero.",
+                            "La aceleración aumenta y, en el límite de 90°, se aproxima al comportamiento de caída libre ideal."
+                        ],
+                        correcta: 3,
+                        explicacion: "Al aumentar la inclinación, aumenta la componente del peso paralela al plano. En el límite de 90°, el movimiento se aproxima a la caída libre, aunque la rotación influye en una pelota que rueda."
+                    }
+                ]
+            },
+            {
+                id: "02-04",
+                titulo: "02-04 Aceleración constante",
+                tema: "Movimiento rectilíneo uniformemente acelerado.",
+                objetivoVideo: "Comprobar las relaciones entre desplazamiento, velocidad, tiempo y aceleración constante.",
+                preguntas: [
+                    {
+                        pregunta: "¿Qué relación existe entre las distancias recorridas durante intervalos de tiempo iguales por un objeto que parte del reposo con aceleración constante?",
+                        opciones: [
+                            "Las distancias son siempre iguales.",
+                            "Las distancias disminuyen siguiendo una secuencia par.",
+                            "Las distancias siguen una secuencia proporcional a 1, 3, 5, 7, etc.",
+                            "Las distancias no dependen de la aceleración."
+                        ],
+                        correcta: 2,
+                        explicacion: "Para un objeto que parte del reposo con aceleración constante, las distancias recorridas en intervalos iguales siguen la proporción de números impares consecutivos."
+                    },
+                    {
+                        pregunta: "¿Cómo se obtiene la aceleración a partir de una gráfica velocidad-tiempo?",
+                        opciones: [
+                            "Mediante el área bajo la curva.",
+                            "Mediante la pendiente de la gráfica.",
+                            "Mediante la distancia inicial.",
+                            "Mediante el producto de la velocidad por el tiempo."
+                        ],
+                        correcta: 1,
+                        explicacion: "La aceleración es la variación de la velocidad respecto al tiempo y corresponde a la pendiente de la gráfica velocidad-tiempo."
+                    }
+                ]
+            },
+            {
+                id: "02-05",
+                titulo: "02-05 Caída de una cuerda con tuercas",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
+            },
+            {
+                id: "02-06",
+                titulo: "02-06 Tiempo de reacción a la caída de un metro",
+                tema: "Caída libre y medición del tiempo de reacción.",
+                objetivoVideo: "Determinar el tiempo de reacción de una persona mediante la distancia recorrida por una regla en caída libre.",
+                preguntas: [
+                    {
+                        pregunta: "¿Qué expresión permite calcular el tiempo de caída libre de un objeto que parte del reposo desde una altura d?",
+                        opciones: [
+                            "t = √(2d/g).",
+                            "t = d/g.",
+                            "t = 2d/g.",
+                            "t = √(g/2d)."
+                        ],
+                        correcta: 0,
+                        explicacion: "A partir de la ecuación d = (1/2)gt², se despeja el tiempo y se obtiene t = √(2d/g)."
+                    },
+                    {
+                        pregunta: "En condiciones ideales de caída libre, ¿el tiempo de caída de una regla depende de su masa?",
+                        opciones: [
+                            "Sí, cuanto mayor es la masa, mayor es el tiempo.",
+                            "Sí, cuanto menor es la masa, menor es la gravedad.",
+                            "Depende exclusivamente de la longitud de la regla.",
+                            "No, porque todos los cuerpos tienen la misma aceleración gravitatoria ideal."
+                        ],
+                        correcta: 3,
+                        explicacion: "En caída libre ideal, todos los cuerpos tienen la misma aceleración gravitatoria, independientemente de su masa."
+                    }
+                ]
+            },
+            {
+                id: "02-07",
+                titulo: "02-07 Guinea y pluma",
+                tema: "Caída libre y resistencia del aire.",
+                objetivoVideo: "Comparar la caída de objetos de distinta forma y masa en presencia y ausencia de resistencia del aire.",
+                preguntas: [
+                    {
+                        pregunta: "¿Por qué una pluma cae más lentamente que un objeto compacto en presencia de aire?",
+                        opciones: [
+                            "Porque la resistencia del aire ejerce una fuerza que afecta considerablemente su movimiento.",
+                            "Porque la gravedad no actúa sobre la pluma.",
+                            "Porque la pluma tiene una masa gravitatoria negativa.",
+                            "Porque la pluma no posee aceleración."
+                        ],
+                        correcta: 0,
+                        explicacion: "La resistencia del aire afecta proporcionalmente más a la pluma debido a su forma y baja masa."
+                    },
+                    {
+                        pregunta: "¿Qué sucede cuando una pluma y un objeto compacto se dejan caer simultáneamente en el vacío?",
+                        opciones: [
+                            "El objeto compacto llega primero.",
+                            "La pluma llega primero.",
+                            "Ambos caen con la misma aceleración y llegan al mismo tiempo.",
+                            "Ambos permanecen suspendidos."
+                        ],
+                        correcta: 2,
+                        explicacion: "En el vacío no existe resistencia del aire, por lo que ambos objetos caen con la misma aceleración gravitatoria."
                     }
                 ]
             }
         ]
     },
+
     3: {
-        introLab: "Esta sesión aborda las leyes de Newton aplicadas a la dinámica traslacional. Se analizará la relación causal entre fuerza neta y aceleración, la respuesta de sistemas vinculados por cuerdas y poleas, la acción dinámica de resortes y el comportamiento inercial en marcos en caída libre.",
-        objGeneral: "Validar experimentalmente la segunda ley de Newton y la equivalencia dinámica en sistemas mecánicos lineales mediante montajes con fuerzas constantes y variables.",
+        titulo: "Capítulo 3: Dinámica lineal",
+        introduccion: "Esta sesión aborda las leyes de Newton aplicadas a la dinámica traslacional. Se analizará la relación causal entre fuerza neta y aceleración, la respuesta de sistemas vinculados por cuerdas y poleas, la acción dinámica de resortes y el comportamiento inercial en marcos en caída libre.",
+        objetivoGeneral: "Validar experimentalmente la segunda ley de Newton y la equivalencia dinámica en sistemas mecánicos lineales mediante montajes con fuerzas constantes y variables.",
         videos: [
             {
                 id: "03-01",
                 titulo: "03-01 Aceleración por una cuerda con clip",
-                tema: "Relación entre fuerza aplicada, masa inercial y aceleración resultante.",
-                objetivoVideo: "Comprobar que la aceleración adquirida por un móvil es directamente proporcional a la fuerza neta e inversamente proporcional a su masa total.",
+                tema: "Relación entre fuerza, masa y aceleración.",
+                objetivoVideo: "Comprobar experimentalmente la segunda ley de Newton mediante un sistema de tracción.",
                 preguntas: [
                     {
-                        pregunta: "Al duplicar la fuerza a la cuerda en la polea manteniendo constante la masa total del sistema, ¿cómo se modifica cuantitativamente la aceleración observada?",
+                        pregunta: "¿Qué sucede con la aceleración de un objeto cuando se duplica la fuerza neta aplicada y su masa permanece constante?",
                         opciones: [
-                            "Aumenta al cuádruple debido a la relación cuadrática entre fuerza y aceleración en sistemas lineales.",
-                            "Se duplica, demostrando una relación de proporcionalidad directa con la fuerza aplicada según la segunda ley de Newton.",
-                            "Permanece constante, ya que la aceleración de un sistema depende únicamente de su masa inercial y de la gravedad local.",
-                            "Se reduce a la mitad para poder garantizar la conservación de la energía mecánica del mecanismo de tracción."
+                            "La aceleración se reduce a la mitad.",
+                            "La aceleración se duplica.",
+                            "La aceleración permanece constante.",
+                            "La aceleración se vuelve cero."
                         ],
                         correcta: 1,
-                        explicacion: "Según la segunda ley de Newton, la aceleración es directamente proporcional a la fuerza neta aplicada cuando la masa permanece constante."
+                        explicacion: "Según la segunda ley de Newton, la aceleración es directamente proporcional a la fuerza neta cuando la masa permanece constante."
                     },
                     {
-                        pregunta: "Si se añade masa al carro manteniendo la misma fuerza de tracción neta, ¿por qué disminuye la aceleración del sistema?",
+                        pregunta: "¿Qué sucede con la aceleración cuando aumenta la masa de un sistema y la fuerza neta permanece constante?",
                         opciones: [
-                            "Porque la masa adicional aumenta el peso y, en consecuencia, genera mayor tracción a favor del movimiento.",
-                            "Porque la fuerza aplicada debe invertirse en vencer el incremento de la gravedad en lugar de producir desplazamiento horizontal.",
-                            "Porque la fricción cinética entre el carro y la pista se anula progresivamente al aumentar la carga vertical.",
-                            "Porque la aceleración es inversamente proporcional a la inercia (masa total) del sistema que debe ser movida."
+                            "La aceleración aumenta.",
+                            "La aceleración permanece constante.",
+                            "La aceleración se vuelve infinita.",
+                            "La aceleración disminuye."
                         ],
                         correcta: 3,
-                        explicacion: "A mayor masa (inercia), se requiere mayor resistencia al cambio de velocidad, por lo que la aceleración disminuye inversamente."
+                        explicacion: "La aceleración es inversamente proporcional a la masa cuando la fuerza neta permanece constante."
                     }
                 ]
             },
             {
                 id: "03-02",
                 titulo: "03-02 La máquina de Atwood",
-                tema: "Dinámica de masas acopladas y aceleración en sistemas con polea ideal.",
-                objetivoVideo: "Determinar experimentalmente la aceleración de dos masas suspendidas vinculadas por una cuerda ligera y analizar la tensión del sistema.",
+                tema: "Dinámica de masas conectadas mediante una polea.",
+                objetivoVideo: "Analizar la aceleración y la tensión en un sistema de dos masas conectadas por una cuerda.",
                 preguntas: [
                     {
-                        pregunta: "¿Cómo influye la diferencia de masas entre los dos cuerpos en la magnitud de la aceleración neta en la máquina de Atwood?",
+                        pregunta: "¿Qué sucede con la aceleración de una máquina de Atwood cuando aumenta la diferencia entre las masas, manteniendo constante la masa total?",
                         opciones: [
-                            "A mayor diferencia de masas (manteniendo la masa total constante), mayor será la aceleración neta del sistema al incrementar el desbalance de fuerza.",
-                            "La diferencia de masas no altera la aceleración, ya que al estar unidas por una cuerda ambas caen exactamente bajo la misma gravedad.",
-                            "A mayor diferencia de masas, la aceleración se reduce porque la tensión combinada de la polea aumenta de forma exponencial.",
-                            "La aceleración neta solo es influenciada por el volumen físico de ambas masas suspendidas, pero no por su diferencia aritmética."
+                            "La aceleración aumenta.",
+                            "La aceleración disminuye.",
+                            "La aceleración permanece constante.",
+                            "La aceleración se vuelve cero."
                         ],
                         correcta: 0,
-                        explicacion: "El desbalance de peso entre ambas masas actúa como fuerza neta impulsora del sistema acoplado."
+                        explicacion: "Al aumentar la diferencia entre las masas, aumenta la fuerza neta que impulsa el sistema y, por tanto, su aceleración."
                     },
                     {
-                        pregunta: "¿Por qué la tensión en la cuerda durante el movimiento acelerado es menor que el peso del cuerpo descendente y mayor que el del ascendente?",
+                        pregunta: "En una máquina de Atwood ideal, ¿cómo se compara la tensión de la cuerda con el peso de la masa que desciende y el de la masa que asciende?",
                         opciones: [
-                            "Porque la fricción estática de la polea absorbe exactamente esa fracción faltante de fuerza en ambos extremos de la cuerda.",
-                            "Porque la cuerda necesita variar su propia masa dinámica entre los dos flancos para mantener el equilibrio en caída libre.",
-                            "Para que de esta manera exista una fuerza neta no nula en la dirección del movimiento acelerado particular de cada bloque.",
-                            "Porque la fuerza de tensión debe compensar íntegramente la pérdida de energía potencial que el sistema libera como calor."
+                            "La tensión es mayor que ambos pesos.",
+                            "La tensión es menor que ambos pesos.",
+                            "La tensión es menor que el peso de la masa que desciende y mayor que el peso de la masa que asciende.",
+                            "La tensión siempre es igual a ambos pesos."
                         ],
                         correcta: 2,
-                        explicacion: "Para que el bloque más pesado descienda acelerando, su peso debe superar a la tensión; y para que el liviano ascienda, la tensión debe superar a su peso."
+                        explicacion: "La masa que desciende acelera hacia abajo, por lo que su peso supera la tensión. La masa que asciende acelera hacia arriba, por lo que la tensión supera su peso."
                     }
                 ]
             },
             {
                 id: "03-03",
                 titulo: "03-03 Aceleración por un resorte",
-                tema: "Dinámica unidimensional bajo fuerzas elásticas variables.",
-                objetivoVideo: "Analizar el movimiento acelerado de un móvil impulsado por la fuerza restauradora variable originada al distender un resorte.",
+                tema: "Fuerza elástica y ley de Hooke.",
+                objetivoVideo: "Estudiar la relación entre la deformación de un resorte y la aceleración de un cuerpo conectado a él.",
                 preguntas: [
                     {
-                        pregunta: "¿Por qué la aceleración del móvil no permanece constante a medida que el resorte recupera paulatinamente su longitud natural?",
+                        pregunta: "¿Qué sucede con la aceleración de un cuerpo unido a un resorte cuando este se va relajando?",
                         opciones: [
-                            "Porque la fuerza restauradora elástica es directamente proporcional a la elongación, y al acortarse esta, la fuerza (y la aceleración) disminuye.",
-                            "Porque el centro de masa inercial del carrito va cambiando de posición continuamente tras liberarse la trampa elástica.",
-                            "Porque el rozamiento sobre el riel experimenta picos intermitentes producto del impacto impulsivo inicial.",
-                            "Porque la inercia del sistema contrarresta completamente al resorte forzándolo a adquirir velocidad constante de forma instantánea."
+                            "La aceleración disminuye porque la fuerza restauradora depende de la elongación.",
+                            "La aceleración aumenta indefinidamente.",
+                            "La aceleración permanece siempre constante.",
+                            "La aceleración no depende de la deformación del resorte."
                         ],
                         correcta: 0,
-                        explicacion: "La ley de Hooke establece que la fuerza elástica es variable y depende directamente de la deformación o elongación actual del resorte."
+                        explicacion: "Según la ley de Hooke, la fuerza restauradora es proporcional a la elongación. Al disminuir la elongación, disminuyen la fuerza y la aceleración."
                     },
                     {
-                        pregunta: "¿En qué posición de la trayectoria alcanza el móvil su velocidad máxima durante la fase de impulsión por el resorte?",
+                        pregunta: "¿En qué posición alcanza su velocidad máxima un cuerpo que oscila unido a un resorte ideal?",
                         opciones: [
-                            "Justo en el punto de compresión máxima extrema del resorte, instantes antes de ser liberado de su retén.",
-                            "En el punto de liberación exacta de equilibrio estático de su longitud natural, donde la fuerza (y aceleración) se hace cero y ya no es impulsado.",
-                            "Al final de la trayectoria parabólica, una vez que el carro ha frenado por efecto de la fricción cinética residual.",
-                            "En el instante de medio recorrido, es decir, exactamente a la mitad de la elongación elástica total."
+                            "En la máxima elongación.",
+                            "En la posición de equilibrio, donde el resorte tiene fuerza neta restauradora nula.",
+                            "En el punto donde el resorte alcanza su máxima compresión.",
+                            "En cualquier posición, porque la velocidad es constante."
                         ],
                         correcta: 1,
-                        explicacion: "La velocidad máxima se obtiene justo cuando la aceleración neta se anula en el punto de equilibrio, tras lo cual la fuerza cambia de sentido."
+                        explicacion: "En la posición de equilibrio la fuerza restauradora es cero y la rapidez del oscilador alcanza su valor máximo."
                     }
                 ]
             },
             {
                 id: "03-04",
                 titulo: "03-04 Slinky que cae",
-                tema: "Dinámica de medios continuos elásticos y propagación de tensión en caída libre.",
-                objetivoVideo: "Observar el colapso gravitatorio de un resorte suspendido y comprender la transmisión de la onda de relajación elástica interna.",
+                tema: "Propagación de perturbaciones y caída libre.",
+                objetivoVideo: "Observar el comportamiento de un resorte extendido cuando se suelta y comienza a caer.",
                 preguntas: [
                     {
-                        pregunta: "¿Por qué el extremo inferior del resorte suspendido permanece inmóvil en el aire hasta que el extremo superior colapsa sobre él?",
+                        pregunta: "¿Por qué el extremo inferior de un Slinky puede permanecer momentáneamente casi inmóvil después de soltar el extremo superior?",
                         opciones: [
-                            "Porque experimenta una fuerza aerodinámica de empuje vertical que neutraliza perfectamente el aumento de su masa inercial.",
-                            "Porque el campo gravitacional pierde intensidad temporal en el extremo inferior debido a la oscilación armónica del alambre de acero.",
-                            "Porque la fuerza de tensión que equilibra a su propio peso en esa base no desaparece hasta que la onda mecánica de relajación llega físicamente a ese punto.",
-                            "Porque el momento angular intrínseco de las espiras enrolladas ancla la estructura frente al desplazamiento traslacional."
+                            "Porque la gravedad deja de actuar sobre el extremo inferior.",
+                            "Porque el extremo inferior está fijado al suelo.",
+                            "Porque la perturbación de relajación del resorte todavía no ha llegado al extremo inferior.",
+                            "Porque el resorte pierde completamente su masa."
                         ],
                         correcta: 2,
-                        explicacion: "La información de que el soporte superior ha sido soltado viaja a través del medio elástico mediante una onda longitudinal de relajación de tensión."
+                        explicacion: "La información sobre la liberación del extremo superior se propaga a lo largo del resorte. Hasta que la perturbación llega, el extremo inferior puede permanecer momentáneamente casi inmóvil."
                     },
                     {
-                        pregunta: "¿Cómo se compara el movimiento acelerado del centro de masa del resorte con la caída libre de una masa puntual convencional?",
+                        pregunta: "¿Cómo se mueve el centro de masa de un Slinky cuando cae libremente?",
                         opciones: [
-                            "El centro de masa del resorte colapsa acelerando a una tasa equivalente a la de la gravedad, descendiendo igual que una masa puntual en caída libre.",
-                            "Desciende visiblemente más despacio debido a que un gran porcentaje de la fuerza gravitatoria se agota enrollando internamente el resorte.",
-                            "Cae considerablemente más rápido, ya que las espiras colisionando unas contra otras generan una aceleración neta adicional hacia el suelo.",
-                            "El centro de masa se mantiene estacionario suspendido en el aire hasta el instante preciso en que los dos extremos se juntan para recién iniciar el descenso."
+                            "Con la aceleración gravitatoria, como cualquier cuerpo en caída libre ideal.",
+                            "Con aceleración igual a cero durante toda la caída.",
+                            "Con una aceleración opuesta a la gravedad.",
+                            "Con una velocidad necesariamente constante."
                         ],
                         correcta: 0,
-                        explicacion: "Una vez soltado el sistema completo, la única fuerza externa neta que actúa sobre él es la gravedad, por lo que su centro de masa cae libremente con aceleración g."
+                        explicacion: "El centro de masa de un sistema en caída libre se acelera por la gravedad, independientemente de las fuerzas internas del resorte."
                     }
                 ]
             },
             {
                 id: "03-05",
                 titulo: "03-05 Vela en un frasco que cae",
-                tema: "Principios de equivalencia y comportamiento de fluidos térmicos en caída libre.",
-                objetivoVideo: "Evidenciar la anulación aparente del empuje de flotación hidrostática y la convección térmica dentro de un recinto en caída libre.",
+                tema: "Gravedad aparente, flotabilidad y convección.",
+                objetivoVideo: "Observar los efectos de la caída libre sobre la forma de la llama y los procesos de convección.",
                 preguntas: [
                     {
-                        pregunta: "¿Por qué la llama de la vela tiende a extinguirse cuando el frasco hermético entra en caída libre?",
+                        pregunta: "¿Por qué la llama de una vela cambia de forma cuando el frasco que la contiene se encuentra en caída libre?",
                         opciones: [
-                            "Porque el violento rozamiento aerodinámico del aire al descender el frasco perturba y rompe directamente el sello interno.",
-                            "Porque al entrar en estado de ingravidez, se anula el empuje por densidad y cesan las corrientes de convección que renuevan el oxígeno de la mecha.",
-                            "Porque la aceleración descendente induce una fuerza hidrostática en la cera líquida impidiendo la generación por sublimación de nuevos vapores orgánicos.",
-                            "Porque la velocidad terminal provoca una depresión barométrica instantánea dentro de la campana que congela térmicamente la combustión."
+                            "Porque la temperatura de la llama desaparece.",
+                            "Porque la gravedad aumenta considerablemente.",
+                            "Porque el oxígeno deja de existir dentro del frasco.",
+                            "Porque la microgravedad aparente reduce la flotabilidad y la convección natural, modificando la forma de la llama."
                         ],
-                        correcta: 1,
-                        explicacion: "Sin gravedad efectiva en el marco acelerado del frasco, los gases calientes no ascienden por diferencia de densidad, deteniendo la convección que alimenta oxígeno fresco."
+                        correcta: 3,
+                        explicacion: "Durante la caída libre, la flotabilidad y la convección natural se reducen considerablemente, por lo que la llama puede adoptar una forma más esférica y su combustión puede alterarse."
                     },
                     {
-                        pregunta: "¿Qué relación conceptual tiene la ausencia de corrientes convectivas en este experimento con el estado de microgravedad aparente?",
+                        pregunta: "¿Qué fenómeno explica la reducción de la convección natural durante la caída libre?",
                         opciones: [
-                            "La aparente microgravedad obliga a las moléculas del fluido a girar en torbellinos de Coriolis paralizando cualquier flujo vertical.",
-                            "Significa que en microgravedad un gas caliente se vuelve instantáneamente más denso, imposibilitando físicamente que pueda fluir de manera alguna.",
-                            "Demuestra que la caída libre es un marco inercial donde el peso relativo del gas por su temperatura desaparece, deteniendo el mecanismo de flotabilidad hidro-térmica.",
-                            "Indica que la microgravedad provoca vacíos esféricos de gas denso aislados térmicamente alrededor de cualquier fuente incandescente puntual."
+                            "La desaparición de la masa del aire.",
+                            "La reducción de la flotabilidad debido a la ausencia de gravedad aparente.",
+                            "El aumento de la presión atmosférica.",
+                            "La desaparición de la energía térmica."
                         ],
-                        correcta: 2,
-                        explicacion: "En caída libre local, el principio de equivalencia anula los gradientes de peso efectivo, neutralizando los fenómenos impulsados por flotabilidad."
+                        correcta: 1,
+                        explicacion: "La convección natural depende de diferencias de densidad y de la flotabilidad gravitatoria. En caída libre, la gravedad aparente se reduce y la convección natural disminuye."
                     }
                 ]
             }
         ]
     },
+
     4: {
-        introLab: "Esta sesión experimental explora la cinemática y dinámica bidimensional, enfocándose en la independencia de movimientos ortogonales, el lanzamiento de proyectiles y el análisis de trayectorias parabólicas en sistemas inerciales y acelerados.",
-        objGeneral: "Analizar la cinemática en dos dimensiones mediante montajes de proyectiles y colisiones parabólicas para verificar el principio de independencia de movimientos de Galileo.",
+        titulo: "Capítulo 4: Movimiento en un plano",
+        introduccion: "Esta sesión experimental explora la cinemática y dinámica bidimensional, enfocándose en la independencia de movimientos ortogonales, el lanzamiento de proyectiles y el análisis de trayectorias parabólicas en sistemas inerciales y acelerados.",
+        objetivoGeneral: "Analizar la cinemática en dos dimensiones mediante montajes de proyectiles y colisiones parabólicas para verificar el principio de independencia de movimientos de Galileo.",
         videos: [
             {
                 id: "04-01",
                 titulo: "04-01 Disparo/caída",
-                tema: "Independencia de los movimientos horizontal y vertical en el tiro parabólico.",
-                objetivoVideo: "Demostrar que el tiempo de descenso vertical de un proyectil disparado horizontalmente es idéntico al de un cuerpo en caída libre vertical.",
+                tema: "Independencia de los movimientos horizontal y vertical.",
+                objetivoVideo: "Comprobar que dos cuerpos que parten de la misma altura llegan al suelo simultáneamente cuando uno se lanza horizontalmente y el otro se deja caer.",
                 preguntas: [
                     {
-                        pregunta: "¿Por qué dos proyectiles lanzados desde la misma altura (uno disparado horizontalmente y el otro soltado en reposo) impactan el suelo al mismo instante?",
+                        pregunta: "¿Por qué dos objetos que parten de la misma altura, uno lanzado horizontalmente y otro dejado caer, llegan al suelo al mismo tiempo?",
                         opciones: [
-                            "Porque la velocidad de disparo horizontal crea una fuerza de sustentación aerodinámica neutra que sincroniza ambas caídas.",
-                            "Porque los movimientos horizontal y vertical son independientes, y ambos proyectiles inician con idéntica velocidad vertical (cero) y experimentan la misma aceleración descendente.",
-                            "Porque el proyectil disparado posee mayor energía cinética, lo que compensa mecánicamente la distancia curva extra que debe recorrer.",
-                            "Porque la curvatura parabólica de la trayectoria incrementa exponencialmente la aceleración de caída del proyectil disparado horizontalmente."
+                            "Porque ambos tienen la misma velocidad horizontal.",
+                            "Porque sus movimientos verticales son independientes y parten con la misma velocidad vertical inicial y aceleración gravitatoria.",
+                            "Porque el objeto lanzado horizontalmente pierde toda su velocidad.",
+                            "Porque la gravedad actúa únicamente sobre el objeto que se deja caer."
                         ],
                         correcta: 1,
-                        explicacion: "La componente horizontal del movimiento no altera las leyes de la cinemática vertical gracias al principio de superposición e independencia de movimientos."
+                        explicacion: "El movimiento horizontal no modifica el movimiento vertical. Ambos objetos tienen la misma condición vertical inicial y la misma aceleración gravitatoria."
                     },
                     {
-                        pregunta: "¿De qué manera afecta la velocidad inicial horizontal a la aceleración vertical que experimenta el proyectil durante su trayectoria?",
+                        pregunta: "¿Qué efecto tiene la velocidad horizontal inicial sobre la aceleración vertical de un proyectil?",
                         opciones: [
-                            "Aumenta la aceleración vertical, siempre y cuando la velocidad del proyectil rompa la resistencia estática del aire.",
-                            "Disminuye la aceleración vertical debido a la interacción cruzada de las fuerzas de arrastre.",
-                            "La afecta inversamente: a mayor avance horizontal, se diluye el impacto neto de la gravedad, alargando el tiempo de vuelo.",
-                            "No la afecta en absoluto; la aceleración vertical es siempre constante y está determinada de forma exclusiva por la atracción gravitatoria."
+                            "La aumenta proporcionalmente.",
+                            "La reduce a la mitad.",
+                            "La convierte en cero.",
+                            "No la modifica; la aceleración vertical depende de la gravedad."
                         ],
                         correcta: 3,
-                        explicacion: "En el eje vertical solo actúa la gravedad de forma independiente del avance horizontal uniforme."
+                        explicacion: "La componente horizontal de la velocidad no afecta la aceleración vertical, que está determinada por la gravedad."
                     }
                 ]
             },
             {
                 id: "04-02",
                 titulo: "04-02 Cañón contra monos",
-                tema: "Impacto balístico con blanco en caída libre y simultaneidad gravitatoria.",
-                objetivoVideo: "Comprobar que un proyectil apuntado directamente hacia un blanco móvil impacta con éxito si el blanco se suelta en el instante del disparo.",
+                tema: "Movimiento parabólico y caída simultánea de proyectiles.",
+                objetivoVideo: "Demostrar la independencia del movimiento vertical en un proyectil y un objeto que cae simultáneamente.",
                 preguntas: [
                     {
-                        pregunta: "¿Por qué ambos objetos (el proyectil y el blanco) descienden la misma distancia vertical respecto a la línea de mira durante el tiempo de vuelo?",
+                        pregunta: "¿Por qué un proyectil dirigido hacia un objeto que comienza a caer simultáneamente puede alcanzarlo?",
                         opciones: [
-                            "Porque el proyectil tiene una forma aerodinámica que imita exactamente el coeficiente de fricción atmosférica del blanco en reposo.",
-                            "Porque ambos inician su descenso en caída libre justo en el mismo instante y están sujetos de manera idéntica a la aceleración de la gravedad.",
-                            "Porque sus respectivos centros de masa convergen magnéticamente a lo largo del eje horizontal de disparo.",
-                            "Porque el impacto percusivo del cañón perturba la columna de aire debajo del blanco forzando una caída controlada simétrica."
-                        ],
-                        correcta: 1,
-                        explicacion: "Tanto el proyectil como el blanco caen bajo la acción exclusiva de la gravedad a partir del mismo instante inicial."
-                    },
-                    {
-                        pregunta: "Si se incrementa la velocidad de salida del proyectil, ¿en qué punto de la trayectoria ocurrirá el impacto en relación con el suelo?",
-                        opciones: [
-                            "Ocurrirá en un punto mucho más cercano al suelo, porque una alta velocidad incrementa el factor inercial parabólico de caída libre.",
-                            "Impactará de manera adelantada directamente en la base del piso al rebasar rápidamente la vertical inercial del blanco suspendido.",
-                            "Ocurrirá en un punto de intersección más alto, ya que un proyectil más veloz requiere menos tiempo de vuelo y, por lo tanto, ambos caen menos distancia.",
-                            "Ocurrirá exactamente en el mismo lugar intermedio que antes, puesto que el alcance vertical de impacto es totalmente invariante frente a impulsos horizontales."
+                            "Porque el proyectil deja de estar sometido a la gravedad.",
+                            "Porque el objeto que cae permanece inmóvil verticalmente.",
+                            "Porque ambos experimentan el mismo desplazamiento vertical debido a la gravedad durante el mismo intervalo de tiempo.",
+                            "Porque la velocidad horizontal del objeto que cae aumenta."
                         ],
                         correcta: 2,
-                        explicacion: "A mayor velocidad inicial, menor tiempo transcurre para recorrer la distancia horizontal hasta el blanco, por lo que este desciende menos metros antes del choque."
+                        explicacion: "Tanto el proyectil como el objeto que cae experimentan la misma aceleración gravitatoria y el mismo desplazamiento vertical durante el tiempo transcurrido."
+                    },
+                    {
+                        pregunta: "Si se aumenta la velocidad inicial del proyectil y se mantiene la misma dirección de lanzamiento, ¿qué ocurre con el tiempo de vuelo y la caída vertical antes del impacto?",
+                        opciones: [
+                            "El tiempo de vuelo disminuye y el proyectil cae menos verticalmente antes del impacto.",
+                            "El tiempo de vuelo aumenta y el proyectil cae más.",
+                            "El tiempo de vuelo permanece constante para cualquier velocidad.",
+                            "El proyectil deja de experimentar aceleración gravitatoria."
+                        ],
+                        correcta: 0,
+                        explicacion: "Al aumentar la velocidad inicial, el proyectil alcanza al objetivo en menos tiempo; por ello, ambos han descendido menos verticalmente antes del encuentro."
                     }
                 ]
             },
             {
                 id: "04-03",
                 titulo: "04-03 Cañón vertical sobre un carro",
-                tema: "Conservación del momento inercial horizontal en el lanzamiento vertical móvil.",
-                objetivoVideo: "Verificar que una bola disparada verticalmente desde un carro con velocidad horizontal constante vuelve a caer dentro del cañón.",
+                tema: "Movimiento relativo y conservación de la velocidad horizontal.",
+                objetivoVideo: "Analizar el movimiento de un proyectil lanzado verticalmente desde un vehículo en movimiento uniforme.",
                 preguntas: [
                     {
-                        pregunta: "¿Por qué la bola conserva el mismo componente horizontal de velocidad que el carro mientras se encuentra en el aire?",
+                        pregunta: "¿Por qué una pelota lanzada verticalmente desde un carro en movimiento uniforme regresa al cañón?",
                         opciones: [
-                            "Porque la aceleración de la gravedad arrastra a todos los cuerpos próximos hacia el mismo sentido en que avanza el mecanismo.",
-                            "Porque, ignorando la resistencia del aire, una vez libre no actúan fuerzas neta horizontales sobre ella, por lo que su inercia de traslación permanece inalterada.",
-                            "Porque el impulso vertical suministrado por el mecanismo del cañón se transfiere de manera gradual al eje de desplazamiento horizontal.",
-                            "Porque la estela del aire dentro de la habitación avanza exactamente acoplada con la masa rodante del vehículo."
+                            "Porque la gravedad aumenta la velocidad horizontal.",
+                            "Porque la pelota conserva la velocidad horizontal del carro durante el vuelo, al no existir una fuerza horizontal neta significativa.",
+                            "Porque el carro se detiene durante el lanzamiento.",
+                            "Porque la pelota pierde completamente su velocidad horizontal."
                         ],
                         correcta: 1,
-                        explicacion: "Por la primera ley de Newton (inercia), al no haber fuerzas horizontales netas, la velocidad horizontal inicial heredada del carro se mantiene constante."
+                        explicacion: "Por inercia, la pelota conserva la velocidad horizontal que tenía antes de ser lanzada, por lo que permanece alineada con el carro."
                     },
                     {
-                        pregunta: "¿Qué forma tiene la trayectoria de la bola observada desde el sistema de referencia del laboratorio frente al sistema propio del carro?",
+                        pregunta: "¿Cómo se observa la trayectoria de la pelota desde el laboratorio y desde el sistema de referencia del carro que se mueve con velocidad constante?",
                         opciones: [
-                            "Parabólica para un observador fijo en el laboratorio, y rectilínea (de subida y bajada vertical) para un observador estacionado en el carro.",
-                            "Rectilínea e inclinada hacia adelante en el laboratorio, y parabólica pero invertida para el observador montado sobre la plataforma móvil.",
-                            "Semielíptica en el ambiente inercial del laboratorio, y enteramente circular si se toma como marco al punto de eyección del cañón.",
-                            "Ascenso estrictamente vertical para el observador del laboratorio, y parábola de alcance asimétrico en el carro móvil."
+                            "Es una línea horizontal en ambos sistemas.",
+                            "Es una línea vertical en ambos sistemas.",
+                            "Es una parábola desde el laboratorio y una línea vertical desde el carro.",
+                            "Es una parábola en ambos sistemas."
                         ],
-                        correcta: 0,
-                        explicacion: "Para el observador inercial externo es un tiro parabólico, mientras que para el observador solidario al carro se desplaza solo en el eje vertical."
+                        correcta: 2,
+                        explicacion: "Desde el laboratorio se observa el movimiento horizontal y vertical, formando una parábola. Desde el carro, la pelota se mueve verticalmente."
                     }
                 ]
             },
             {
                 id: "04-04",
                 titulo: "04-04 Cañón vertical sobre un carro acelerado",
-                tema: "Movimiento relativo en marcos de referencia acelerados (no inerciales).",
-                objetivoVideo: "Analizar la desviación en el punto de impacto de un proyectil disparado verticalmente cuando el carro experimenta aceleración horizontal constante.",
+                tema: "Movimiento relativo en sistemas de referencia acelerados.",
+                objetivoVideo: "Observar cómo la aceleración de un vehículo modifica la posición relativa de un proyectil lanzado verticalmente.",
                 preguntas: [
                     {
-                        pregunta: "¿Por qué la bola no cae dentro del cañón cuando el carro acelera horizontalmente durante el tiempo de vuelo del proyectil?",
+                        pregunta: "¿Por qué una pelota lanzada verticalmente desde un carro que acelera puede no regresar al cañón?",
                         opciones: [
-                            "Porque el disparo origina una reacción en cadena donde el vehículo es frenado de manera irreversible por el impulso vertical de la bola.",
-                            "Porque la aceleración motriz súbita engendra capas de aire transversales que descarrilan a la bola suspendida obligándola a planear erráticamente.",
-                            "Porque la bola hereda y mantiene inalterable la velocidad inicial de aquel preciso instante del disparo, mientras que el vehículo la va aumentando y alejándose.",
-                            "Porque el proyectil libre también sufre una aceleración propia adicional que sobrepasa sistemáticamente la capacidad tractora de las ruedas inferiores."
+                            "Porque la pelota pierde su masa durante el vuelo.",
+                            "Porque la gravedad deja de actuar sobre la pelota.",
+                            "Porque la pelota conserva inicialmente su velocidad horizontal mientras el carro aumenta su velocidad y se adelanta.",
+                            "Porque la pelota adquiere una aceleración vertical hacia arriba."
                         ],
                         correcta: 2,
-                        explicacion: "Al acelerar el carro, su velocidad aumenta constantemente, mientras que la bola en el aire mantiene una velocidad horizontal constante (menor), adelantándose o quedando atrás el carro."
+                        explicacion: "La pelota conserva su velocidad horizontal inicial, mientras que el carro acelera y se desplaza hacia adelante respecto a ella."
                     },
                     {
-                        pregunta: "¿Hacia dónde se desplaza el punto de caída de la bola (adelante o atrás del carro) si el vehículo frena en lugar de acelerar?",
+                        pregunta: "¿Qué sucede si el carro frena después de lanzar verticalmente la pelota?",
                         opciones: [
-                            "Cae justo detrás de la boquilla del cañón, ya que la fricción del frenado produce fuerzas inerciales de retroceso en toda la masa del entorno superior.",
-                            "Caen simultáneamente en el mismo origen de disparo, pues el centro de masa acoplado del equipo frena y desciende conservando un equilibrio cinético estable.",
-                            "Se desvía perpendicularmente de la pista hacia los laterales del carrito, producto de las fuerzas ficticias giroscópicas inherentes a un frenado en seco.",
-                            "Cae delante del carro, porque el proyectil en el aire continúa imperturbable con la velocidad alta original, mientras que el vehículo ha frenado y marcha rezagado."
+                            "La pelota se queda suspendida en el aire.",
+                            "La pelota pierde su velocidad vertical.",
+                            "La pelota regresa automáticamente al cañón.",
+                            "La pelota puede caer por delante del carro porque conserva una velocidad horizontal mayor que la del vehículo que frena."
                         ],
                         correcta: 3,
-                        explicacion: "Al frenar el carro, este reduce su velocidad rápidamente, mientras que el proyectil conserva por inercia la velocidad mayor que traía, cayendo por delante del vehículo."
+                        explicacion: "La pelota conserva aproximadamente su velocidad horizontal inicial mientras el carro reduce la suya, por lo que puede quedar adelantada respecto al cañón."
                     }
                 ]
             },
             {
                 id: "04-05",
                 titulo: "04-05 Parábolas en una mesa de aire",
-                tema: "Trayectorias parabólicas continuas en dos dimensiones sin fricción.",
-                objetivoVideo: "Registrar experimentalmente la trayectoria parabólica descrita por un disco en una mesa de aire inclinada y contrastar con el modelo analítico.",
+                tema: "Movimiento bidimensional sobre una superficie inclinada.",
+                objetivoVideo: "Analizar las componentes del movimiento de un objeto sobre una mesa de aire inclinada.",
                 preguntas: [
                     {
-                        pregunta: "¿Cómo influye la componente de la gravedad a lo largo de la inclinación de la mesa en la curvatura de la trayectoria del disco?",
+                        pregunta: "¿Qué componente de la gravedad produce la aceleración de un objeto que se desplaza sobre una superficie inclinada?",
                         opciones: [
-                            "Se encarga de definir la aceleración efectiva que actúa únicamente en el eje inclinado, originando la componente cuadrática que deforma el movimiento en una curva parabólica.",
-                            "Incrementa directamente el alcance parabólico neto al disolver gradualmente el coeficiente de fricción estática de la superficie perforada.",
-                            "Carece de influencia directa en el perfil geométrico de la curva ya que el flujo de aire elimina por completo la fuerza de atracción en todas sus direcciones vectoriales.",
-                            "Opera ortogonalmente en el plano impidiendo un avance puro y transformando los vectores del movimiento directo en secciones hiperbólicas truncadas."
+                            "La componente paralela al plano, equivalente a g sen θ.",
+                            "La componente perpendicular al plano, equivalente a g cos θ.",
+                            "La gravedad completa en dirección horizontal.",
+                            "Una componente independiente del ángulo de inclinación."
                         ],
                         correcta: 0,
-                        explicacion: "La inclinación desacopla una componente constante de la gravedad sobre el plano, la cual imprime aceleración uniforme en dicha dirección y genera la parábola."
+                        explicacion: "La componente de la gravedad paralela al plano inclinado es g sen θ y produce la aceleración sobre la superficie."
                     },
                     {
-                        pregunta: "¿Qué magnitudes cinemáticas se mantienen constantes a lo largo del eje perpendicular a la pendiente de la mesa (eje horizontal de la superficie)?",
+                        pregunta: "En el movimiento sobre una mesa de aire inclinada, ¿qué sucede con la componente de velocidad perpendicular a la dirección de máxima pendiente, suponiendo que no existe fuerza neta en esa dirección?",
                         opciones: [
-                            "Solo la aceleración centrífuga aparente del disco obtenida al curvar su avance.",
-                            "La componente de velocidad rectilínea a lo largo de este eje, dado que aquí no existe aceleración neta alguna (movimiento inercial uniforme).",
-                            "Exclusivamente la posición inicial proyectada ya que el disco solo desciende imitando la caída libre de un cuerpo plano.",
-                            "El torque de rozamiento y la aceleración cosenoidal proyectada a lo largo del plano pulido del disco experimental."
+                            "Aumenta constantemente.",
+                            "Permanece constante.",
+                            "Disminuye hasta cero.",
+                            "Se convierte en aceleración gravitatoria."
                         ],
                         correcta: 1,
-                        explicacion: "Al no haber fuerzas ni aceleraciones componentes en la dirección transversal pura de la pendiente, la velocidad en ese eje permanece constante."
+                        explicacion: "Si no existe fuerza neta en esa dirección, la velocidad perpendicular a la pendiente permanece constante."
                     }
                 ]
             },
             {
                 id: "04-06",
                 titulo: "04-06 Cañón de alcance variable",
-                tema: "Dependencia del alcance horizontal respecto al ángulo de elevación.",
-                objetivoVideo: "Determinar experimentalmente el ángulo de disparo que maximiza el alcance horizontal y comprobar la complementariedad de ángulos.",
+                tema: "Alcance horizontal de proyectiles y ángulo de lanzamiento.",
+                objetivoVideo: "Determinar cómo influye el ángulo de lanzamiento en el alcance horizontal de un proyectil.",
                 preguntas: [
                     {
-                        pregunta: "¿Por qué teóricamente dos disparos efectuados a ángulos complementarios (por ejemplo, 30° y 60°) logran el mismo alcance horizontal?",
+                        pregunta: "¿Por qué dos proyectiles lanzados con ángulos complementarios, como 30° y 60°, pueden alcanzar la misma distancia horizontal si parten con la misma rapidez y desde la misma altura?",
                         opciones: [
-                            "Porque al sumar sus ángulos complementan el total, donde se sabe que la aceleración gravitacional experimenta refracciones aerodinámicas equivalentes.",
-                            "Porque el disparo con un gran ángulo alcanza una zona alta con menor resistencia viscosa que el impacto de bajo ángulo amortigua.",
-                            "Porque las trayectorias concéntricas equilibran recíprocamente sus aceleraciones tangenciales empatando geométricamente en el medio vértice.",
-                            "Porque en el disparo más bajo la velocidad horizontal es mayor pero su tiempo de vuelo es corto, mientras que en el disparo empinado ocurre exactamente a la inversa, igualándose sus productos totales."
+                            "Porque ambos tienen exactamente la misma velocidad vertical.",
+                            "Porque ambos permanecen el mismo tiempo en el aire.",
+                            "Porque la gravedad es diferente para cada ángulo.",
+                            "Porque los ángulos complementarios producen el mismo valor de sen(2θ), generando el mismo alcance ideal."
                         ],
                         correcta: 3,
-                        explicacion: "Matemáticamente el alcance depende de sen(2θ), el cual arroja el mismo resultado para ángulos θ y (90° - θ) debido a identidades trigonométricas."
+                        explicacion: "La fórmula del alcance es R = (v₀² sen 2θ)/g. Los ángulos complementarios tienen el mismo valor de sen(2θ)."
                     },
                     {
-                        pregunta: "¿Qué combinación de factores entre el tiempo de vuelo y la velocidad horizontal explica que el alcance óptimo ideal se produzca a 45°?",
+                        pregunta: "¿Qué ángulo de lanzamiento produce el alcance horizontal máximo en condiciones ideales, cuando el proyectil parte y llega a la misma altura?",
                         opciones: [
-                            "A este ángulo, la gravedad entra en una neutralidad relativa en su componente transversal que permite acumular velocidad horizontal hasta su cenit límite.",
-                            "A este ángulo se cruzan las líneas isotermas de arrastre aerodinámico donde tanto proyectiles ligeros como pesados encuentran cero arrastre.",
-                            "Matemáticamente a 45° se maximiza el producto cruzado de la componente vertical de la velocidad y la velocidad de desplazamiento horizontal.",
-                            "Porque estadísticamente a 45° exactos, el punto de máxima altura de vuelo y la distancia horizontal conseguida adquieren siempre el idéntico valor escalar."
+                            "30°.",
+                            "60°.",
+                            "45°.",
+                            "90°."
                         ],
                         correcta: 2,
-                        explicacion: "El ángulo de 45° ofrece la combinación perfecta y simétrica entre la velocidad horizontal de avance y el tiempo de permanencia en el aire proporcionado por la componente vertical."
+                        explicacion: "El alcance es máximo a 45°, porque sen(2θ) alcanza su valor máximo de 1 cuando 2θ = 90°."
                     }
                 ]
+            },
+            {
+                id: "04-07",
+                titulo: "04-07 Suma vectorial de velocidades",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
+            },
+            {
+                id: "04-08",
+                titulo: "04-08 Buldócer sobre una hoja en movimiento 2 dimensiones",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
+            },
+            {
+                id: "04-09",
+                titulo: "04-09 Pesas que se deslizan en un triángulo",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
+            },
+            {
+                id: "04-10",
+                titulo: "04-10 Navegando contra el viento",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
+            },
+            {
+                id: "04-11",
+                titulo: "04-11 Vertical local con aceleración",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
             }
         ]
     },
+
     5: {
-        introLab: "Esta sesión de laboratorio se centra en la primera ley de Newton: el principio de inercia. Se examinarán sistemas en movimiento relativo y cuerpos sometidos a perturbaciones súbitas para evidenciar cómo la masa mide cuantitativamente la resistencia de un cuerpo a modificar su estado de reposo o movimiento rectilíneo uniforme.",
-        objGeneral: "Evidenciar de forma práctica la manifestación de la inercia mecánica en cuerpos en reposo y en movimiento para consolidar la primera ley del movimiento de Newton.",
+        titulo: "Capítulo 5: Inercia",
+        introduccion: "Esta sesión de laboratorio se centra en la primera ley de Newton: el principio de inercia. Se examinarán sistemas en movimiento relativo y cuerpos sometidos a perturbaciones súbitas para evidenciar cómo la masa mide cuantitativamente la resistencia de un cuerpo a modificar su estado de reposo o movimiento rectilíneo uniforme.",
+        objetivoGeneral: "Evidenciar de forma práctica la manifestación de la inercia mecánica en cuerpos en reposo y en movimiento para consolidar la primera ley del movimiento de Newton.",
         videos: [
             {
                 id: "05-01",
@@ -412,7 +790,7 @@ const bancoPreguntas = {
                             "Porque la viscosidad aerodinámica de la habitación frena instantáneamente cualquier intento de traslación del objeto impulsado."
                         ],
                         correcta: 1,
-                        explicacion: "Al no existir fricción horizontal significativa sobre el colchón de aire, el riel se desliza por debajo sin aplicarle fuerzas tangenciales que alteren su inercia."
+                        explicacion: "La ausencia de fricción mecánica impide que el movimiento del riel transfiera una fuerza horizontal al deslizador. Por ello, conserva su estado inicial de reposo."
                     },
                     {
                         pregunta: "¿Qué fuerza neta horizontal actúa sobre el deslizador durante el movimiento del riel y cómo se refleja esto en la primera ley de Newton?",
@@ -423,7 +801,7 @@ const bancoPreguntas = {
                             "Actúa una fuerza de arrastre elástica impuesta por el escape de la corriente de aire que empata milimétricamente con su propia aceleración inercial."
                         ],
                         correcta: 2,
-                        explicacion: "La primera ley de Newton postula que un objeto en reposo permanece en reposo si la fuerza neta externa sobre él es cero."
+                        explicacion: "La primera ley de Newton establece que, si la fuerza neta sobre un cuerpo es cero, este mantiene su estado de reposo o movimiento rectilíneo uniforme."
                     }
                 ]
             },
@@ -434,26 +812,26 @@ const bancoPreguntas = {
                 objetivoVideo: "Comparar la respuesta dinámica de cilindros con idéntica geometría exterior pero distinta masa o distribución inercial.",
                 preguntas: [
                     {
-                        pregunta: "Si se tira de la barra hacia abajo de manera lenta y gradual, ¿por qué se rompe la cuerda superior en lugar de la inferior?",
+                        pregunta: "¿Cómo influye la masa inercial del cilindro en la fuerza requerida para provocar un cambio súbito en su velocidad de traslación?",
                         opciones: [
-                            "Porque al aplicar la fuerza lentamente, el cilindro entra en un estado de resonancia elástica que transfiere toda la energía directamente a su punto de anclaje en el techo.",
-                            "Porque la cuerda superior soporta al mismo tiempo la fuerza del tirón que se está aplicando más el peso gravitatorio del pesado cilindro, alcanzando su límite de ruptura antes que la inferior.",
-                            "Porque la tensión prolongada genera un torque rotacional en la base del cilindro que desestabiliza los nudos superiores del sistema de suspensión.",
-                            "Porque la cuerda inferior absorbe el impacto de manera hidrostática, mientras que la superior queda expuesta a la fricción transversal paralela."
-                        ],
-                        correcta: 1,
-                        explicacion: "Al jalar lentamente, el sistema está prácticamente en equilibrio estático, por lo que la tensión en la cuerda superior suma el tirón aplicado más el peso del cilindro."
-                    },
-                    {
-                        pregunta: "¿Por qué se rompe la cuerda inferior y el cilindro apenas se mueve cuando se da un tirón rápido y brusco hacia abajo?",
-                        opciones: [
-                            "Porque la gran masa del cilindro le otorga una alta inercia (resistencia al cambio), provocando que la cuerda inferior alcance su punto máximo de tensión y se rompa antes de que el cilindro tenga tiempo de moverse y jalar la cuerda de arriba.",
-                            "Porque la velocidad del tirón induce una onda de choque ascendente que empuja al cilindro hacia arriba, aliviando la tensión de la cuerda superior de forma instantánea.",
-                            "Porque a altas velocidades de impacto, la fuerza de gravedad se anula localmente, dejando a la cuerda inferior como el único elemento que absorbe todo el trabajo mecánico del tirón.",
-                            "Porque la cuerda inferior, al ser jalada bruscamente, experimenta un descenso exponencial en su constante elástica, volviéndose quebradiza como el vidrio."
+                            "A mayor masa inercial, mayor es la fuerza externa necesaria que se debe aplicar sobre el objeto para lograr provocar esa misma aceleración o cambio de estado.",
+                            "La magnitud de la fuerza requerida disminuye progresivamente si el cilindro tiene mucha masa, ya que el momento intrínseco de esta favorece el movimiento espontáneo.",
+                            "No existe ninguna influencia medible de la masa, pues la fuerza requerida para la traslación depende exclusivamente del coeficiente de contacto de rodadura.",
+                            "A mayor masa, la fuerza disminuye drásticamente porque la alta energía de cohesión atómica rompe más fácilmente la resistencia del reposo absoluto."
                         ],
                         correcta: 0,
-                        explicacion: "La inercia de la masa del cilindro se opone a cambiar bruscamente su estado de reposo, concentrando el esfuerzo en la cuerda inferior antes de que el cuerpo acelere."
+                        explicacion: "Según la segunda ley de Newton, para producir la misma aceleración, un cuerpo de mayor masa requiere una fuerza neta mayor."
+                    },
+                    {
+                        pregunta: "¿Qué diferencia práctica se observa entre la inercia traslacional de un cuerpo y su resistencia a ser puesto en rotación?",
+                        opciones: [
+                            "La inercia traslacional depende principalmente del volumen geométrico del objeto, mientras que su inercia rotacional depende únicamente del peso en la balanza.",
+                            "Ambas respuestas mecánicas son idénticas en la práctica empírica, ya que cilindros macizos y huecos de masas iguales resisten por igual tanto los empujes como los giros.",
+                            "La inercia de traslación depende únicamente de la masa total; en cambio, su resistencia a rotar depende tanto de la masa como de la forma en que esta se distribuye respecto a su eje.",
+                            "La resistencia rotacional es un efecto ilusorio que solo aparece a altas velocidades angulares límite, mientras que la traslacional siempre afecta al cuerpo inmóvil."
+                        ],
+                        correcta: 2,
+                        explicacion: "La inercia traslacional depende de la masa total, mientras que el momento de inercia rotacional también depende de cómo se distribuye la masa respecto al eje de giro."
                     }
                 ]
             },
@@ -464,26 +842,26 @@ const bancoPreguntas = {
                 objetivoVideo: "Demostrar que la aceleración y la fuerza de impacto dependen exclusivamente de la masa inercial y no del volumen o aspecto del cuerpo.",
                 preguntas: [
                     {
-                        pregunta: "Si aplicamos exactamente la misma fuerza para empujar la roca de hule espuma y una roca de piedra real del mismo tamaño, ¿por qué la de hule espuma acelera mucho más rápido?",
+                        pregunta: "¿Por qué una roca ficticia de hule espuma transmite una fuerza de impacto mínima a pesar de su gran tamaño aparente?",
                         opciones: [
-                            "Porque el material sintético del hule espuma posee propiedades aerodinámicas que absorben la fricción del aire, impulsando el bloque hacia adelante con mayor facilidad.",
-                            "Porque tiene una masa inercial mucho menor; al tener muy poca masa, opone casi nula resistencia al cambio de movimiento y adquiere gran aceleración.",
-                            "Porque las leyes de la inercia rotacional solo aplican a objetos de alta densidad mineral, dejando a la roca falsa libre de fricción estática contra el piso.",
-                            "Porque la roca de hule espuma tiene un centro de gravedad hueco que invierte los vectores de peso, multiplicando internamente la fuerza aplicada."
+                            "Porque su enorme envolvente visual exacerba la resistencia aerodinámica logrando frenarla por completo antes del roce efectivo.",
+                            "Porque en la dinámica de colisiones, la fuerza del impacto depende enteramente de la aceleración y de la masa inercial real del cuerpo, pero en ningún momento de su volumen físico.",
+                            "Porque el polímero sintético del hule espuma adolece de fricción de contacto, imposibilitando la transferencia del vector energía cinética.",
+                            "Porque al incrementar su estructura dimensional el cuerpo es capaz de fraccionar e invertir los embates de la gravedad cancelando los torques internos."
                         ],
                         correcta: 1,
-                        explicacion: "Dado que la aceleración es inversamente proporcional a la masa para una fuerza dada (segunda ley), menor masa implica una aceleración mucho mayor."
+                        explicacion: "La masa inercial, junto con la aceleración, determina la fuerza mediante la segunda ley de Newton. El tamaño o apariencia externa no determina por sí solo la fuerza de impacto."
                     },
                     {
-                        pregunta: "¿Por qué la roca gigante de hule espuma choca inofensivamente contra la persona sin derribarla, a diferencia de lo que ocurriría con una roca de piedra real de ese mismo tamaño?",
+                        pregunta: "¿Cómo se define físicamente la masa inercial a partir del cociente entre la fuerza aplicada y la aceleración resultante?",
                         opciones: [
-                            "Porque los poros del hule espuma generan corrientes de aire en retroceso que actúan como un escudo aerodinámico, disipando la energía antes del contacto frontal.",
-                            "Porque, a pesar de su enorme volumen visual, posee una masa inercial muy pequeña; al tener tan poca masa, la fuerza que logra transmitir durante el impacto es mínima.",
-                            "Porque el excesivo volumen del bloque desestabiliza su centro de gravedad en el trayecto, obligando a que la fuerza de choque se desvíe perpendicularmente hacia el suelo.",
-                            "Porque los materiales sintéticos alteran la constante de rozamiento del aire, provocando que el objeto pierda toda su velocidad de caída un segundo antes del golpe."
+                            "Como una variable en constante degradación cinemática a medida que las aceleraciones del bloque tienden al valor referencial de la gravedad terrestre.",
+                            "Como una proporción matemática abstracta que dicta qué tanta temperatura se generará superficialmente por causa del roce acelerado.",
+                            "Como la constante de proporcionalidad que evalúa cuantitativamente qué tanta resistencia opone un cuerpo al tratar de que se le modifique su velocidad actual.",
+                            "Como la simple derivación fraccional que se obtiene al contrastar numéricamente el peso baricéntrico del objetivo con la sustentación normal del experimento."
                         ],
-                        correcta: 1,
-                        explicacion: "El momento lineal y la fuerza de impacto son extremadamente bajos debido a la ínfima masa inercial del hule espuma a pesar de su gran tamaño."
+                        correcta: 2,
+                        explicacion: "La masa inercial es la medida de la resistencia de un cuerpo a cambiar su estado de movimiento. Se obtiene mediante la relación m = F/a cuando se considera la fuerza neta."
                     }
                 ]
             },
@@ -502,7 +880,7 @@ const bancoPreguntas = {
                             "Porque bajo aceleraciones extremas de tracción las polaridades del roce se invierten anclando férreamente las piezas al soporte de la madera subyacente."
                         ],
                         correcta: 1,
-                        explicacion: "El impulso depende directamente del tiempo de aplicación; si el tiempo es casi cero, el cambio de momento sobre la vajilla es despreciable."
+                        explicacion: "El impulso es el producto de la fuerza por el intervalo de tiempo durante el cual actúa. Un tirón rápido reduce el tiempo de interacción y, por tanto, el impulso transferido a la vajilla."
                     },
                     {
                         pregunta: "¿Qué sucedería con la vajilla si el mantel se retira lentamente y cómo influye el coeficiente de fricción estática?",
@@ -510,10 +888,10 @@ const bancoPreguntas = {
                             "La vajilla se trasladaría invariablemente a cuestas del mantel, dado que, sin tirones, la fricción estática se conserva y cuenta con tiempo suficiente para dotarla de esa misma aceleración.",
                             "Las piezas rodarían anárquicamente en diversas orientaciones debido a la falta de armonía y a los torques originados por el deslizamiento seco.",
                             "Se quedaría inmóvil con total certidumbre, porque a ritmos bajos el poder de retención inercial que ostentan los cuerpos opaca todo coeficiente de superficie.",
-                            "La fricción estática experimentaría una falla de fatiga inminente causando que las unidades de vidrio se despeguen levitando levemente."
+                            "La fricción estática experimentaría una falla de fatiga inminente causando que las unidades de vidrio se despeguen levitando levemente del recubrimiento textil."
                         ],
                         correcta: 0,
-                        explicacion: "Al tirar con lentitud, hay tiempo suficiente para que la fuerza de fricción estática acelere los objetos junto con el mantel."
+                        explicacion: "Al retirar lentamente el mantel, la fricción estática puede transmitir aceleración a la vajilla y hacer que se desplace junto con él."
                     }
                 ]
             },
@@ -532,18 +910,18 @@ const bancoPreguntas = {
                             "Prácticamente no existe ninguna fuerza horizontal; el choque extirpa los apoyos con tal celeridad que fracasa en su intento de transmitirles momento en dicho eje."
                         ],
                         correcta: 3,
-                        explicacion: "El retiro instantáneo del soporte evita que se aplique una fuerza horizontal prolongada capaz de alterar su posición en ese eje."
+                        explicacion: "Al retirar rápidamente el soporte, se transmite muy poco impulso horizontal a los huevos. Por ello, conservan aproximadamente su estado de reposo horizontal."
                     },
                     {
                         pregunta: "¿Por qué los huevos caen verticalmente directo dentro de los vasos de agua en lugar de seguir la trayectoria del plato?",
                         opciones: [
-                            "Porque la primera ley preserva estático su estado horizontal primitivo, y en el instante en que sus bases desparecen, solo la constante aceleración de la gravedad asume el control obligándolos a hundirse hacia abajo.",
+                            "Porque la primera ley preserva estático su estado horizontal primitivo, y en el instante en que sus bases desaparecen, solo la constante aceleración de la gravedad asume el control obligándolos a hundirse hacia abajo.",
                             "Porque los enlaces intermoleculares polares del agua provocan fuerzas invisibles de succión hidrostática enfocadas sobre el material calcáreo de los huevos.",
                             "Porque la fuerza de la percusión entrega componentes rotacionales cruzadas que nulifican definitivamente los vectores de vuelo en parábola para todo el grupo.",
                             "Porque las corrientes de vacío generadas al escapar raudamente los tubos plásticos obran como anclas neumáticas forzándolos a ignorar sus tendencias inerciales clásicas."
                         ],
                         correcta: 0,
-                        explicacion: "Por inercia conservan su posición horizontal nula y solo experimentan la fuerza vertical de la gravedad."
+                        explicacion: "Los huevos conservan su posición horizontal inicial debido a la inercia. Al desaparecer el soporte, la gravedad provoca su caída vertical."
                     }
                 ]
             },
@@ -562,24 +940,25 @@ const bancoPreguntas = {
                             "Porque basándose estrictamente en las ecuaciones inerciales la propia masa intrínseca del lápiz se densifica igualando las prestaciones estructurales del plomo metálico denso."
                         ],
                         correcta: 2,
-                        explicacion: "La altísima velocidad hace que la inercia de la madera impida que las zonas circundantes respondan a tiempo, localizando el corte de forma frágil y nítida."
+                        explicacion: "El impacto rápido concentra el esfuerzo en una región pequeña de la madera. La resistencia del material a responder globalmente durante el breve impacto favorece la penetración local."
                     },
                     {
                         pregunta: "¿Cómo se relaciona el tiempo característico de respuesta inercial de la madera con la concentración del esfuerzo de corte?",
                         opciones: [
                             "Si la agresión ocurre de forma más vertiginosa que el margen inercial necesario para propagar la fuerza y hacer retroceder el madero, dicha fuerza no alcanza a disiparse; se condensa agudamente y termina superando la tolerancia de fractura de ese pequeñísimo punto local.",
                             "Realmente se descarta cualquier rol para la variable inercial del tiempo; el agujero resulta única y exclusivamente factible si el coeficiente elástico del invasor puntudo supera holgadamente a la fibra estacionaria.",
-                            "Una ventana temporal amplia es garantía suficiente para generar el clímax destructivo instantáneo causando rebotes elásticos impecables.",
+                            "Una ventana temporal amplia es garantía suficiente para generar el clímax destructivo instantáneo causando rebotes elásticos impecables que devuelven la flecha sin ocasionar mella a la cubierta de madera sólida.",
                             "Las dos magnitudes obedecen una relación inversa del orden del cuadrado de los espesores, indicando inequívocamente que únicamente tablones con gran masa logran absorber con tiempo y en su totalidad este impacto mortal."
                         ],
                         correcta: 0,
-                        explicacion: "Cuando el impacto es más rápido que el tiempo de relajación o deformación elástica global de la tabla, el esfuerzo se concentra localmente provocando la perforación."
+                        explicacion: "Cuando el impacto ocurre en un tiempo muy corto, la fuerza se concentra en una zona pequeña antes de que la respuesta mecánica se propague por toda la madera, pudiendo superar localmente su resistencia."
                     }
                 ]
             }
         ]
     },
     6: {
+        titulo: "Capítulo 6: Acción y reacción",
         introLab: "Esta sesión explora la tercera ley de Newton y el principio fundamental de conservación de la cantidad de movimiento lineal. A través de sistemas de propulsión a reacción, carros acoplados y colisiones aisladas, se estudiará cómo las fuerzas ocurren siempre en pares interactivos de igual magnitud y sentido opuesto.",
         objGeneral: "Comprobar empíricamente el principio de acción y reacción y la conservación del momento lineal en sistemas aislados y propulsados por eyección de masa.",
         videos: [
@@ -734,6 +1113,13 @@ const bancoPreguntas = {
                 ]
             },
             {
+                id: "06-06",
+                titulo: "06-06 Cohete de agua",
+                tema: "Analizar.",
+                objetivoVideo: "",
+               preguntas: []
+            },
+            {
                 id: "06-07",
                 titulo: "06-07 Carro movido por un extinguidor de fuego",
                 tema: "Tercera ley de Newton en sistemas de transporte a reacción macroscópicos.",
@@ -766,6 +1152,7 @@ const bancoPreguntas = {
         ]
     },
     7: {
+        titulo: "Capítulo 7: Fricción",
         introLab: "Esta sesión de laboratorio se dedica al análisis de las fuerzas de rozamiento en interfaces sólidas y sistemas neumáticos. Se caracterizarán experimentalmente los coeficientes de fricción estática y cinética, evaluando su dependencia con la fuerza normal, el área de contacto aparente y la naturaleza microscópica de las superficies.",
         objGeneral: "Determinar experimentalmente las leyes empíricas de la fricción sólida por deslizamiento y cuantificar los coeficientes de rozamiento estático y cinético en diversas configuraciones.",
         videos: [
@@ -1018,6 +1405,7 @@ const bancoPreguntas = {
         ]
     },
     8: {
+        titulo: "Capítulo 8: Trabajo,energía y potencia",
         introLab: "En esta sesión se estudiarán los conceptos fundamentales de trabajo, energía y potencia mediante la transformación continua de la energía potencial en energía cinética, aplicando la conservación de la energía mecánica en sistemas ideales y reales.",
         objGeneral: "Comprobar experimentalmente el principio de conservación de la energía mecánica a través de la transformación e intercambio cíclico entre energía potencial gravitatoria, energía potencial elástica y energía cinética.",
         videos: [
@@ -1207,6 +1595,7 @@ const bancoPreguntas = {
         ]
     },
     9: {
+        titulo: "Capítulo 9: Centro de masa",
         introLab: "Esta sesión explora las propiedades cinemáticas y estáticas del centro de masa de sistemas rígidos e irregulares. Se examinarán las condiciones de estabilidad del equilibrio mecánico, la localización del baricentro mediante puntos de suspensión y el comportamiento dinámico de cuerpos asimétricos.",
         objGeneral: "Determinar experimentalmente la posición del centro de masa en objetos regulares e irregulares y analizar su vinculación directa con la estabilidad del equilibrio estático.",
         videos: [
@@ -1269,6 +1658,20 @@ const bancoPreguntas = {
                         explicacion: "La intersección de dos líneas de suspensión desde diferentes puntos de pivote determina un punto único: el centro de masa."
                     }
                 ]
+            },
+            {
+                id: "09-03",
+                titulo: "09-03 Centro de masa de un disco",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
+            },
+            {
+                id: "09-04",
+                titulo: "09-04 Silla en un pedestal",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
             },
             {
                 id: "09-05",
@@ -1359,6 +1762,13 @@ const bancoPreguntas = {
                         explicacion: "El movimiento aparente cuesta arriba es posible porque el centro de masa global del sistema realmente desciende en altura gracias al giro de la masa excéntrica."
                     }
                 ]
+            },
+            {
+                id: "09-08",
+                titulo: "09-08 Cilindros que caen",
+                tema: "",
+                objetivoVideo: "",
+                preguntas: []
             },
             {
                 id: "09-09",
