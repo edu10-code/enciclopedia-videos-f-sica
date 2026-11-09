@@ -1391,7 +1391,7 @@ const bancoPreguntas = {
                 ]
             }
         ]
-    }
+    },
     10: {
         titulo: "Capítulo 10: Estática",
         introduccion: "Esta sesión de laboratorio se dedica al análisis riguroso de las dos condiciones de equilibrio de los cuerpos rígidos: el equilibrio traslacional (suma de fuerzas igual a cero) y el equilibrio rotacional (suma de torques igual a cero). A través de tableros de fuerzas, máquinas simples, palancas y sistemas articulados, se comprobarán experimentalmente las ecuaciones vectoriales de la estática.",
@@ -1685,3 +1685,4 @@ const bancoPreguntas = {
         ]
     }
 };
+    
