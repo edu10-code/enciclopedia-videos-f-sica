@@ -18,7 +18,7 @@
             <div class="header-left-group">
                 <!-- LOGOTIPO DE PERROVACA -->
                 <div class="header-logo-placeholder">
-                    <img src="mariaaguilar.jpg" alt="Logo Perrovaca">
+                    <img src="perrovaca.jpg" alt="Logo Perrovaca">
                 </div>
                 <div class="header-text">
                     <div class="header-instituciones">UNMSM · Facultad de Ciencias Físicas</div>
@@ -78,7 +78,7 @@
             <div class="form-card">
                 <button class="btn-secondary" onclick="switchView('view-role-selection')" style="margin-bottom: 0.8rem;">← Volver</button>
                 <h3>Registro y Validación de Clase Independiente</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese el nombre del docente, un nombre de clase único y una contraseña de 6 dígitos. La contraseña es exclusiva del docente: los alumnos entran solamente con el nombre de la clase. Cada aula maneja sus propios alumnos, notas y comentarios independientes.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Ingrese el nombre del docente, un nombre de clase único y una contraseña de 6 dígitos. La contraseña es exclusiva del docente: los alumnos entran solamente con el nombre de la clase. Si la clase ya existe, ingrese con su contraseña para editar sus preguntas y capítulos sin perder información.</p>
                 <div class="form-grid">
                     <div class="form-field full">
                         <label>Nombre del Docente <span class="req">*</span></label>
@@ -96,9 +96,8 @@
                     </div>
                     
                     <div class="form-field full">
-                        <label>Seleccionar Capítulos Asignados (uno o varios) <span class="req">*</span></label>
+                        <label>Seleccionar Capítulos Asignados (máximo 5) <span class="req">*</span></label>
                         <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
-                            <button type="button" class="btn-secondary" onclick="selectAllChapters()">Seleccionar todos</button>
                             <button type="button" class="btn-secondary" onclick="clearChapterSelection()">Limpiar selección</button>
                         </div>
                         <div class="chapters-selection-list" id="chapters-cards-container"></div>
@@ -109,19 +108,49 @@
             </div>
         </div>
 
-        <!-- 3. CONFIGURACIÓN DE PREGUNTAS (DOCENTE) -->
+        <!-- 3. CONFIGURACIÓN DE PREGUNTAS Y CAPÍTULOS (DOCENTE) -->
         <div id="view-teacher-config" class="view">
             <div class="form-card" style="max-width: 900px;">
-                <button class="btn-secondary" onclick="switchView('view-teacher-register')" style="margin-bottom: 0.8rem;">← Volver</button>
+                <button class="btn-secondary" onclick="backFromTeacherConfig()" style="margin-bottom: 0.8rem;">← Volver</button>
                 <div id="teacher-config-header-info"></div>
+                <div id="teacher-config-chapters-manager"></div>
                 <div id="teacher-config-videos-container" style="margin-top: 1.2rem;"></div>
-                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">ACTIVAR Y ABRIR CLASE ➔</button>
+                <button class="btn-action-teacher" onclick="saveTeacherConfiguration()">GUARDAR Y ABRIR PANEL DE LA CLASE ➔</button>
             </div>
         </div>
 
         <!-- 4. PANEL DEL DOCENTE Y ESTADÍSTICAS -->
         <div id="view-teacher-dashboard" class="view">
             <div class="alert-banner-docente" id="docente-info-banner"></div>
+
+            <!-- CONTROL DEL TEMPORIZADOR DE LA EVALUACIÓN -->
+            <div id="teacher-session-panel" style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:5px solid var(--accent-teacher); border-radius:12px; padding:1.2rem 1.4rem; margin-bottom:1.5rem; box-shadow:var(--shadow-sm);">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.7rem;">⏱ Control de la evaluación (temporizador)</div>
+                <div style="display:flex; flex-wrap:wrap; gap:1.4rem; align-items:center; justify-content:space-between;">
+                    <div style="min-width:240px;">
+                        <div id="session-status-text" style="font-weight:800; font-size:1rem; color:var(--text-main);">Cargando estado de la clase...</div>
+                        <div id="session-time-display" style="font-size:2.2rem; font-weight:800; font-family:Georgia, serif; color:var(--accent-teacher); line-height:1.2;">--:--</div>
+                        <div id="session-extra-text" style="font-size:0.8rem; color:var(--text-muted);"></div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:0.7rem; flex:1; min-width:260px;">
+                        <div style="display:flex; gap:0.7rem; align-items:center; flex-wrap:wrap;">
+                            <label style="font-size:0.82rem; font-weight:700; color:var(--text-main);">Duración (minutos):</label>
+                            <input type="number" id="session-duration-input" min="1" max="240" value="30" style="width:90px; padding:0.5rem 0.6rem; border:1.5px solid var(--border-soft); border-radius:8px; background:var(--panel-alt); color:var(--text-main); font-size:0.9rem;">
+                            <label style="font-size:0.82rem; font-weight:700; color:var(--text-main);">Video principal:</label>
+                            <select id="video-source-select" onchange="changeVideoSource()" style="padding:0.5rem 0.6rem; border:1.5px solid var(--border-soft); border-radius:8px; background:var(--panel-alt); color:var(--text-main); font-size:0.85rem;">
+                                <option value="cloudinary">Cloudinary</option>
+                                <option value="youtube">YouTube (no listado)</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+                            <button id="btn-session-start" class="btn-action-teacher" onclick="startClassSession()" style="margin-top:0; width:auto; padding:0.7rem 1.3rem;">▶ Iniciar clase</button>
+                            <button id="btn-session-extend" class="btn-secondary" onclick="addExtraMinutes()" style="display:none; background:#f59e0b; color:#fff; border:none; padding:0.7rem 1.3rem;">➕ 5 minutos más</button>
+                            <button id="btn-session-end" class="btn-secondary" onclick="endClassSession()" style="display:none; background:#ef4444; color:#fff; border:none; padding:0.7rem 1.3rem;">⏹ Finalizar clase</button>
+                        </div>
+                        <small style="color:var(--text-muted); font-size:0.75rem;">Los alumnos ven una pantalla de espera hasta que usted inicie la clase. Al terminar el tiempo, sus respuestas se envían automáticamente (con 30 segundos de gracia por si desea dar más tiempo).</small>
+                    </div>
+                </div>
+            </div>
             
             <div class="teacher-stats-grid">
                 <div class="stat-card success">
@@ -148,6 +177,7 @@
             <div class="dashboard-header">
                 <h3 style="margin:0; color:var(--text-main); font-family:Georgia, serif; font-size:1.15rem;">Registro y Calificación de Alumnos de esta Aula</h3>
                 <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                    <button class="btn-secondary" onclick="openTeacherConfigFromDashboard()" style="background:#f59e0b; color:#fff; border:none;">⚙️ Editar Preguntas / Capítulos</button>
                     <button class="btn-secondary" onclick="openTeacherQuestionsViewer()" style="background:#6366f1; color:#fff; border:none;">📋 Ver Preguntas</button>
                     <button class="btn-secondary" onclick="window.print()" style="background:#10b981; color:#fff; border:none;">🖨️ Imprimir PDF</button>
                 </div>
@@ -234,6 +264,17 @@
                     </div>
                 </div>
                 <button class="btn-action-student" onclick="studentEnter()">INGRESAR A LA CLASE ➔</button>
+            </div>
+        </div>
+
+        <!-- 5B. SALA DE ESPERA DEL ESTUDIANTE (HASTA QUE EL DOCENTE INICIE LA CLASE) -->
+        <div id="view-student-waiting" class="view">
+            <div class="form-card" style="text-align:center;">
+                <div style="font-size:3rem; line-height:1;">⏳</div>
+                <h3 id="waiting-title" style="margin-top:0.8rem;">Esperando que el docente inicie la clase</h3>
+                <p id="waiting-text" style="font-size:0.9rem; color:var(--text-muted); margin:0.6rem 0 1rem 0;">Esta pantalla se actualizará sola cuando comience la evaluación. No cierre ni recargue la página.</p>
+                <div id="waiting-info" style="font-size:0.85rem; font-weight:700; color:var(--accent-student); margin-bottom:1.2rem;"></div>
+                <button class="btn-secondary" onclick="logoutStudent()">← Salir de la Clase</button>
             </div>
         </div>
 
@@ -333,6 +374,9 @@
 
     </div>
 
+    <!-- CRONÓMETRO FLOTANTE DEL ALUMNO (se muestra solo mientras dura la evaluación) -->
+    <div id="floating-timer" style="display:none; position:fixed; right:16px; bottom:16px; z-index:500; padding:0.7rem 1.1rem; border-radius:999px; color:#ffffff; font-weight:800; font-size:0.95rem; box-shadow:0 6px 18px rgba(0,0,0,0.35); background:#2563eb;"></div>
+
     <!-- CARGA DE ARCHIVOS JS EXTERNOS -->
     <script src="videos.js"></script>
     <script src="pregunta.js"></script>
@@ -354,15 +398,21 @@
         }
         const db = firebase.database();
 
+        // ---------- CONSTANTES ----------
+        const MAX_CHAPTERS = 5;       // máximo de capítulos por clase
+        const EXTRA_MINUTES = 5;      // minutos que se agregan con el botón "5 minutos más"
+        const GRACE_SECONDS = 30;     // segundos de gracia antes del envío automático
+
         let currentStudent = null;
         let classroomConfig = null;
 
-        // CAPÍTULOS: el docente puede asignar uno o varios a una misma aula
+        // CAPÍTULOS: el docente puede asignar hasta 5 a una misma aula
         let selectedChapterIds = [];     // capítulos elegidos por el docente
         let activeChapterIds = [];       // capítulos que resuelve el alumno en su aula
 
         let activeQuestionsRendered = [];
         let customQuestionsStore = {};
+        let editingState = null;         // pregunta que el docente está editando
         
         // DICCIONARIO DE SELECCIONES EN MEMORIA PARA EVITAR FALLOS DE LECTURA
         let studentAnswersMap = {};
@@ -378,6 +428,32 @@
         let activeCommentsListener = null;
         let activeEvaluationsListener = null;
 
+        // Temporizador (docente)
+        let teacherSession = null;
+        let teacherSessionListener = null;
+        let teacherTimerInterval = null;
+
+        // Temporizador (alumno)
+        let studentSession = null;
+        let studentSessionRef = null;
+        let studentTimerInterval = null;
+        let studentWorkspaceStarted = false;
+        let studentSubmitted = false;
+        let extensionNoticeUntil = 0;
+
+        // Reloj del servidor de Firebase (para que todos vean el mismo tiempo)
+        let serverOffset = 0;
+        db.ref('.info/serverTimeOffset').on('value', (snap) => {
+            serverOffset = Number(snap.val()) || 0;
+        });
+
+        function serverNow() {
+            return Date.now() + serverOffset;
+        }
+
+        // ---------- VIDEOS: CLOUDINARY + RESPALDO EN YOUTUBE ----------
+        let videoSourcePreference = 'cloudinary';   // 'cloudinary' o 'youtube' (lo elige el docente)
+
         // Dirección base de los videos en Cloudinary (se puede sobrescribir con CLOUDINARY_BASE_URL en videos.js)
         const CLOUDINARY_DEFAULT_BASE = "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/";
 
@@ -386,6 +462,104 @@
             return base + encodeURI(vid.archivo || `${vid.id}.mp4`);
         }
 
+        // Código del video tipo "01-02" (se obtiene del nombre del archivo)
+        function getVideoCode(vid) {
+            const m = String(vid.archivo || vid.id || '').match(/\d{2}-\d{2}/);
+            return m ? m[0] : '';
+        }
+
+        // Acepta el ID de YouTube o cualquier enlace (youtu.be, watch?v=, embed, shorts, live)
+        function parseYouTubeId(raw) {
+            if (!raw) return '';
+            const text = String(raw).trim();
+            if (/^[A-Za-z0-9_-]{11}$/.test(text)) return text;
+            const m = text.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([A-Za-z0-9_-]{11})/);
+            return m ? m[1] : '';
+        }
+
+        // Busca el respaldo en YouTube: campo "youtube" del video o la tabla YOUTUBE_RESPALDO de videos.js
+        function getYouTubeId(vid) {
+            let raw = vid.youtube || vid.youtubeId || vid.yt || '';
+            if (!raw && typeof YOUTUBE_RESPALDO !== 'undefined' && YOUTUBE_RESPALDO) {
+                raw = YOUTUBE_RESPALDO[getVideoCode(vid)] || YOUTUBE_RESPALDO[vid.id] || '';
+            }
+            return parseYouTubeId(raw);
+        }
+
+        function youtubeIframeHTML(ytId) {
+            return `<iframe src="https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1&playsinline=1" title="Video de respaldo en YouTube" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>`;
+        }
+
+        function cloudinaryVideoHTML(playerId, url) {
+            return `<video controls preload="metadata">
+                        <source src="${url}" type="video/mp4" onerror="videoSourceFailed('${playerId}')">
+                        Su navegador no soporta la reproducción de video HTML5.
+                    </video>`;
+        }
+
+        // Reproductor con las dos fuentes: empieza con la elegida y cambia solo si falla
+        function buildVideoPlayerHTML(playerId, vid) {
+            const cdnUrl = getVideoUrl(vid);
+            const ytId = getYouTubeId(vid);
+            const startOnYouTube = (videoSourcePreference === 'youtube' && !!ytId);
+            const inner = startOnYouTube ? youtubeIframeHTML(ytId) : cloudinaryVideoHTML(playerId, cdnUrl);
+
+            return `
+                <div id="${playerId}" data-cdn="${cdnUrl}" data-yt="${ytId}" data-mode="${startOnYouTube ? 'youtube' : 'cloudinary'}">
+                    <div class="video-responsive" id="${playerId}-frame">${inner}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; margin:0 0 1rem 0; font-size:0.78rem; color:var(--text-muted);">
+                        <span id="${playerId}-status">${startOnYouTube ? '▶ Reproduciendo desde YouTube' : '▶ Reproduciendo desde Cloudinary'}</span>
+                        ${ytId
+                            ? `<button type="button" class="btn-secondary" id="${playerId}-toggle" onclick="toggleVideoSource('${playerId}')" style="padding:0.3rem 0.8rem; font-size:0.78rem;">${startOnYouTube ? '🔁 Volver a Cloudinary' : '🔁 ¿Problemas? Ver en YouTube'}</button>`
+                            : `<span>Respaldo en YouTube: no configurado</span>`}
+                    </div>
+                </div>
+            `;
+        }
+
+        function switchPlayerTo(playerId, mode, automatic) {
+            const root = document.getElementById(playerId);
+            if (!root) return;
+            const ytId = root.getAttribute('data-yt');
+            const cdnUrl = root.getAttribute('data-cdn');
+            const frame = document.getElementById(playerId + '-frame');
+            const status = document.getElementById(playerId + '-status');
+            const toggle = document.getElementById(playerId + '-toggle');
+            if (!frame) return;
+
+            if (mode === 'youtube' && ytId) {
+                frame.innerHTML = youtubeIframeHTML(ytId);
+                root.setAttribute('data-mode', 'youtube');
+                if (status) status.textContent = automatic ? '⚠ Cloudinary no respondió: reproduciendo desde YouTube' : '▶ Reproduciendo desde YouTube';
+                if (toggle) toggle.textContent = '🔁 Volver a Cloudinary';
+            } else {
+                frame.innerHTML = cloudinaryVideoHTML(playerId, cdnUrl);
+                root.setAttribute('data-mode', 'cloudinary');
+                if (status) status.textContent = '▶ Reproduciendo desde Cloudinary';
+                if (toggle) toggle.textContent = '🔁 ¿Problemas? Ver en YouTube';
+            }
+        }
+
+        function toggleVideoSource(playerId) {
+            const root = document.getElementById(playerId);
+            if (!root) return;
+            const mode = root.getAttribute('data-mode');
+            switchPlayerTo(playerId, mode === 'youtube' ? 'cloudinary' : 'youtube', false);
+        }
+
+        // Si el video de Cloudinary falla, pasa solo al respaldo de YouTube
+        function videoSourceFailed(playerId) {
+            const root = document.getElementById(playerId);
+            if (!root) return;
+            if (root.getAttribute('data-yt') && root.getAttribute('data-mode') === 'cloudinary') {
+                switchPlayerTo(playerId, 'youtube', true);
+            } else {
+                const status = document.getElementById(playerId + '-status');
+                if (status) status.textContent = '⚠ No se pudo cargar el video. Revise su conexión o avise a su docente.';
+            }
+        }
+
+        // ---------- UTILIDADES ----------
         // Evita que textos escritos por alumnos o docentes se interpreten como código HTML
         function escapeHTML(value) {
             return String(value === undefined || value === null ? '' : value)
@@ -413,6 +587,16 @@
             });
             out.sort((a, b) => a - b);
             return out;
+        }
+
+        function formatClock(ms) {
+            const total = Math.max(0, Math.ceil(ms / 1000));
+            const h = Math.floor(total / 3600);
+            const m = Math.floor((total % 3600) / 60);
+            const s = total % 60;
+            const mm = String(m).padStart(2, '0');
+            const ss = String(s).padStart(2, '0');
+            return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
         }
 
         // MODO CLARO / OSCURO
@@ -538,7 +722,7 @@
             return [];
         }
 
-        // ---------- SELECCIÓN DE CAPÍTULOS (DOCENTE) ----------
+        // ---------- SELECCIÓN DE CAPÍTULOS EN EL REGISTRO (DOCENTE, MÁXIMO 5) ----------
         function renderChapterSelectionCards() {
             const container = document.getElementById('chapters-cards-container');
             if(!container) return;
@@ -560,8 +744,8 @@
             const summary = document.getElementById('selected-chapters-summary');
             if (summary) {
                 summary.textContent = selectedChapterIds.length > 0
-                    ? `Capítulos seleccionados (${selectedChapterIds.length}): ${selectedChapterIds.join(', ')}`
-                    : 'Aún no ha seleccionado ningún capítulo.';
+                    ? `Capítulos seleccionados (${selectedChapterIds.length}/${MAX_CHAPTERS}): ${selectedChapterIds.join(', ')}`
+                    : `Aún no ha seleccionado ningún capítulo (máximo ${MAX_CHAPTERS}).`;
             }
         }
 
@@ -569,14 +753,13 @@
             if (selectedChapterIds.includes(id)) {
                 selectedChapterIds = selectedChapterIds.filter(c => c !== id);
             } else {
+                if (selectedChapterIds.length >= MAX_CHAPTERS) {
+                    alert(`Puede seleccionar como máximo ${MAX_CHAPTERS} capítulos por clase. Quite uno para agregar otro.`);
+                    return;
+                }
                 selectedChapterIds.push(id);
                 selectedChapterIds.sort((a, b) => a - b);
             }
-            renderChapterSelectionCards();
-        }
-
-        function selectAllChapters() {
-            selectedChapterIds = getCatalog().map(c => c.id);
             renderChapterSelectionCards();
         }
 
@@ -621,8 +804,13 @@
                     }
                     let saved = normalizeChapterIds(data.capituloIds);
                     if (saved.length === 0) saved = normalizeChapterIds(data.capituloId);
+                    if (saved.length > MAX_CHAPTERS) {
+                        alert(`Esta clase tenía ${saved.length} capítulos y el máximo ahora es ${MAX_CHAPTERS}. Se mantienen los primeros ${MAX_CHAPTERS}; puede cambiarlos en la configuración.`);
+                        saved = saved.slice(0, MAX_CHAPTERS);
+                    }
                     if (saved.length > 0) selectedChapterIds = saved;
                     customQuestionsStore = data.customQuestions || {};
+                    videoSourcePreference = (data.fuenteVideo === 'youtube') ? 'youtube' : 'cloudinary';
                     renderChapterSelectionCards();
                 } else {
                     // Aula nueva: se necesita al menos un capítulo
@@ -636,13 +824,16 @@
                         password: pass,
                         capituloIds: selectedChapterIds.slice(),
                         capituloId: selectedChapterIds[0],
-                        customQuestions: customQuestionsStore
+                        customQuestions: customQuestionsStore,
+                        fuenteVideo: videoSourcePreference,
+                        sesion: { estado: 'espera', duracionMin: 30, extraMin: 0 }
                     }).catch((err) => {
                         alert("No se pudo crear la clase en Firebase: " + err.message);
                     });
                 }
 
-                classroomConfig = { teacher: name, classname: classname, chapterIds: selectedChapterIds.slice() };
+                editingState = null;
+                classroomConfig = { teacher: name, classname: classname };
                 renderTeacherConfigurationView();
                 switchView('view-teacher-config');
             }).catch((err) => {
@@ -650,6 +841,7 @@
             });
         }
 
+        // ---------- PREGUNTAS ----------
         function getPreguntasForVideo(chapterId, videoIdx, videoObj) {
             let preguntasList = [];
             
@@ -690,11 +882,104 @@
                     }
                 }
                 if (mod.adicionales && Array.isArray(mod.adicionales)) {
-                    preguntasList = preguntasList.concat(mod.adicionales);
+                    preguntasList = preguntasList.concat(mod.adicionales.filter(q => !!q));
                 }
             }
 
             return preguntasList;
+        }
+
+        // Modificaciones guardadas por el docente para un video (preguntas agregadas y reemplazadas)
+        function getCustomMod(chapterId, videoIdx) {
+            const store = customQuestionsStore[chapterId] || customQuestionsStore[String(chapterId)];
+            return store ? (store[videoIdx] || null) : null;
+        }
+
+        function getAdditionalEntries(mod) {
+            if (!mod || !mod.adicionales) return [];
+            return Object.keys(mod.adicionales)
+                .filter(k => !!mod.adicionales[k])
+                .map(k => [parseInt(k), mod.adicionales[k]]);
+        }
+
+        function getReplacementEntries(mod) {
+            if (!mod || !mod.reemplazos) return [];
+            return Object.keys(mod.reemplazos)
+                .filter(k => !!mod.reemplazos[k])
+                .map(k => [parseInt(k), mod.reemplazos[k]]);
+        }
+
+        // Guarda las preguntas personalizadas en Firebase (se limpia el objeto para que Firebase lo acepte)
+        function persistCustomQuestions() {
+            if (!classroomConfig || !classroomConfig.classname) return;
+            let clean = {};
+            try {
+                clean = JSON.parse(JSON.stringify(customQuestionsStore));
+            } catch (e) {
+                clean = {};
+            }
+            db.ref('clase_activa/' + classroomConfig.classname).update({
+                customQuestions: clean
+            }).catch((err) => {
+                alert("No se pudo guardar las preguntas en Firebase: " + err.message);
+            });
+        }
+
+        // Guarda los capítulos de la clase en Firebase
+        function persistChapters() {
+            if (!classroomConfig || !classroomConfig.classname) return;
+            db.ref('clase_activa/' + classroomConfig.classname).update({
+                capituloIds: selectedChapterIds.slice(),
+                capituloId: selectedChapterIds[0]
+            }).catch((err) => {
+                alert("No se pudo guardar los capítulos en Firebase: " + err.message);
+            });
+        }
+
+        // ---------- CAPÍTULOS: AGREGAR Y QUITAR DESDE LA CONFIGURACIÓN (SE GUARDA SOLO) ----------
+        function renderTeacherChaptersManager() {
+            const manager = document.getElementById('teacher-config-chapters-manager');
+            if (!manager) return;
+            const catalog = getCatalog();
+
+            manager.innerHTML = `
+                <div style="background:var(--panel-alt); border:1px solid var(--border-soft); border-radius:10px; padding:1rem; margin-bottom:1rem;">
+                    <div style="font-weight:800; font-size:0.92rem; color:var(--text-main); margin-bottom:0.3rem;">📚 Capítulos de la clase (${selectedChapterIds.length}/${MAX_CHAPTERS})</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.7rem;">Puede quitar o agregar capítulos (máximo ${MAX_CHAPTERS}). Los cambios se guardan automáticamente y las preguntas que ya configuró se conservan, aunque quite un capítulo y lo vuelva a agregar después.</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                        ${catalog.map(ch => {
+                            const on = selectedChapterIds.includes(ch.id);
+                            return `<button type="button" class="btn-secondary" title="${escapeHTML(ch.title)}" onclick="toggleChapterInConfig(${ch.id})" style="${on ? 'background:var(--accent-teacher); color:#ffffff; border-color:var(--accent-teacher);' : ''}">${on ? '✔' : '＋'} Cap. ${ch.id}</button>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleChapterInConfig(id) {
+            if (selectedChapterIds.includes(id)) {
+                if (selectedChapterIds.length === 1) {
+                    alert("La clase debe tener al menos un capítulo.");
+                    return;
+                }
+                if (!confirm(`¿Quitar el Capítulo ${id} de esta clase? Las preguntas que configuró para ese capítulo se conservan por si lo vuelve a agregar.`)) {
+                    return;
+                }
+                selectedChapterIds = selectedChapterIds.filter(c => c !== id);
+            } else {
+                if (selectedChapterIds.length >= MAX_CHAPTERS) {
+                    alert(`Máximo ${MAX_CHAPTERS} capítulos por clase. Quite uno para agregar otro.`);
+                    return;
+                }
+                selectedChapterIds.push(id);
+                selectedChapterIds.sort((a, b) => a - b);
+            }
+
+            editingState = null;
+            persistChapters();
+            const scrollY = window.scrollY || 0;
+            renderTeacherConfigurationView();
+            window.scrollTo(0, scrollY);
         }
 
         function renderTeacherConfigurationView() {
@@ -711,6 +996,8 @@
                     </div>
                 `;
             }
+
+            renderTeacherChaptersManager();
 
             if(videosContainer) {
                 videosContainer.innerHTML = chapterIds.map(cid => {
@@ -733,19 +1020,46 @@
                         const preguntasList = getPreguntasForVideo(cid, idx, vid);
                         const cleanTitle = vid.nombreLimpio || cleanVideoTitle(vid.archivo, vid.tema);
                         const displayVideoTitle = `Video ${idx + 1}: ${cleanTitle}`;
-                        const videoCloudinaryUrl = getVideoUrl(vid);
+
+                        const mod = getCustomMod(cid, idx);
+                        const adds = getAdditionalEntries(mod);
+                        const reps = getReplacementEntries(mod);
+                        const isEditing = !!(editingState && editingState.cid === cid && editingState.idx === idx);
+
+                        const modifiedSection = (adds.length + reps.length) > 0 ? `
+                            <div style="margin-top:0.8rem; padding:0.8rem; border:1px dashed var(--border-soft); border-radius:8px;">
+                                <div style="font-size:0.78rem; font-weight:700; text-transform:uppercase; color:#fbbf24; margin-bottom:0.5rem;">✏️ Preguntas modificadas por el docente</div>
+                                ${reps.map(([tIdx, q]) => `
+                                    <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; padding:0.5rem 0; border-bottom:1px solid var(--border-soft); font-size:0.84rem;">
+                                        <span>🔁 <strong>Reemplaza la pregunta ${tIdx + 1}:</strong> ${escapeHTML(String(q.pregunta || '').substring(0, 70))}</span>
+                                        <span style="display:flex; gap:0.4rem;">
+                                            <button type="button" class="btn-secondary" onclick="startEditQuestion(${cid}, ${idx}, 'reemplazo', ${tIdx})">✏️ Editar</button>
+                                            <button type="button" class="btn-secondary" onclick="restoreOriginalQuestion(${cid}, ${idx}, ${tIdx})">↩ Restaurar original</button>
+                                        </span>
+                                    </div>
+                                `).join('')}
+                                ${adds.map(([aIdx, q]) => `
+                                    <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; padding:0.5rem 0; border-bottom:1px solid var(--border-soft); font-size:0.84rem;">
+                                        <span>➕ <strong>Pregunta adicional ${aIdx + 1}:</strong> ${escapeHTML(String(q.pregunta || '').substring(0, 70))}</span>
+                                        <span style="display:flex; gap:0.4rem;">
+                                            <button type="button" class="btn-secondary" onclick="startEditQuestion(${cid}, ${idx}, 'adicional', ${aIdx})">✏️ Editar</button>
+                                            <button type="button" class="btn-secondary" onclick="deleteCustomQuestion(${cid}, ${idx}, ${aIdx})" style="color:#ef4444;">🗑 Eliminar</button>
+                                        </span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '';
+
+                        const editLabel = isEditing
+                            ? (editingState.type === 'adicional' ? `la pregunta adicional ${editingState.qIndex + 1}` : `el reemplazo de la pregunta ${editingState.qIndex + 1}`)
+                            : '';
 
                         return `
                             <div class="teacher-config-video-card" id="config-card-${uid}">
                                 <div style="font-weight:700; color:var(--accent-teacher); margin-bottom:0.3rem; font-size:1.05rem;">${displayVideoTitle}</div>
                                 <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem;"><strong>Objetivo:</strong> ${vid.objetivo || 'Análisis físico de laboratorio'}</div>
                                 
-                                <div class="video-responsive" style="margin-bottom: 1rem;">
-                                    <video controls preload="metadata">
-                                        <source src="${videoCloudinaryUrl}" type="video/mp4">
-                                        Su navegador no soporta la reproducción de video HTML5.
-                                    </video>
-                                </div>
+                                ${buildVideoPlayerHTML('vp_t_' + uid, vid)}
 
                                 <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-main); margin-bottom:0.5rem;">Preguntas configuradas (${preguntasList.length}):</div>
                                 
@@ -758,11 +1072,14 @@
                                     `).join('')}
                                 </div>
 
-                                <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:8px; padding:1rem; margin-top:0.8rem;">
-                                    <div style="font-weight:700; font-size:0.82rem; text-transform:uppercase; color:#fbbf24; margin-bottom:0.6rem;">✏️ Proponer o Reemplazar Pregunta</div>
+                                ${modifiedSection}
+
+                                <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:8px; padding:1rem; margin-top:0.8rem;" id="form-box-${uid}">
+                                    <div style="font-weight:700; font-size:0.82rem; text-transform:uppercase; color:#fbbf24; margin-bottom:0.6rem;">✏️ ${isEditing ? 'Editar Pregunta' : 'Proponer o Reemplazar Pregunta'}</div>
+                                    ${isEditing ? `<div style="background:#fef3c7; color:#92400e; padding:0.5rem 0.8rem; border-radius:6px; font-size:0.82rem; font-weight:700; margin-bottom:0.6rem;">✏️ Editando ${editLabel}. Modifique los campos y presione «Guardar cambios».</div>` : ''}
                                     
                                     <div class="form-grid" style="margin-top:0;">
-                                        <div class="form-field">
+                                        <div class="form-field" style="${isEditing ? 'display:none;' : ''}">
                                             <label>Acción</label>
                                             <select id="action-type-${uid}" onchange="toggleInlineReplaceSelector('${uid}')">
                                                 <option value="proponer">Agregar Pregunta</option>
@@ -772,7 +1089,7 @@
                                         <div class="form-field" id="replace-select-wrapper-${uid}" style="display:none;">
                                             <label>Elegir cuál reemplazar</label>
                                             <select id="replace-target-${uid}">
-                                                ${preguntasList.map((p, pIdx) => `<option value="${pIdx}">Pregunta ${pIdx+1}: ${p.pregunta.substring(0,30)}...</option>`).join('')}
+                                                ${preguntasList.map((p, pIdx) => `<option value="${pIdx}">Pregunta ${pIdx+1}: ${String(p.pregunta).substring(0,30)}...</option>`).join('')}
                                             </select>
                                         </div>
                                         <div class="form-field full">
@@ -793,9 +1110,12 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <button class="btn-secondary" onclick="submitInlineQuestion(${cid}, ${idx})" style="border-color:#fbbf24; color:#fbbf24; margin-top:0.8rem; width:100%; justify-content:center;">
-                                        ➕ Guardar y Aplicar en este Video
-                                    </button>
+                                    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+                                        <button class="btn-secondary" onclick="submitInlineQuestion(${cid}, ${idx})" style="border-color:#fbbf24; color:#fbbf24; flex:1; justify-content:center;">
+                                            ${isEditing ? '💾 Guardar cambios' : '➕ Guardar y Aplicar en este Video'}
+                                        </button>
+                                        ${isEditing ? `<button class="btn-secondary" onclick="cancelEditQuestion()" style="justify-content:center;">Cancelar</button>` : ''}
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -808,6 +1128,66 @@
             const action = document.getElementById(`action-type-${uid}`).value;
             const wrapper = document.getElementById(`replace-select-wrapper-${uid}`);
             wrapper.style.display = (action === 'reemplazar') ? 'block' : 'none';
+        }
+
+        // Vuelve a dibujar la configuración conservando la posición de la pantalla
+        function rerenderTeacherConfigKeepingScroll() {
+            const scrollY = window.scrollY || 0;
+            renderTeacherConfigurationView();
+            window.scrollTo(0, scrollY);
+        }
+
+        // Carga una pregunta ya guardada en el formulario para editarla
+        function startEditQuestion(chapterId, videoIdx, type, qIndex) {
+            const mod = getCustomMod(chapterId, videoIdx);
+            if (!mod) return;
+            const q = (type === 'adicional') ? (mod.adicionales || [])[qIndex] : (mod.reemplazos || {})[qIndex];
+            if (!q) return;
+
+            editingState = { cid: chapterId, idx: videoIdx, type: type, qIndex: qIndex };
+            renderTeacherConfigurationView();
+
+            const uid = `${chapterId}_${videoIdx}`;
+            document.getElementById(`inline-q-text-${uid}`).value = q.pregunta || '';
+            const opciones = q.opciones || [];
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`inline-opt-${uid}-${i}`).value = opciones[i] || '';
+            }
+            document.getElementById(`inline-correct-${uid}`).value = String(q.correcta || 0);
+
+            const box = document.getElementById(`form-box-${uid}`);
+            if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function cancelEditQuestion() {
+            editingState = null;
+            rerenderTeacherConfigKeepingScroll();
+        }
+
+        function deleteCustomQuestion(chapterId, videoIdx, aIdx) {
+            if (!confirm("¿Eliminar esta pregunta adicional? Esta acción no se puede deshacer.")) return;
+            const mod = getCustomMod(chapterId, videoIdx);
+            if (!mod || !mod.adicionales) return;
+            const lista = Array.isArray(mod.adicionales) ? mod.adicionales : Object.values(mod.adicionales);
+            lista.splice(aIdx, 1);
+            mod.adicionales = lista;
+            editingState = null;
+            persistCustomQuestions();
+            rerenderTeacherConfigKeepingScroll();
+        }
+
+        function restoreOriginalQuestion(chapterId, videoIdx, targetIdx) {
+            if (!confirm("¿Restaurar la pregunta original? Se descartará el reemplazo que escribió.")) return;
+            const mod = getCustomMod(chapterId, videoIdx);
+            if (!mod || !mod.reemplazos) return;
+            if (Array.isArray(mod.reemplazos)) {
+                mod.reemplazos[targetIdx] = null;
+            } else {
+                delete mod.reemplazos[targetIdx];
+            }
+            editingState = null;
+            persistCustomQuestions();
+            rerenderTeacherConfigKeepingScroll();
         }
 
         function submitInlineQuestion(chapterId, videoIdx) {
@@ -831,39 +1211,46 @@
             if(!customQuestionsStore[chapterId][videoIdx]) customQuestionsStore[chapterId][videoIdx] = { adicionales: [], reemplazos: {} };
             if(!customQuestionsStore[chapterId][videoIdx].adicionales) customQuestionsStore[chapterId][videoIdx].adicionales = [];
             if(!customQuestionsStore[chapterId][videoIdx].reemplazos) customQuestionsStore[chapterId][videoIdx].reemplazos = {};
+            const mod = customQuestionsStore[chapterId][videoIdx];
 
             const newQObj = { pregunta: qText, opciones: opts, correcta: correcta, explicacion: "Pregunta sugerida y personalizada por el docente." };
 
-            if(action === 'proponer') {
-                customQuestionsStore[chapterId][videoIdx].adicionales.push(newQObj);
+            const isEditing = !!(editingState && editingState.cid === chapterId && editingState.idx === videoIdx);
+
+            if (isEditing) {
+                // Edición de una pregunta ya guardada
+                const anterior = (editingState.type === 'adicional') ? mod.adicionales[editingState.qIndex] : mod.reemplazos[editingState.qIndex];
+                if (anterior && anterior.explicacion) newQObj.explicacion = anterior.explicacion;
+                if (editingState.type === 'adicional') {
+                    mod.adicionales[editingState.qIndex] = newQObj;
+                } else {
+                    mod.reemplazos[editingState.qIndex] = newQObj;
+                }
+                editingState = null;
+                alert("¡Pregunta actualizada con éxito!");
+            } else if(action === 'proponer') {
+                mod.adicionales.push(newQObj);
                 alert("¡Pregunta adicional agregada con éxito!");
             } else {
                 const targetIdx = parseInt(document.getElementById(`replace-target-${uid}`).value);
-                customQuestionsStore[chapterId][videoIdx].reemplazos[targetIdx] = newQObj;
+                mod.reemplazos[targetIdx] = newQObj;
                 alert("¡Pregunta reemplazada con éxito!");
             }
 
-            if(classroomConfig && classroomConfig.classname) {
-                db.ref('clase_activa/' + classroomConfig.classname).update({
-                    customQuestions: customQuestionsStore
-                }).catch((err) => {
-                    alert("No se pudo guardar la pregunta en Firebase: " + err.message);
-                });
-            }
-
-            // Vuelve a dibujar la lista conservando la posición de la pantalla
-            const scrollY = window.scrollY || 0;
-            renderTeacherConfigurationView();
-            window.scrollTo(0, scrollY);
+            persistCustomQuestions();
+            rerenderTeacherConfigKeepingScroll();
         }
 
         function saveTeacherConfiguration() {
+            editingState = null;
             if(classroomConfig && classroomConfig.classname) {
+                let clean = {};
+                try { clean = JSON.parse(JSON.stringify(customQuestionsStore)); } catch (e) { clean = {}; }
                 db.ref('clase_activa/' + classroomConfig.classname).update({
                     docente: classroomConfig.teacher,
                     capituloIds: selectedChapterIds.slice(),
                     capituloId: selectedChapterIds[0],
-                    customQuestions: customQuestionsStore
+                    customQuestions: clean
                 }).catch((err) => {
                     alert("No se pudo guardar la configuración en Firebase: " + err.message);
                 });
@@ -877,13 +1264,162 @@
             switchView('view-teacher-dashboard');
         }
 
+        // Desde el panel, el docente vuelve a editar preguntas y capítulos
+        function openTeacherConfigFromDashboard() {
+            editingState = null;
+            renderTeacherConfigurationView();
+            switchView('view-teacher-config');
+        }
+
+        function backFromTeacherConfig() {
+            editingState = null;
+            if (activeStudentsListener) {
+                switchView('view-teacher-dashboard');
+            } else {
+                switchView('view-teacher-register');
+            }
+        }
+
         function logoutTeacher() {
             if (activeStudentsListener) activeStudentsListener.off();
             if (activeCommentsListener) activeCommentsListener.off();
             if (activeEvaluationsListener) activeEvaluationsListener.off();
+            if (teacherSessionListener) teacherSessionListener.off('value', handleTeacherSession);
+            if (teacherTimerInterval) clearInterval(teacherTimerInterval);
+
+            activeStudentsListener = null;
+            activeCommentsListener = null;
+            activeEvaluationsListener = null;
+            teacherSessionListener = null;
+            teacherTimerInterval = null;
+            teacherSession = null;
+            editingState = null;
 
             classroomConfig = null;
             switchView('view-role-selection');
+        }
+
+        // ---------- TEMPORIZADOR: PANEL DEL DOCENTE ----------
+        let lastSyncedDuration = null;
+
+        // Muestra en la casilla la duración guardada, sin pisar lo que el docente esté escribiendo
+        function syncDurationInput() {
+            const input = document.getElementById('session-duration-input');
+            if (!input || !teacherSession || teacherSession.estado === 'en_curso') return;
+            if (!teacherSession.duracionMin || teacherSession.duracionMin === lastSyncedDuration) return;
+            lastSyncedDuration = teacherSession.duracionMin;
+            input.value = teacherSession.duracionMin;
+        }
+
+        function handleTeacherSession(snapshot) {
+            teacherSession = snapshot.val();
+            syncDurationInput();
+            updateTeacherSessionPanel();
+        }
+
+        function updateTeacherSessionPanel() {
+            const statusEl = document.getElementById('session-status-text');
+            const timeEl = document.getElementById('session-time-display');
+            const extraEl = document.getElementById('session-extra-text');
+            const btnStart = document.getElementById('btn-session-start');
+            const btnExtend = document.getElementById('btn-session-extend');
+            const btnEnd = document.getElementById('btn-session-end');
+            if (!statusEl || !timeEl) return;
+
+            const s = teacherSession;
+            let canStart = true;
+            let running = false;
+
+            if (!s) {
+                statusEl.textContent = '⏸ Clase sin iniciar (los alumnos de esta clase entran libremente, sin tiempo).';
+                timeEl.textContent = '--:--';
+                if (extraEl) extraEl.textContent = '';
+            } else if (s.estado === 'espera') {
+                statusEl.textContent = '⏸ Clase en espera: los alumnos aún no pueden comenzar.';
+                timeEl.textContent = formatClock((s.duracionMin || 0) * 60000);
+                if (extraEl) extraEl.textContent = 'Duración preparada. Presione «Iniciar clase» cuando todos estén listos.';
+            } else if (s.estado === 'en_curso') {
+                canStart = false;
+                running = true;
+                const remaining = s.finTs - serverNow();
+                if (remaining > 0) {
+                    statusEl.textContent = '▶ Clase en curso: los alumnos están resolviendo.';
+                    timeEl.textContent = formatClock(remaining);
+                } else {
+                    const over = Math.floor(-remaining / 1000);
+                    statusEl.textContent = over < GRACE_SECONDS
+                        ? `⏰ Tiempo terminado. Se enviará todo automáticamente en ${GRACE_SECONDS - over} s. Aún puede dar más tiempo.`
+                        : '⏰ Tiempo terminado. Las respuestas de los alumnos se enviaron automáticamente.';
+                    timeEl.textContent = '00:00';
+                }
+                if (extraEl) extraEl.textContent = (s.extraMin ? `Tiempo adicional otorgado: ${s.extraMin} min. ` : '') + `Duración inicial: ${s.duracionMin || '?'} min.`;
+            } else {
+                statusEl.textContent = '⏹ Clase finalizada.';
+                timeEl.textContent = '00:00';
+                if (extraEl) extraEl.textContent = 'Puede volver a iniciar la clase cuando lo necesite.';
+            }
+
+            if (btnStart) btnStart.style.display = canStart ? 'inline-flex' : 'none';
+            if (btnExtend) btnExtend.style.display = running ? 'inline-flex' : 'none';
+            if (btnEnd) btnEnd.style.display = running ? 'inline-flex' : 'none';
+        }
+
+        function startClassSession() {
+            if (!classroomConfig) return;
+            const input = document.getElementById('session-duration-input');
+            const dur = parseInt(input ? input.value : '');
+            if (isNaN(dur) || dur < 1 || dur > 240) {
+                alert("Ingrese una duración válida entre 1 y 240 minutos.");
+                return;
+            }
+            if (teacherSession && teacherSession.estado === 'en_curso') {
+                alert("La clase ya está en curso.");
+                return;
+            }
+            const now = serverNow();
+            db.ref('clase_activa/' + classroomConfig.classname + '/sesion').set({
+                estado: 'en_curso',
+                duracionMin: dur,
+                inicioTs: now,
+                finTs: now + dur * 60000,
+                extraMin: 0
+            }).catch((err) => {
+                alert("No se pudo iniciar la clase: " + err.message);
+            });
+        }
+
+        function addExtraMinutes() {
+            if (!classroomConfig) return;
+            if (!teacherSession || teacherSession.estado !== 'en_curso') {
+                alert("Solo puede dar tiempo adicional mientras la clase está en curso.");
+                return;
+            }
+            const sRef = db.ref('clase_activa/' + classroomConfig.classname + '/sesion');
+            const now = serverNow();
+            sRef.child('finTs').transaction((cur) => Math.max(Number(cur) || 0, now) + EXTRA_MINUTES * 60000);
+            sRef.child('extraMin').transaction((cur) => (Number(cur) || 0) + EXTRA_MINUTES);
+        }
+
+        function endClassSession() {
+            if (!classroomConfig) return;
+            if (!confirm("¿Finalizar la clase ahora? Las respuestas de los alumnos que aún no terminaron se enviarán automáticamente.")) return;
+            db.ref('clase_activa/' + classroomConfig.classname + '/sesion').update({
+                estado: 'finalizada',
+                finTs: serverNow()
+            }).catch((err) => {
+                alert("No se pudo finalizar la clase: " + err.message);
+            });
+        }
+
+        function changeVideoSource() {
+            const select = document.getElementById('video-source-select');
+            if (!select || !classroomConfig) return;
+            videoSourcePreference = (select.value === 'youtube') ? 'youtube' : 'cloudinary';
+            db.ref('clase_activa/' + classroomConfig.classname).update({
+                fuenteVideo: videoSourcePreference
+            }).catch((err) => {
+                alert("No se pudo guardar la fuente de video: " + err.message);
+            });
         }
 
         // Limpia el formulario de evaluación de la página para el siguiente alumno
@@ -896,10 +1432,14 @@
         }
 
         function logoutStudent() {
+            stopStudentSession();
             localStorage.removeItem('activeStudentData');
             currentStudent = null;
             activeChapterIds = [];
             studentAnswersMap = {};
+            studentSession = null;
+            studentWorkspaceStarted = false;
+            studentSubmitted = false;
             resetWebEvaluationForm();
             switchView('view-role-selection');
         }
@@ -908,6 +1448,9 @@
             if (activeStudentsListener) activeStudentsListener.off();
             if (activeCommentsListener) activeCommentsListener.off();
             if (activeEvaluationsListener) activeEvaluationsListener.off();
+            if (teacherSessionListener) teacherSessionListener.off('value', handleTeacherSession);
+            if (teacherTimerInterval) clearInterval(teacherTimerInterval);
+            lastSyncedDuration = null;
 
             const tbody = document.getElementById('students-table-body');
             const commentsContainer = document.getElementById('teacher-comments-container');
@@ -916,6 +1459,18 @@
             if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>`;
             if (commentsContainer) commentsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando comentarios...</p>`;
             if (webEvalsContainer) webEvalsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando valoraciones de la plataforma...</p>`;
+
+            // Estado del temporizador y fuente de video
+            teacherSessionListener = db.ref('clase_activa/' + classname + '/sesion');
+            teacherSessionListener.on('value', handleTeacherSession);
+            teacherTimerInterval = setInterval(updateTeacherSessionPanel, 1000);
+            updateTeacherSessionPanel();
+
+            db.ref('clase_activa/' + classname + '/fuenteVideo').once('value').then((snap) => {
+                videoSourcePreference = (snap.val() === 'youtube') ? 'youtube' : 'cloudinary';
+                const select = document.getElementById('video-source-select');
+                if (select) select.value = videoSourcePreference;
+            }).catch(() => {});
 
             activeStudentsListener = db.ref('alumnos_clase/' + classname);
             activeStudentsListener.on('value', (snapshot) => {
@@ -1105,6 +1660,12 @@
         }
 
         // ---------- INGRESO DEL ESTUDIANTE (SIN CONTRASEÑA) ----------
+        function sessionIsOver(s) {
+            if (!s) return false;
+            if (s.estado === 'finalizada') return true;
+            return s.estado === 'en_curso' && serverNow() > (Number(s.finTs) || 0) + GRACE_SECONDS * 1000;
+        }
+
         function studentEnter() {
             const name = document.getElementById('s-name').value.trim();
             const code = document.getElementById('s-code').value.trim();
@@ -1131,13 +1692,15 @@
                 return;
             }
 
-            // El alumno solo lee los capítulos y las preguntas del aula. NO se descarga la contraseña del docente.
+            // El alumno solo lee capítulos, preguntas, tiempo y fuente de video. NO se descarga la contraseña del docente.
             const classRef = db.ref('clase_activa/' + classname);
             Promise.all([
                 classRef.child('capituloIds').once('value'),
                 classRef.child('capituloId').once('value'),
-                classRef.child('customQuestions').once('value')
-            ]).then(([idsSnap, legacySnap, questionsSnap]) => {
+                classRef.child('customQuestions').once('value'),
+                classRef.child('sesion').once('value'),
+                classRef.child('fuenteVideo').once('value')
+            ]).then(([idsSnap, legacySnap, questionsSnap, sesionSnap, fuenteSnap]) => {
                 let chapterIds = normalizeChapterIds(idsSnap.val());
                 if(chapterIds.length === 0) chapterIds = normalizeChapterIds(legacySnap.val());
 
@@ -1146,10 +1709,19 @@
                     return;
                 }
 
+                if(sessionIsOver(sesionSnap.val())) {
+                    alert("La evaluación de esta clase ya finalizó. Consulte con su docente.");
+                    return;
+                }
+
                 activeChapterIds = chapterIds;
                 customQuestionsStore = questionsSnap.val() || {};
+                videoSourcePreference = (fuenteSnap.val() === 'youtube') ? 'youtube' : 'cloudinary';
 
                 currentStudent = { name, code, group, classname };
+                studentSubmitted = false;
+                studentWorkspaceStarted = false;
+                studentSession = null;
                 localStorage.setItem('activeStudentData', JSON.stringify(currentStudent));
 
                 const studentKey = code.replace(/[.#$\/\[\]]/g, '_');
@@ -1165,11 +1737,124 @@
                 });
 
                 document.getElementById('student-session-info').innerText = `Estudiante: ${name} | Clase: ${classname} [Grupo ${group}] | Capítulos: ${activeChapterIds.join(', ')}`;
-                renderStudentWorkspace();
-                switchView('view-student-workspace');
+
+                // Escucha el estado de la clase: sala de espera, inicio y temporizador
+                listenStudentSession(classname);
             }).catch((err) => {
                 alert("No se pudo conectar con Firebase: " + err.message);
             });
+        }
+
+        // ---------- TEMPORIZADOR: LADO DEL ALUMNO ----------
+        function listenStudentSession(classname) {
+            stopStudentSession();
+            studentSessionRef = db.ref('clase_activa/' + classname + '/sesion');
+            studentSessionRef.on('value', handleStudentSession, (err) => {
+                console.error("No se pudo leer el estado de la clase:", err);
+            });
+            studentTimerInterval = setInterval(tickStudentTimer, 1000);
+        }
+
+        function stopStudentSession() {
+            if (studentSessionRef) studentSessionRef.off('value', handleStudentSession);
+            if (studentTimerInterval) clearInterval(studentTimerInterval);
+            studentSessionRef = null;
+            studentTimerInterval = null;
+            const pill = document.getElementById('floating-timer');
+            if (pill) pill.style.display = 'none';
+        }
+
+        function handleStudentSession(snapshot) {
+            const previous = studentSession;
+            const s = snapshot.val();
+            studentSession = s;
+            if (!currentStudent) return;
+
+            if (previous && s && (Number(s.extraMin) || 0) > (Number(previous.extraMin) || 0)) {
+                extensionNoticeUntil = Date.now() + 8000;
+            }
+
+            if (!s) {
+                // Clase sin temporizador: acceso libre
+                if (!studentWorkspaceStarted) beginStudentWorkspace();
+            } else if (s.estado === 'espera') {
+                if (!studentWorkspaceStarted) showStudentWaiting();
+            } else if (s.estado === 'en_curso') {
+                if (!studentWorkspaceStarted) beginStudentWorkspace();
+            } else if (s.estado === 'finalizada') {
+                if (studentWorkspaceStarted && !studentSubmitted) {
+                    forceSubmitByTime();
+                } else if (!studentWorkspaceStarted) {
+                    showStudentWaiting();
+                }
+            }
+            tickStudentTimer();
+        }
+
+        function showStudentWaiting() {
+            const s = studentSession;
+            const title = document.getElementById('waiting-title');
+            const text = document.getElementById('waiting-text');
+            const info = document.getElementById('waiting-info');
+
+            if (s && s.estado === 'finalizada') {
+                if (title) title.textContent = 'La evaluación ya finalizó';
+                if (text) text.textContent = 'Consulte con su docente.';
+            } else {
+                if (title) title.textContent = 'Esperando que el docente inicie la clase';
+                if (text) text.textContent = 'Esta pantalla se actualizará sola cuando comience la evaluación. No cierre ni recargue la página.';
+            }
+            if (info && currentStudent) {
+                info.textContent = `Clase: ${currentStudent.classname} · Capítulos: ${activeChapterIds.join(', ')}` + (s && s.duracionMin ? ` · Duración: ${s.duracionMin} min` : '');
+            }
+            switchView('view-student-waiting');
+        }
+
+        function beginStudentWorkspace() {
+            studentWorkspaceStarted = true;
+            renderStudentWorkspace();
+            switchView('view-student-workspace');
+        }
+
+        function tickStudentTimer() {
+            const pill = document.getElementById('floating-timer');
+            if (!pill) return;
+            const s = studentSession;
+
+            if (!currentStudent || !studentWorkspaceStarted || studentSubmitted || !s || s.estado !== 'en_curso') {
+                pill.style.display = 'none';
+                return;
+            }
+
+            const remaining = (Number(s.finTs) || 0) - serverNow();
+            let background = '#2563eb';
+            let text;
+
+            if (remaining > 0) {
+                text = `⏱ Tiempo restante: ${formatClock(remaining)}`;
+                if (remaining <= 60000) background = '#ef4444';
+                else if (remaining <= 300000) background = '#f59e0b';
+            } else {
+                const over = Math.floor(-remaining / 1000);
+                background = '#ef4444';
+                text = `⏰ Tiempo terminado · envío automático en ${Math.max(0, GRACE_SECONDS - over)} s`;
+                if (over >= GRACE_SECONDS) {
+                    forceSubmitByTime();
+                    return;
+                }
+            }
+
+            if (Date.now() < extensionNoticeUntil) text = '➕ Tiempo extra otorgado · ' + text;
+            pill.textContent = text;
+            pill.style.background = background;
+            pill.style.display = 'block';
+        }
+
+        // Envía las respuestas automáticamente cuando se acaba el tiempo (lo no respondido cuenta como error)
+        function forceSubmitByTime() {
+            if (studentSubmitted || !studentWorkspaceStarted) return;
+            submitStudentQuizAndGetResults(true);
+            alert("⏰ El tiempo de la evaluación terminó. Tus respuestas se enviaron automáticamente.");
         }
 
         function renderStudentWorkspace() {
@@ -1228,19 +1913,12 @@
                             });
                         });
 
-                        const videoCloudinaryUrl = getVideoUrl(vid);
-
                         return `
                             <div class="video-card">
                                 <div class="video-title-bar">${tituloVideo}</div>
                                 <div class="video-theme-bar">Demostración oficial UNMSM</div>
                                 
-                                <div class="video-responsive">
-                                    <video controls preload="metadata">
-                                        <source src="${videoCloudinaryUrl}" type="video/mp4">
-                                        Su navegador no soporta la reproducción de video HTML5.
-                                    </video>
-                                </div>
+                                ${buildVideoPlayerHTML('vp_s_' + cid + '_' + vIdx, vid)}
 
                                 <div class="video-objective-box">
                                     <strong>Objetivo del Video:</strong> ${vid.objetivo || 'Analizar el comportamiento físico.'}
@@ -1301,21 +1979,28 @@
         }
 
         // EVALUACIÓN ROBUSTA Y MUESTRA DIRECTA DE RESULTADOS / NOTAS (TODOS LOS CAPÍTULOS DEL AULA)
-        function submitStudentQuizAndGetResults() {
-            // Verificar que todas las preguntas de todos los capítulos hayan sido respondidas
-            for (let i = 0; i < activeQuestionsRendered.length; i++) {
-                let item = activeQuestionsRendered[i];
-                let key = `${item.chapterId}_${item.videoIndex}_${item.localPreguntaIndex}`;
-                
-                if (studentAnswersMap[key] === undefined) {
-                    const pendiente = document.getElementById(`q_group_${item.chapterId}_${item.videoIndex}_${item.localPreguntaIndex}`);
-                    if (pendiente && pendiente.scrollIntoView) {
-                        pendiente.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // forced = true cuando el tiempo se acabó: no exige responder todo y lo pendiente cuenta como error
+        function submitStudentQuizAndGetResults(forced) {
+            if (studentSubmitted) return;
+
+            if (!forced) {
+                // Verificar que todas las preguntas de todos los capítulos hayan sido respondidas
+                for (let i = 0; i < activeQuestionsRendered.length; i++) {
+                    let item = activeQuestionsRendered[i];
+                    let key = `${item.chapterId}_${item.videoIndex}_${item.localPreguntaIndex}`;
+                    
+                    if (studentAnswersMap[key] === undefined) {
+                        const pendiente = document.getElementById(`q_group_${item.chapterId}_${item.videoIndex}_${item.localPreguntaIndex}`);
+                        if (pendiente && pendiente.scrollIntoView) {
+                            pendiente.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        alert(`Falta responder una pregunta obligatoria en el Capítulo ${item.chapterId}, Video ${item.videoIndex + 1} (Pregunta ${item.localPreguntaIndex + 1}). Debe responder todas para continuar.`);
+                        return;
                     }
-                    alert(`Falta responder una pregunta obligatoria en el Capítulo ${item.chapterId}, Video ${item.videoIndex + 1} (Pregunta ${item.localPreguntaIndex + 1}). Debe responder todas para continuar.`);
-                    return;
                 }
             }
+
+            studentSubmitted = true;
 
             let aciertos = 0;
             let errores = 0;
@@ -1387,6 +2072,7 @@
                     <div style="font-size:1.35rem; font-weight:800; color:var(--accent-student); margin:0.5rem 0;">Calificación Final: ${notaFinal} / 20</div>
                     <div style="font-size:0.9rem; font-weight:600; color:var(--text-main);">✓ Aciertos: ${aciertos} &nbsp;&nbsp;|&nbsp;&nbsp; ✗ Errores: ${errores}</div>
                     <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.4rem;">Capítulos evaluados: ${activeChapterIds.join(', ')}</div>
+                    ${forced ? `<div style="font-size:0.82rem; color:#f59e0b; font-weight:700; margin-top:0.4rem;">⏰ Se enviaron automáticamente tus respuestas al terminar el tiempo.</div>` : ''}
                     <div id="save-status" style="font-size:0.8rem; margin-top:0.6rem; color:var(--text-muted);">Guardando tu nota...</div>
                 `;
             }
@@ -1400,6 +2086,7 @@
             }
 
             switchView('view-student-feedback');
+            stopStudentSession();   // ya no se necesita el cronómetro
 
             // 2) DESPUÉS se guarda la nota en Firebase para que la vea el docente
             if(currentStudent) {
