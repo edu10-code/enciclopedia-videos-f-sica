@@ -1,4 +1,6 @@
-// Catálogo de Capítulos para la Enciclopedia de Física - UNMSM
+// ==========================================
+// 1. CATÁLOGO DE CAPÍTULOS
+// ==========================================
 const capitulosCatalog = [
     { 
         id: 1, 
@@ -63,18 +65,65 @@ const capitulosCatalog = [
         objGeneral: "Objetivo General: Analizar la estabilidad de objetos regulares e irregulares mediante la ubicación de su centro de masa.",
         color: "#6b21a8", icon: "⚛", folder: "CAPITULO 9" 
     },
-     {
-      id: 10,
-      title: "Capítulo 10: Estática",
-      introLab: "Introducción al Laboratorio: Esta sesión de laboratorio se dedica al análisis riguroso de las dos condiciones de equilibrio de los cuerpos rígidos: el equilibrio traslacional (suma de fuerzas igual a cero) y el equilibrio rotacional (suma de torques igual a cero). A través de tableros de fuerzas, máquinas simples, palancas y sistemas articulados, se comprobarán experimentalmente las ecuaciones vectoriales de la estática.",
-      objGeneral: "Objetivo General: Analizar experimentalmente las condiciones fundamentales del equilibrio estático de partículas y cuerpos rígidos mediante montajes prácticos de fuerzas concurrentes, torques y máquinas simples.",
-      color: "#a82121",  icon: "⚖",  folder: "CAPITULO 10"
+    {
+        id: 10,
+        title: "Capítulo 10: Estática",
+        introLab: "Introducción al Laboratorio: Esta sesión de laboratorio se dedica al análisis riguroso de las dos condiciones de equilibrio de los cuerpos rígidos: el equilibrio traslacional (suma de fuerzas igual a cero) y el equilibrio rotacional (suma de torques igual a cero). A través de tableros de fuerzas, máquinas simples, palancas y sistemas articulados, se comprobarán experimentalmente las ecuaciones vectoriales de la estática.",
+        objGeneral: "Objetivo General: Analizar experimentalmente las condiciones fundamentales del equilibrio estático de partículas y cuerpos rígidos mediante montajes prácticos de fuerzas concurrentes, torques y máquinas simples.",
+        color: "#a82121",  icon: "⚖",  folder: "CAPITULO 10"
     }
 ];
 
-// Enlaces directos a los videos alojados en Cloudinary para reproducción web fluida
+// URL base de Cloudinary como respaldo general
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/yxkgsvkl/video/upload/v1792964376/";
 
+
+// ==========================================
+// 2. IDs DE YOUTUBE APARTE (RESPALDO GLOBAL)
+// ==========================================
+const YOUTUBE_RESPALDO = {
+    // ----- Capítulo 1 -----
+    "01-01": "uqlqU5wAaIY",  // Unidades básicas
+    "01-02": "DxWLaz-EVbQ",  // Suma de vectores (paralelograma)
+    "01-03": "Cwr2bZqO6sY",  // Suma de vectores (puntas con colas)
+    "01-04": "OfuMb0JQ_K0",  // Componentes de un vector
+    "01-05": "KIQVvGcm5Ew",  // Producto punto de vectores
+    "01-06": "GJV-g0kMNqQ",  // Producto cruz de vectores
+    "01-07": "PVc19oIUp4M",  // Componentes de vectores en 3 dimensiones
+
+    // ----- Capítulo 2 -----
+    "02-01": "", "02-02": "", "02-03": "", "02-04": "", "02-05": "", "02-06": "", "02-07": "",
+
+    // ----- Capítulo 3 -----
+    "03-01": "", "03-02": "", "03-03": "", "03-04": "", "03-05": "",
+
+    // ----- Capítulo 4 -----
+    "04-01": "", "04-02": "", "04-03": "", "04-04": "", "04-05": "", "04-06": "", "04-07": "", "04-08": "", "04-09": "", "04-10": "", "04-11": "",
+
+    // ----- Capítulo 5 -----
+    "05-01": "", "05-02": "", "05-03": "", "05-04": "", "05-05": "", "05-06": "",
+
+    // ----- Capítulo 6 -----
+    "06-01": "", "06-02": "", "06-03": "", "06-04": "", "06-05": "", "06-06": "", "06-07": "", "06-08": "", "06-09": "",
+
+    // ----- Capítulo 7 -----
+    "07-01": "", "07-02": "", "07-03": "", "07-04": "", "07-05": "", "07-06": "",
+
+    // ----- Capítulo 8 -----
+    "08-01": "", "08-02": "", "08-03": "", "08-04": "", "08-05": "", "08-06": "", "08-07": "", "08-08": "", "08-09": "", "08-10": "", "08-11": "", "08-12": "",
+
+    // ----- Capítulo 9 -----
+    "09-01": "", "09-02": "", "09-03": "", "09-04": "", "09-05": "", "09-06": "", "09-07": "", "09-08": "", "09-09": "",
+
+    // ----- Capítulo 10 -----
+    "10-01": "", "10-02": "", "10-03": "", "10-04": "", "10-05": "", "10-06": "", "10-07": "", "10-08": "", "10-09": "", "10-10": "", 
+    "10-11": "", "10-12": "", "10-13": "", "10-14": "", "10-15": "", "10-16": "", "10-17": "", "10-18": "", "10-19": "", "10-20": "", "10-21": ""
+};
+
+
+// ==========================================
+// 3. ARCHIVOS DE CLOUDINARY APARTE (POR CAPÍTULO)
+// ==========================================
 const videosPorCapitulo = {
     1: [
         { archivo: "Copia_de_01-01_Unidades_básicas.mp4", tema: "Sistemas de Unidades", objetivo: "Identificar las unidades fundamentales del sistema internacional." },
@@ -166,28 +215,27 @@ const videosPorCapitulo = {
         { archivo: "Copia_de_09-08_Cilindros_que_caen.mp4", tema: "Inercia Rotacional y CM", objetivo: "Estudiar descenso de cilindros." },
         { archivo: "Copia_de_09-09_Centro_de_masa_en_una_mesa_de_aire.mp4", tema: "Centro de Masa Libre", objetivo: "Seguir la trayectoria del CM sin fuerzas externas." }
     ],
-   10: [
-        
-       { archivo: "Copia_de_10-01_Tablero_de_fuerzas.mp4", tema: "Equilibrio traslacional de fuerzas coplanares concurrentes.", objetivo: "Demostrar experimentalmente la condición de equilibrio estático mediante la anulación vectorial de las tensiones concurrentes sobre un anillo central." },
+    10: [
+        { archivo: "Copia_de_10-01_Tablero_de_fuerzas.mp4", tema: "Equilibrio traslacional de fuerzas coplanares concurrentes.", objetivo: "Demostrar experimentalmente la condición de equilibrio estático mediante la anulación vectorial de las tensiones concurrentes sobre un anillo central." },
         { archivo: "Copia_de_10-02_Tendedero.mp4", tema: "Tensión en cuerdas y componentes de fuerza", objetivo: "Analizar la distribución de fuerzas y tensiones en un sistema de cuerda inclinada." },
-      { archivo: "Copia_de_10-03_Carro_en_un_plano_inclinado_removible.mp4", tema: "Componentes del peso en plano inclinado", objetivo: "Estudiar el equilibrio de fuerzas en cuerpos sobre superficies inclinadas." },
-     { archivo: "Copia_de_10-04_Ventaja_de_una_polea.mp4", tema: "Ventaja mecánica y distribución de cargas en sistemas de poleas fijas y móviles.", objetivo: "Medir cuantitativamente la reducción en la fuerza de tracción requerida para sostener una carga pesada mediante arreglos de poleas." },
-     { archivo: "Copia_de_10-05_Polea_y_dinamometro.mp4", tema: "Medición de tensión en sistemas de poleas", objetivo: "Determinar el valor de las fuerzas de tracción mediante instrumentos de medición directa." },
-     { archivo: "Copia_de_10-06_Maquinas_simples.mp4", tema: "Principio de conservación del trabajo en máquinas simples", objetivo: "Evaluar el comportamiento mecánico de dispositivos de transmisión de fuerza." },
-     { archivo: "Copia_de_10-07_Palancas.mp4", tema: "Ley de la palanca y equilibrio de torques respecto a un punto de apoyo.", objetivo: "Comprobar la condición de equilibrio rotacional variando la posición del fulcro y los brazos de palanca de la fuerza aplicada y la resistencia." },
-     { archivo: "Copia_de_10-08_Barra_horizontal.mp4", tema: "Equilibrio de fuerzas paralelas en barras", objetivo: "Analizar las condiciones de equilibrio estático en una viga horizontal." },
-     { archivo: "Copia_de_10-09_Modelo_de_un_brazo.mp4", tema: "Sistemas biomecánicos y palancas óseas", objetivo: "Aplicar los conceptos de torque al funcionamiento mecánico del brazo humano." },
-     { archivo: "Copia_de_10-10_Barra_de_torques.mp4", tema: "Equilibrio rotacional con múltiples fuerzas no perpendiculares.", objetivo: "Calcular y medir los momentos de fuerza ejercidos por pesos suspendidos a lo largo de una barra rígida horizontal articulada." },
-     { archivo: "Copia_de_10-11_Tabla_con_bisagras.mp4", tema: "Torques y reacciones en sistemas articulados", objetivo: "Estudiar el equilibrio rotacional de placas sujetas por bisagras." },
-     { archivo: "Copia_de_10-12_Llave_de_torques.mp4", tema: "Momento de torsión y brazo de palanca", objetivo: "Comprender la relación entre la fuerza aplicada, el radio de giro y el torque resultante." },
-      { archivo: "Copia_de_10-13_Rueda_de_torques.mp4", tema: "Cancelación de torques en poleas concéntricas de radios escalonados.", objetivo: "Validar matemáticamente la suma nula de momentos emparejando fuerzas desiguales aplicadas a distintos radios de una misma polea escalonada." },
-     { archivo: "Copia_de_10-14_Balanceo_de_una_regla_de_un_metro.mp4", tema: "Centro de gravedad y torques equilibrados", objetivo: "Determinar el punto de apoyo óptimo para lograr el balance estático de una regla." },
-     { archivo: "Copia_de_10-15_Regla_de_un_metro_sobre_dos_dedos.mp4", tema: "Fuerzas normales y fricción en puntos de apoyo móviles", objetivo: "Observar el desplazamiento del punto de equilibrio al deslizar los soportes." },
-      { archivo: "Copia_de_10-16_Puente_y_camino.mp4", tema: "Distribución de cargas en estructuras de puentes", objetivo: "Analizar las reacciones estáticas en los apoyos de una estructura ante cargas móviles." },
-     { archivo: "Copia_de_10-17_Balanza_de_Roberval.mp4", tema: "Equilibrio en balanzas de doble plato", objetivo: "Comprobar el principio de palancas simétricas en el diseño de balanzas." },
-     { archivo: "Copia_de_10-18_Fuerzas_en_una_escalera.mp4", tema: "Equilibrio estático completo de un cuerpo rígido apoyado con fricción.", objetivo: "Analizar la interacción entre las fuerzas normales, de gravedad y de fricción en la base y la pared para evitar el deslizamiento de una escalera inclinada." },
-     { archivo: "Copia_de_10-19_Escoba_parada.mp4", tema: "Centro de gravedad y estabilidad de objetos verticales", objetivo: "Explicar las condiciones geométricas para mantener un objeto en equilibrio precario." },
-      { archivo: "Copia_de_10-20_Cama_de_clavos.mp4", tema: "Presión y distribución de fuerzas sobre superficies", objetivo: "Comprender cómo la magnitud de la presión disminuye al aumentar el área de contacto." },
-      { archivo: "Copia_de_10-21_Aplasta_huevos.mp4", tema: "Resistencia estructural y geometría de arcos", objetivo: "Demostrar la alta capacidad de soporte de cargas en estructuras con formas curvas naturales." }
+        { archivo: "Copia_de_10-03_Carro_en_un_plano_inclinado_removible.mp4", tema: "Componentes del peso en plano inclinado", objetivo: "Estudiar el equilibrio de fuerzas en cuerpos sobre superficies inclinadas." },
+        { archivo: "Copia_de_10-04_Ventaja_de_una_polea.mp4", tema: "Ventaja mecánica y distribución de cargas en sistemas de poleas fijas y móviles.", objetivo: "Medir cuantitativamente la reducción en la fuerza de tracción requerida para sostener una carga pesada mediante arreglos de poleas." },
+        { archivo: "Copia_de_10-05_Polea_y_dinamometro.mp4", tema: "Medición de tensión en sistemas de poleas", objetivo: "Determinar el valor de las fuerzas de tracción mediante instrumentos de medición directa." },
+        { archivo: "Copia_de_10-06_Maquinas_simples.mp4", tema: "Principio de conservación del trabajo en máquinas simples", objetivo: "Evaluar el comportamiento mecánico de dispositivos de transmisión de fuerza." },
+        { archivo: "Copia_de_10-07_Palancas.mp4", tema: "Ley de la palanca y equilibrio de torques respecto a un punto de apoyo.", objetivo: "Comprobar la condición de equilibrio rotacional variando la posición del fulcro y los brazos de palanca de la fuerza aplicada y la resistencia." },
+        { archivo: "Copia_de_10-08_Barra_horizontal.mp4", tema: "Equilibrio de fuerzas paralelas en barras", objetivo: "Analizar las condiciones de equilibrio estático en una viga horizontal." },
+        { archivo: "Copia_de_10-09_Modelo_de_un_brazo.mp4", tema: "Sistemas biomecánicos y palancas óseas", objetivo: "Aplicar los conceptos de torque al funcionamiento mecánico del brazo humano." },
+        { archivo: "Copia_de_10-10_Barra_de_torques.mp4", tema: "Equilibrio rotacional con múltiples fuerzas no perpendiculares.", objetivo: "Calcular y medir los momentos de fuerza ejercidos por pesos suspendidos a lo largo de una barra rígida horizontal articulada." },
+        { archivo: "Copia_de_10-11_Tabla_con_bisagras.mp4", tema: "Torques y reacciones en sistemas articulados", objetivo: "Estudiar el equilibrio rotacional de placas sujetas por bisagras." },
+        { archivo: "Copia_de_10-12_Llave_de_torques.mp4", tema: "Momento de torsión y brazo de palanca", objetivo: "Comprender la relación entre la fuerza aplicada, el radio de giro y el torque resultante." },
+        { archivo: "Copia_de_10-13_Rueda_de_torques.mp4", tema: "Cancelación de torques en poleas concéntricas de radios escalonados.", objetivo: "Validar matemáticamente la suma nula de momentos emparejando fuerzas desiguales aplicadas a distintos radios de una misma polea escalonada." },
+        { archivo: "Copia_de_10-14_Balanceo_de_una_regla_de_un_metro.mp4", tema: "Centro de gravedad y torques equilibrados", objetivo: "Determinar el punto de apoyo óptimo para lograr el balance estático de una regla." },
+        { archivo: "Copia_de_10-15_Regla_de_un_metro_sobre_dos_dedos.mp4", tema: "Fuerzas normales y fricción en puntos de apoyo móviles", objetivo: "Observar el desplazamiento del punto de equilibrio al deslizar los soportes." },
+        { archivo: "Copia_de_10-16_Puente_y_camino.mp4", tema: "Distribución de cargas en estructuras de puentes", objetivo: "Analizar las reacciones estáticas en los apoyos de una estructura ante cargas móviles." },
+        { archivo: "Copia_de_10-17_Balanza_de_Roberval.mp4", tema: "Equilibrio en balanzas de doble plato", objetivo: "Comprobar el principio de palancas simétricas en el diseño de balanzas." },
+        { archivo: "Copia_de_10-18_Fuerzas_en_una_escalera.mp4", tema: "Equilibrio estático completo de un cuerpo rígido apoyado con fricción.", objetivo: "Analizar la interacción entre las fuerzas normales, de gravedad y de fricción en la base y la pared para evitar el deslizamiento de una escalera inclinada." },
+        { archivo: "Copia_de_10-19_Escoba_parada.mp4", tema: "Centro de gravedad y estabilidad de objetos verticales", objetivo: "Explicar las condiciones geométricas para mantener un objeto en equilibrio precario." },
+        { archivo: "Copia_de_10-20_Cama_de_clavos.mp4", tema: "Presión y distribución de fuerzas sobre superficies", objetivo: "Comprender cómo la magnitud de la presión disminuye al aumentar el área de contacto." },
+        { archivo: "Copia_de_10-21_Aplasta_huevos.mp4", tema: "Resistencia estructural y geometría de arcos", objetivo: "Demostrar la alta capacidad de soporte de cargas en estructuras con formas curvas naturales." }
     ]
 };
