@@ -18,7 +18,7 @@
             <div class="header-left-group">
                 <!-- LOGOTIPO DE PERROVACA -->
                 <div class="header-logo-placeholder">
-                    <img src="mariaaguilar.jpg" alt="Logo Perrovaca">
+                    <img src="perrovaca.jpg" alt="Logo Perrovaca">
                 </div>
                 <div class="header-text">
                     <div class="header-instituciones">UNMSM · Facultad de Ciencias Físicas</div>
@@ -97,6 +97,7 @@
                     
                     <div class="form-field full">
                         <label>Seleccionar Capítulos Asignados (máximo 5) <span class="req">*</span></label>
+                        <small style="color:var(--text-muted); font-size:0.8rem;">Elija primero el curso (Física 1 a 4) y luego los capítulos que desea asignar a su clase.</small>
                         <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
                             <button type="button" class="btn-secondary" onclick="clearChapterSelection()">Limpiar selección</button>
                         </div>
@@ -193,10 +194,11 @@
                             <th>Grupo</th>
                             <th>Nota (0-20)</th>
                             <th>Aciertos / Errores</th>
+                            <th>Examen</th>
                         </tr>
                     </thead>
                     <tbody id="students-table-body">
-                        <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>
+                        <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -228,6 +230,16 @@
                 
                 <div id="teacher-viewer-content-container"></div>
 
+                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
+            </div>
+        </div>
+
+        <!-- VISTA: EXAMEN DETALLADO DE UN ALUMNO (DOCENTE) -->
+        <div id="view-teacher-exam-detail" class="view">
+            <div class="form-card" style="max-width: 900px;">
+                <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-bottom: 0.8rem;">← Volver al Panel</button>
+                <div id="exam-detail-header"></div>
+                <div id="exam-detail-content" style="margin-top: 1rem;"></div>
                 <button class="btn-secondary" onclick="switchView('view-teacher-dashboard')" style="margin-top: 1.5rem;">← Volver al Panel</button>
             </div>
         </div>
@@ -402,6 +414,16 @@
         const MAX_CHAPTERS = 5;       // máximo de capítulos por clase
         const EXTRA_MINUTES = 5;      // minutos que se agregan con el botón "5 minutos más"
         const GRACE_SECONDS = 30;     // segundos de gracia antes del envío automático
+
+        // CURSOS: los capítulos se agrupan en Física 1 a Física 4 (puede cambiar los rangos aquí)
+        const CURSOS_FISICA = [
+            { id: 'fisica1', nombre: 'Física 1', corto: 'F1', desde: 1,  hasta: 17, color: '#2563eb' },
+            { id: 'fisica2', nombre: 'Física 2', corto: 'F2', desde: 18, hasta: 38, color: '#059669' },
+            { id: 'fisica3', nombre: 'Física 3', corto: 'F3', desde: 39, hasta: 57, color: '#d97706' },
+            { id: 'fisica4', nombre: 'Física 4', corto: 'F4', desde: 58, hasta: 68, color: '#7c3aed' }
+        ];
+        // Qué cursos están desplegados en cada pantalla del docente
+        let expandedCourses = { register: {}, config: {} };
 
         let currentStudent = null;
         let classroomConfig = null;
@@ -628,10 +650,6 @@
         })();
 
         window.onload = function() {
-            const catalog = getCatalog();
-            if (selectedChapterIds.length === 0 && catalog.length > 0) {
-                selectedChapterIds = [catalog[0].id];
-            }
             renderChapterSelectionCards();
             localStorage.removeItem('activeTeacherClass');
             localStorage.removeItem('activeStudentData');
@@ -722,23 +740,91 @@
             return [];
         }
 
-        // ---------- SELECCIÓN DE CAPÍTULOS EN EL REGISTRO (DOCENTE, MÁXIMO 5) ----------
+        // ---------- CURSOS (FÍSICA 1 A 4) Y SELECCIÓN DE CAPÍTULOS EN EL REGISTRO (DOCENTE, MÁXIMO 5) ----------
+        // Agrupa los capítulos del catálogo en sus cursos
+        function getCourseGroups() {
+            const catalog = getCatalog();
+            const enRango = (ch, c) => ch.id >= c.desde && ch.id <= c.hasta;
+            const groups = CURSOS_FISICA.map(c => ({
+                ...c,
+                chapters: catalog.filter(ch => enRango(ch, c)).sort((a, b) => a.id - b.id)
+            }));
+            const fuera = catalog.filter(ch => !CURSOS_FISICA.some(c => enRango(ch, c))).sort((a, b) => a.id - b.id);
+            if (fuera.length > 0) {
+                groups.push({ id: 'otros', nombre: 'Otros capítulos', corto: '＋', desde: null, hasta: null, color: '#475569', chapters: fuera });
+            }
+            return groups;
+        }
+
+        function getCourseOfChapter(chapterId) {
+            const curso = CURSOS_FISICA.find(c => chapterId >= c.desde && chapterId <= c.hasta);
+            return curso ? curso.nombre : '';
+        }
+
+        // Texto "Física 2 · " para anteponer al nombre de un capítulo
+        function cursoLabel(chapterId) {
+            const nombre = getCourseOfChapter(chapterId);
+            return nombre ? nombre + ' · ' : '';
+        }
+
+        // Cabecera de un curso (se hace clic para desplegar o cerrar sus capítulos)
+        function courseHeaderHTML(mode, g, seleccionados, abierto) {
+            const rango = g.desde ? `Capítulos ${g.desde} al ${g.hasta}` : 'Capítulos sin curso asignado';
+            const disponibles = g.chapters.length;
+            return `
+                <div onclick="toggleCourse('${mode}', '${g.id}')" style="display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; cursor:pointer; background:var(--panel-alt);">
+                    <div style="width:46px; height:46px; border-radius:12px; background:${g.color}; color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0;">${g.corto}</div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-weight:800; color:var(--text-main); font-size:1.02rem;">${g.nombre}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">${rango} · ${disponibles} disponible${disponibles === 1 ? '' : 's'}</div>
+                    </div>
+                    ${seleccionados > 0 ? `<span style="background:var(--accent-teacher); color:#ffffff; border-radius:20px; padding:0.2rem 0.7rem; font-size:0.75rem; font-weight:700; white-space:nowrap;">${seleccionados} seleccionado${seleccionados === 1 ? '' : 's'}</span>` : ''}
+                    <span style="font-size:1.1rem; color:var(--text-muted);">${abierto ? '▼' : '▶'}</span>
+                </div>
+            `;
+        }
+
+        function toggleCourse(mode, courseId) {
+            expandedCourses[mode][courseId] = !expandedCourses[mode][courseId];
+            if (mode === 'register') {
+                renderChapterSelectionCards();
+            } else {
+                renderTeacherChaptersManager();
+            }
+        }
+
         function renderChapterSelectionCards() {
             const container = document.getElementById('chapters-cards-container');
             if(!container) return;
-            const catalog = getCatalog();
 
-            container.innerHTML = catalog.map(ch => {
-                const isSelected = selectedChapterIds.includes(ch.id);
+            container.innerHTML = getCourseGroups().map(g => {
+                const seleccionados = g.chapters.filter(ch => selectedChapterIds.includes(ch.id)).length;
+                const abierto = !!expandedCourses.register[g.id];
+
+                let cuerpo = '';
+                if (abierto) {
+                    cuerpo = g.chapters.length === 0
+                        ? `<p style="color:var(--text-muted); font-size:0.85rem; margin:0;">Aún no hay capítulos registrados en ${g.nombre}.</p>`
+                        : g.chapters.map(ch => {
+                            const isSelected = selectedChapterIds.includes(ch.id);
+                            return `
+                                <div class="chapter-select-card ${isSelected ? 'selected' : ''}" onclick="toggleChapter(${ch.id})">
+                                    <div class="chapter-icon-badge" style="background: ${ch.color || '#1e3a8a'};">${ch.icon || ch.id}</div>
+                                    <div class="chapter-card-info">
+                                        <div class="chapter-card-title">${ch.title}</div>
+                                    </div>
+                                    <div class="chapter-arrow" style="font-weight:800; color:${isSelected ? 'var(--accent-teacher)' : 'var(--text-muted)'};">${isSelected ? '✔ Seleccionado' : '＋ Agregar'}</div>
+                                </div>
+                            `;
+                        }).join('');
+                }
+
                 return `
-                <div class="chapter-select-card ${isSelected ? 'selected' : ''}" onclick="toggleChapter(${ch.id})">
-                    <div class="chapter-icon-badge" style="background: ${ch.color || '#1e3a8a'};">${ch.icon || ch.id}</div>
-                    <div class="chapter-card-info">
-                        <div class="chapter-card-title">${ch.title}</div>
+                    <div style="border:1.5px solid var(--border-soft); border-radius:14px; overflow:hidden; background:var(--panel-bg);">
+                        ${courseHeaderHTML('register', g, seleccionados, abierto)}
+                        ${abierto ? `<div style="padding:0.8rem 1rem; display:flex; flex-direction:column; gap:0.7rem; border-top:1px solid var(--border-soft);">${cuerpo}</div>` : ''}
                     </div>
-                    <div class="chapter-arrow" style="font-weight:800; color:${isSelected ? 'var(--accent-teacher)' : 'var(--text-muted)'};">${isSelected ? '✔ Seleccionado' : '＋ Agregar'}</div>
-                </div>
-            `;
+                `;
             }).join('');
 
             const summary = document.getElementById('selected-chapters-summary');
@@ -940,18 +1026,34 @@
         function renderTeacherChaptersManager() {
             const manager = document.getElementById('teacher-config-chapters-manager');
             if (!manager) return;
-            const catalog = getCatalog();
+            const groups = getCourseGroups();
+
+            const gruposHTML = groups.map(g => {
+                const seleccionados = g.chapters.filter(ch => selectedChapterIds.includes(ch.id)).length;
+                // La primera vez, se despliegan los cursos que ya tienen capítulos de la clase
+                if (expandedCourses.config[g.id] === undefined) expandedCourses.config[g.id] = seleccionados > 0;
+                const abierto = !!expandedCourses.config[g.id];
+
+                const chips = g.chapters.length === 0
+                    ? `<p style="color:var(--text-muted); font-size:0.85rem; margin:0;">Aún no hay capítulos registrados en ${g.nombre}.</p>`
+                    : `<div style="display:flex; flex-wrap:wrap; gap:0.5rem;">${g.chapters.map(ch => {
+                        const on = selectedChapterIds.includes(ch.id);
+                        return `<button type="button" class="btn-secondary" title="${escapeHTML(ch.title)}" onclick="toggleChapterInConfig(${ch.id})" style="${on ? 'background:var(--accent-teacher); color:#ffffff; border-color:var(--accent-teacher);' : ''}">${on ? '✔' : '＋'} Cap. ${ch.id}</button>`;
+                    }).join('')}</div>`;
+
+                return `
+                    <div style="border:1.5px solid var(--border-soft); border-radius:14px; overflow:hidden; background:var(--panel-bg); margin-bottom:0.7rem;">
+                        ${courseHeaderHTML('config', g, seleccionados, abierto)}
+                        ${abierto ? `<div style="padding:0.8rem 1rem; border-top:1px solid var(--border-soft);">${chips}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
 
             manager.innerHTML = `
                 <div style="background:var(--panel-alt); border:1px solid var(--border-soft); border-radius:10px; padding:1rem; margin-bottom:1rem;">
                     <div style="font-weight:800; font-size:0.92rem; color:var(--text-main); margin-bottom:0.3rem;">📚 Capítulos de la clase (${selectedChapterIds.length}/${MAX_CHAPTERS})</div>
-                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.7rem;">Puede quitar o agregar capítulos (máximo ${MAX_CHAPTERS}). Los cambios se guardan automáticamente y las preguntas que ya configuró se conservan, aunque quite un capítulo y lo vuelva a agregar después.</div>
-                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
-                        ${catalog.map(ch => {
-                            const on = selectedChapterIds.includes(ch.id);
-                            return `<button type="button" class="btn-secondary" title="${escapeHTML(ch.title)}" onclick="toggleChapterInConfig(${ch.id})" style="${on ? 'background:var(--accent-teacher); color:#ffffff; border-color:var(--accent-teacher);' : ''}">${on ? '✔' : '＋'} Cap. ${ch.id}</button>`;
-                        }).join('')}
-                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.8rem;">Abra un curso (Física 1 a 4) para quitar o agregar capítulos (máximo ${MAX_CHAPTERS}). Los cambios se guardan automáticamente y las preguntas que ya configuró se conservan, aunque quite un capítulo y lo vuelva a agregar después.</div>
+                    ${gruposHTML}
                 </div>
             `;
         }
@@ -1006,7 +1108,7 @@
 
                     const chapterHeader = `
                         <div style="margin:1.6rem 0 1rem 0; padding:0.8rem 1rem; border-left:5px solid ${chapterData.color || '#1e3a8a'}; background:var(--panel-alt); border-radius:8px;">
-                            <div style="font-size:0.75rem; font-weight:700; color:var(--accent-teacher); text-transform:uppercase; letter-spacing:1px;">Capítulo ${chapterData.id}</div>
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--accent-teacher); text-transform:uppercase; letter-spacing:1px;">${cursoLabel(chapterData.id)}Capítulo ${chapterData.id}</div>
                             <div style="font-weight:800; color:var(--text-main); font-family:Georgia, serif; font-size:1.05rem;">${chapterData.title}</div>
                         </div>
                     `;
@@ -1456,7 +1558,7 @@
             const commentsContainer = document.getElementById('teacher-comments-container');
             const webEvalsContainer = document.getElementById('teacher-web-evals-container');
             
-            if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Cargando registros...</td></tr>`;
             if (commentsContainer) commentsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando comentarios...</p>`;
             if (webEvalsContainer) webEvalsContainer.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Cargando valoraciones de la plataforma...</p>`;
 
@@ -1478,14 +1580,15 @@
                 if(!tbody) return;
 
                 if(!data) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aún no hay alumnos registrados en esta clase.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Aún no hay alumnos registrados en esta clase.</td></tr>`;
                     document.getElementById('stat-most-correct').innerText = "0 alumnos";
                     document.getElementById('stat-least-correct').innerText = "AULA ACTIVA";
                     return;
                 }
 
                 // Ordena por nota (de mayor a menor) para que el "Puesto" sea real
-                const lista = Object.keys(data).map(k => data[k]);
+                cachedStudentsData = data;
+                const lista = Object.keys(data).map(k => ({ ...data[k], _key: k }));
                 lista.sort((a, b) => (parseFloat(b.notaFinal) || 0) - (parseFloat(a.notaFinal) || 0));
 
                 let rowsHTML = '';
@@ -1498,6 +1601,7 @@
                             <td>Grupo ${escapeHTML(st.grupo || '1')}</td>
                             <td><strong>${escapeHTML(st.notaFinal || '0.0')}</strong></td>
                             <td>${escapeHTML(st.aciertos || 0)} aciertos / ${escapeHTML(st.errores || 0)} errores</td>
+                            <td>${examButtonHTML(st)}</td>
                         </tr>
                     `;
                 });
@@ -1505,7 +1609,7 @@
                 document.getElementById('stat-most-correct').innerText = `${lista.length} estudiantes registrados`;
                 document.getElementById('stat-least-correct').innerText = "AULA ACTIVA";
             }, (err) => {
-                if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">No se pudo leer la base de datos: ${escapeHTML(err.message)}</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#ef4444;">No se pudo leer la base de datos: ${escapeHTML(err.message)}</td></tr>`;
             });
 
             activeCommentsListener = db.ref('comentarios_pagina/' + classname);
@@ -1625,7 +1729,7 @@
 
                 const chapterHeader = `
                     <div style="margin:1.4rem 0 1rem 0; padding:0.8rem 1rem; border-left:5px solid ${chapterData.color || '#1e3a8a'}; background:var(--panel-alt); border-radius:8px;">
-                        <div style="font-size:0.75rem; font-weight:700; color:var(--accent-teacher); text-transform:uppercase; letter-spacing:1px;">Capítulo ${chapterData.id}</div>
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--accent-teacher); text-transform:uppercase; letter-spacing:1px;">${cursoLabel(chapterData.id)}Capítulo ${chapterData.id}</div>
                         <div style="font-weight:800; color:var(--text-main); font-family:Georgia, serif;">${chapterData.title}</div>
                     </div>
                 `;
@@ -1657,6 +1761,150 @@
             }).join('');
 
             switchView('view-teacher-questions-viewer');
+        }
+
+        // ---------- EXAMEN DETALLADO DE CADA ALUMNO (DOCENTE) ----------
+        let cachedStudentsData = {};
+        let examViewerState = { key: null, filter: 'todas' };
+
+        // Prepara el detalle de cada respuesta del alumno para guardarlo en Firebase
+        function construirRespuestasDetalle() {
+            return activeQuestionsRendered.map(item => {
+                const key = `${item.chapterId}_${item.videoIndex}_${item.localPreguntaIndex}`;
+                const elegida = (studentAnswersMap[key] !== undefined) ? studentAnswersMap[key] : -1;
+                const correcta = Number.isFinite(item.correcta) ? item.correcta : -1;
+                return {
+                    capitulo: item.chapterId,
+                    video: String(item.videoTitle || ''),
+                    numero: item.localPreguntaIndex + 1,
+                    pregunta: String(item.enunciado || ''),
+                    opciones: (item.opciones || []).map(o => String(o)),
+                    elegida: elegida,
+                    correcta: correcta,
+                    acierto: elegida !== -1 && elegida === correcta,
+                    explicacion: String(item.explicacion || '')
+                };
+            });
+        }
+
+        function normalizeExamAnswers(raw) {
+            if (Array.isArray(raw)) return raw.filter(r => !!r);
+            if (raw && typeof raw === 'object') return Object.values(raw).filter(r => !!r);
+            return [];
+        }
+
+        // Botón "Ver examen" de cada fila de la tabla del docente
+        function examButtonHTML(st) {
+            if (normalizeExamAnswers(st.respuestas).length === 0) {
+                return `<span style="font-size:0.78rem; color:var(--text-muted);">Sin examen enviado</span>`;
+            }
+            return `<button type="button" class="btn-secondary" onclick="openStudentExam('${escapeHTML(st._key)}')" style="background:#6366f1; color:#ffffff; border:none; white-space:nowrap;">👁 Ver examen</button>`;
+        }
+
+        function openStudentExam(studentKey) {
+            const st = cachedStudentsData[studentKey];
+            if (!st || normalizeExamAnswers(st.respuestas).length === 0) {
+                alert("Este alumno aún no ha enviado su examen.");
+                return;
+            }
+            examViewerState = { key: studentKey, filter: 'todas' };
+            renderStudentExam();
+            switchView('view-teacher-exam-detail');
+        }
+
+        function setExamFilter(filter) {
+            examViewerState.filter = filter;
+            renderStudentExam();
+        }
+
+        function renderStudentExam() {
+            const st = cachedStudentsData[examViewerState.key];
+            const headerEl = document.getElementById('exam-detail-header');
+            const contentEl = document.getElementById('exam-detail-content');
+            if (!st || !headerEl || !contentEl) return;
+
+            const respuestas = normalizeExamAnswers(st.respuestas);
+            const total = respuestas.length;
+            const aciertos = respuestas.filter(r => r.acierto).length;
+            const errores = total - aciertos;
+            const filtro = examViewerState.filter;
+
+            // Resumen por capítulo
+            const porCapitulo = {};
+            respuestas.forEach(r => {
+                if (!porCapitulo[r.capitulo]) porCapitulo[r.capitulo] = { a: 0, t: 0 };
+                porCapitulo[r.capitulo].t++;
+                if (r.acierto) porCapitulo[r.capitulo].a++;
+            });
+            const resumenCapitulos = Object.keys(porCapitulo).sort((x, y) => x - y).map(c =>
+                `<span style="display:inline-block; background:var(--panel-bg); border:1px solid var(--border-soft); border-radius:20px; padding:0.2rem 0.8rem; font-size:0.78rem; font-weight:700; margin:0.2rem 0.3rem 0 0;">Capítulo ${escapeHTML(c)}: ${porCapitulo[c].a}/${porCapitulo[c].t} ✓</span>`
+            ).join('');
+
+            const botonFiltro = (id, etiqueta) => `<button type="button" class="btn-secondary" onclick="setExamFilter('${id}')" style="${filtro === id ? 'background:var(--accent-teacher); color:#ffffff; border-color:var(--accent-teacher);' : ''}">${etiqueta}</button>`;
+
+            headerEl.innerHTML = `
+                <div style="background:var(--panel-alt); border:1.5px solid var(--accent-teacher); border-radius:12px; padding:1.2rem; margin-bottom:0.8rem;">
+                    <h3 style="margin:0 0 0.4rem 0; font-family:Georgia,serif; color:var(--text-main);">Examen de ${escapeHTML(st.nombre || 'Alumno')}</h3>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Código: <strong>${escapeHTML(st.codigo || '---')}</strong> · Grupo ${escapeHTML(st.grupo || '1')}</div>
+                    <div style="font-size:1.25rem; font-weight:800; color:var(--accent-teacher); margin:0.5rem 0;">Nota: ${escapeHTML(st.notaFinal || '0.0')} / 20</div>
+                    <div style="font-size:0.9rem; font-weight:700;"><span style="color:#10b981;">✓ ${aciertos} correctas</span> &nbsp;|&nbsp; <span style="color:#f43f5e;">✗ ${errores} incorrectas</span> &nbsp;|&nbsp; ${total} preguntas</div>
+                    <div>${resumenCapitulos}</div>
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    ${botonFiltro('todas', 'Ver todas')}
+                    ${botonFiltro('incorrectas', '✗ Solo incorrectas')}
+                    ${botonFiltro('correctas', '✓ Solo correctas')}
+                    <button type="button" class="btn-secondary" onclick="window.print()" style="background:#10b981; color:#ffffff; border:none;">🖨️ Imprimir examen</button>
+                </div>
+            `;
+
+            const visibles = respuestas.filter(r =>
+                filtro === 'incorrectas' ? !r.acierto : (filtro === 'correctas' ? !!r.acierto : true)
+            );
+
+            if (visibles.length === 0) {
+                contentEl.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem; text-align:center; padding:1.5rem;">${filtro === 'incorrectas' ? '🎉 El alumno no tiene preguntas incorrectas.' : 'No hay preguntas en esta categoría.'}</p>`;
+                return;
+            }
+
+            // Agrupa por capítulo y video, en el orden en que se rindió
+            const grupos = {};
+            const orden = [];
+            visibles.forEach(r => {
+                const nombreGrupo = r.video || `Capítulo ${r.capitulo}`;
+                if (!grupos[nombreGrupo]) { grupos[nombreGrupo] = []; orden.push(nombreGrupo); }
+                grupos[nombreGrupo].push(r);
+            });
+
+            contentEl.innerHTML = orden.map(nombreGrupo => `
+                <div style="background:var(--panel-alt); border:1.5px solid var(--border-soft); border-radius:12px; padding:1.2rem; margin-bottom:1.3rem;">
+                    <h4 style="margin:0 0 1rem 0; color:var(--accent-teacher); font-family:Georgia,serif; font-size:1.02rem; border-bottom:2px solid var(--border-soft); padding-bottom:0.5rem;">${escapeHTML(nombreGrupo)}</h4>
+                    ${grupos[nombreGrupo].map(r => {
+                        const opciones = Array.isArray(r.opciones) ? r.opciones : Object.values(r.opciones || {});
+                        const sinResponder = (r.elegida === undefined || r.elegida === null || r.elegida === -1);
+                        const estado = r.acierto ? '✓ Correcta' : (sinResponder ? '✗ Sin responder (tiempo agotado)' : '✗ Incorrecta');
+                        const color = r.acierto ? '#10b981' : '#f43f5e';
+                        return `
+                            <div style="background:var(--panel-bg); border:1px solid var(--border-soft); border-left:4px solid ${color}; padding:1.1rem; border-radius:10px; margin-bottom:0.9rem;">
+                                <div style="font-weight:700; color:var(--text-main); margin-bottom:0.4rem; font-size:0.92rem;">Pregunta ${r.numero}: ${r.pregunta}</div>
+                                <div style="font-size:0.86rem; margin-bottom:0.4rem;">Resultado: <strong style="color:${color};">${estado}</strong></div>
+                                <ul style="margin:0.3rem 0 0.5rem 0.5rem; padding:0; list-style:none; font-size:0.84rem;">
+                                    ${opciones.map((opt, i) => {
+                                        const esCorrecta = (i === r.correcta);
+                                        const esElegida = (i === r.elegida);
+                                        let colorOpcion = 'var(--text-main)';
+                                        let marca = '';
+                                        if (esCorrecta) { colorOpcion = '#10b981'; marca = esElegida ? ' ✓ Correcta (la marcó el alumno)' : ' ✓ Respuesta correcta'; }
+                                        else if (esElegida) { colorOpcion = '#f43f5e'; marca = ' ✗ Marcada por el alumno'; }
+                                        return `<li style="padding:0.15rem 0; color:${colorOpcion}; font-weight:${(esCorrecta || esElegida) ? '700' : '400'};">${String.fromCharCode(65 + i)}. ${opt}${marca}</li>`;
+                                    }).join('')}
+                                </ul>
+                                ${r.explicacion ? `<div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4; background:rgba(0,0,0,0.03); padding:0.5rem 0.7rem; border-radius:6px;">💡 <strong>Explicación:</strong> ${r.explicacion}</div>` : ''}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `).join('');
         }
 
         // ---------- INGRESO DEL ESTUDIANTE (SIN CONTRASEÑA) ----------
@@ -1887,7 +2135,7 @@
                     const chapterBanner = `
                         <div class="chapter-header-box">
                             <div style="flex:1; min-width:0;">
-                                <div style="font-size:0.75rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.2rem;">Capítulo ${chapterData.id}</div>
+                                <div style="font-size:0.75rem; font-weight:700; color:var(--accent-student); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.2rem;">${cursoLabel(chapterData.id)}Capítulo ${chapterData.id}</div>
                                 <h3 style="margin:0 0 0.3rem 0; font-family:Georgia,serif; font-size:1.25rem; color:var(--text-main);">${chapterData.title}</h3>
                                 <p style="margin:0 0 0.5rem 0; font-size:0.88rem; color:var(--text-muted);"><strong>${chapterData.objGeneral || ''}</strong></p>
                                 <div class="lab-info-card">${chapterData.introLab || ''}</div>
@@ -2098,7 +2346,8 @@
                         grupo: currentStudent.group,
                         notaFinal: notaFinal,
                         aciertos: aciertos,
-                        errores: errores
+                        errores: errores,
+                        respuestas: construirRespuestasDetalle()
                     }).then(() => {
                         setSaveStatus(true, '✓ Tu nota fue guardada y ya la puede ver tu docente.');
                     }).catch((err) => {
